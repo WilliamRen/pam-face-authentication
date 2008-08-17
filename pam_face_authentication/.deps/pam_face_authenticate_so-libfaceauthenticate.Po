@@ -1,0 +1,126 @@
+pam_face_authenticate_so-libfaceauthenticate.o \
+  pam_face_authenticate_so-libfaceauthenticate.o: libfaceauthenticate.c \
+  /usr/include/stdio.h /usr/include/features.h /usr/include/sys/cdefs.h \
+  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+  /usr/include/gnu/stubs-32.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/stddef.h \
+  /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+  /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \
+  /usr/include/bits/wchar.h /usr/include/gconv.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/stdarg.h \
+  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
+  /usr/include/string.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cv.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cxcore.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cxtypes.h \
+  /usr/include/assert.h /usr/include/stdlib.h /usr/include/sys/types.h \
+  /usr/include/time.h /usr/include/endian.h /usr/include/bits/endian.h \
+  /usr/include/sys/select.h /usr/include/bits/select.h \
+  /usr/include/bits/sigset.h /usr/include/bits/time.h \
+  /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h \
+  /usr/include/alloca.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/float.h /usr/include/math.h \
+  /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h \
+  /usr/include/bits/mathcalls.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cxerror.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cvver.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cvtypes.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cvcompat.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cvaux.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cv.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/highgui.h \
+  pam_face_defines.h
+
+/usr/include/stdio.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/stddef.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/wchar.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/gconv.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/stdarg.h:
+
+/usr/include/bits/stdio_lim.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/include/string.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cv.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cxcore.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cxtypes.h:
+
+/usr/include/assert.h:
+
+/usr/include/stdlib.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/time.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/alloca.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/float.h:
+
+/usr/include/math.h:
+
+/usr/include/bits/huge_val.h:
+
+/usr/include/bits/mathdef.h:
+
+/usr/include/bits/mathcalls.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cxerror.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cvver.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cvtypes.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cvcompat.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cvaux.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cv.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/highgui.h:
+
+pam_face_defines.h:

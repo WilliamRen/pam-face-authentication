@@ -1,0 +1,218 @@
+libfacedetect.lo libfacedetect.o: libfacedetect.c \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cv.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cxcore.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cxtypes.h \
+  /usr/include/assert.h /usr/include/features.h /usr/include/sys/cdefs.h \
+  /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+  /usr/include/gnu/stubs-32.h /usr/include/stdlib.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/stddef.h \
+  /usr/include/sys/types.h /usr/include/bits/types.h \
+  /usr/include/bits/typesizes.h /usr/include/time.h /usr/include/endian.h \
+  /usr/include/bits/endian.h /usr/include/sys/select.h \
+  /usr/include/bits/select.h /usr/include/bits/sigset.h \
+  /usr/include/bits/time.h /usr/include/sys/sysmacros.h \
+  /usr/include/bits/pthreadtypes.h /usr/include/alloca.h \
+  /usr/include/string.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/float.h /usr/include/math.h \
+  /usr/include/bits/huge_val.h /usr/include/bits/mathdef.h \
+  /usr/include/bits/mathcalls.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cxerror.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cvver.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cvtypes.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/cvcompat.h \
+  /opencv_library_install_path/opencv-1.0.0/include/opencv/highgui.h \
+  /usr/include/stdio.h /usr/include/libio.h /usr/include/_G_config.h \
+  /usr/include/wchar.h /usr/include/bits/wchar.h /usr/include/gconv.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/stdarg.h \
+  /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/limits.h \
+  /usr/lib/gcc/i586-suse-linux/4.2.1/include/syslimits.h \
+  /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+  /usr/include/bits/posix2_lim.h /usr/include/ctype.h pam_face_defines.h \
+  /usr/local/include/gsl/gsl_sort.h \
+  /usr/local/include/gsl/gsl_sort_long_double.h \
+  /usr/local/include/gsl/gsl_errno.h /usr/include/errno.h \
+  /usr/include/bits/errno.h /usr/include/linux/errno.h \
+  /usr/include/asm/errno.h /usr/include/asm-i386/errno.h \
+  /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+  /usr/local/include/gsl/gsl_types.h \
+  /usr/local/include/gsl/gsl_permutation.h \
+  /usr/local/include/gsl/gsl_check_range.h \
+  /usr/local/include/gsl/gsl_sort_double.h \
+  /usr/local/include/gsl/gsl_sort_float.h \
+  /usr/local/include/gsl/gsl_sort_ulong.h \
+  /usr/local/include/gsl/gsl_sort_long.h \
+  /usr/local/include/gsl/gsl_sort_uint.h \
+  /usr/local/include/gsl/gsl_sort_int.h \
+  /usr/local/include/gsl/gsl_sort_ushort.h \
+  /usr/local/include/gsl/gsl_sort_short.h \
+  /usr/local/include/gsl/gsl_sort_uchar.h \
+  /usr/local/include/gsl/gsl_sort_char.h \
+  /usr/local/include/gsl/gsl_wavelet.h \
+  /usr/local/include/gsl/gsl_wavelet2d.h \
+  /usr/local/include/gsl/gsl_vector_double.h \
+  /usr/local/include/gsl/gsl_block_double.h \
+  /usr/local/include/gsl/gsl_matrix_double.h
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cv.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cxcore.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cxtypes.h:
+
+/usr/include/assert.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/include/stdlib.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/stddef.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/time.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/alloca.h:
+
+/usr/include/string.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/float.h:
+
+/usr/include/math.h:
+
+/usr/include/bits/huge_val.h:
+
+/usr/include/bits/mathdef.h:
+
+/usr/include/bits/mathcalls.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cxerror.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cvver.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cvtypes.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/cvcompat.h:
+
+/opencv_library_install_path/opencv-1.0.0/include/opencv/highgui.h:
+
+/usr/include/stdio.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/wchar.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/gconv.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/stdarg.h:
+
+/usr/include/bits/stdio_lim.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/limits.h:
+
+/usr/lib/gcc/i586-suse-linux/4.2.1/include/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/ctype.h:
+
+pam_face_defines.h:
+
+/usr/local/include/gsl/gsl_sort.h:
+
+/usr/local/include/gsl/gsl_sort_long_double.h:
+
+/usr/local/include/gsl/gsl_errno.h:
+
+/usr/include/errno.h:
+
+/usr/include/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/asm/errno.h:
+
+/usr/include/asm-i386/errno.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/local/include/gsl/gsl_types.h:
+
+/usr/local/include/gsl/gsl_permutation.h:
+
+/usr/local/include/gsl/gsl_check_range.h:
+
+/usr/local/include/gsl/gsl_sort_double.h:
+
+/usr/local/include/gsl/gsl_sort_float.h:
+
+/usr/local/include/gsl/gsl_sort_ulong.h:
+
+/usr/local/include/gsl/gsl_sort_long.h:
+
+/usr/local/include/gsl/gsl_sort_uint.h:
+
+/usr/local/include/gsl/gsl_sort_int.h:
+
+/usr/local/include/gsl/gsl_sort_ushort.h:
+
+/usr/local/include/gsl/gsl_sort_short.h:
+
+/usr/local/include/gsl/gsl_sort_uchar.h:
+
+/usr/local/include/gsl/gsl_sort_char.h:
+
+/usr/local/include/gsl/gsl_wavelet.h:
+
+/usr/local/include/gsl/gsl_wavelet2d.h:
+
+/usr/local/include/gsl/gsl_vector_double.h:
+
+/usr/local/include/gsl/gsl_block_double.h:
+
+/usr/local/include/gsl/gsl_matrix_double.h:
