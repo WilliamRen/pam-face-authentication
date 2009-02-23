@@ -34,6 +34,9 @@
 /* Define to 1 if you have the <unistd.h> header file. */
 #define HAVE_UNISTD_H 1
 
+/* Define to 1 if your C compiler doesn't accept -c and -o together. */
+/* #undef NO_MINUS_C_MINUS_O */
+
 /* Name of package */
 #define PACKAGE "pam-face-authentication"
 
@@ -54,6 +57,9 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
+
+/* Define to use X11 copy'n'paste */
+#define USE_X11 1
 
 /* Version number of package */
 #define VERSION "0.2"

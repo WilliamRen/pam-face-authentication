@@ -26,10 +26,14 @@
 #include <security/pam_modules.h>
 #include <security/_pam_macros.h>
 #include <security/_pam_types.h>
+
+#include <X11/Xlib.h>
+
 #include <dlfcn.h>
 #include "cv.h"
 #include "highgui.h"
 #include <sys/types.h>
+#include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <unistd.h>
@@ -42,9 +46,21 @@
 #include <limits.h>
 #include <time.h>
 #include <ctype.h>
+#include <malloc.h>
+
 #include "pam_face_defines.h"
 #include "pam_face.h"
 CvPoint pLeftEye,pRightEye;
+int file_exists(const char* filename)
+{
+    FILE* file;
+    if (file=fopen(filename,"r"))
+    {
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}
 
 void setFlags()
 {
@@ -179,7 +195,7 @@ char startTracker(char* username)
 
                         if (recognize(username,&percentage)=='y')
                         {
-                           removeFile(username);
+                            removeFile(username);
                             AuthenticateButtonClicked=0;
                             *commAuth=EXIT_GUI;
                             cvZero(frame_copy);
@@ -189,16 +205,16 @@ char startTracker(char* username)
                             cvReleaseCapture( &capture );
                             return 'y';
                         }
-                    //    printf("percent %d \n",percentage);
+                        //    printf("percent %d \n",percentage);
                     }
-                  cvReleaseImage( &face );
+                    cvReleaseImage( &face );
 
 
                 }
-              cvFillConvexPoly(frame_copy, pts,4,CV_RGB(0,0,0),CV_AA,0 );
-              cvPutText(frame_copy,"AUTHENTICATING....", cvPoint(70,15),&myFont, CV_RGB(255,255,255));
+                cvFillConvexPoly(frame_copy, pts,4,CV_RGB(0,0,0),CV_AA,0 );
+                cvPutText(frame_copy,"AUTHENTICATING....", cvPoint(70,15),&myFont, CV_RGB(255,255,255));
 
-           }
+            }
             if (CancelButtonClicked==1)
             {
                 CancelButtonClicked=0;
@@ -220,7 +236,7 @@ char startTracker(char* username)
     }
     else
     {
-    *commAuth==EXIT_GUI;
+        *commAuth==EXIT_GUI;
     }
     return 'n';
 }
@@ -235,6 +251,21 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     const char *error;
     char *userName;
 
+    // From fingerprint GUI project
+    // We need the Xauth to fork the GUI
+    int j;
+    const char *pamtty=NULL;
+    char X_lock[100];
+    char cmdline[300];
+    FILE *xlock;
+    int length;
+    int procnumber=0;
+    const char* display=getenv("DISPLAY");
+    char* xauthpath=getenv("XAUTHORITY");
+    // Following Code Extracts the Display
+
+
+
     retval = pam_get_user(pamh, &user, NULL);
     if (retval != PAM_SUCCESS)
     {
@@ -247,16 +278,95 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
     }
 
+    pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
+    if (pamtty!=NULL&&strlen(pamtty)>0)
+    {
+        if (pamtty[0]==':')
+        {
+            if (display==NULL)
+            {
+                display=pamtty;
+                setenv("DISPLAY",display,-1);
+            }
+        }
+    }
+    Display * dpy;
+    dpy = XOpenDisplay(NULL);
+    if (dpy==NULL)
+    {
+        // We need to extract the Path where Xauth is stored
+        // Following Code Sets Xauthority cookie
+
+        // DISPLAY[1] Contains the value
+        sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
+        if (!file_exists(X_lock))
+        {
+            return -1;
+        }
+        char str[50];
+        xlock=fopen(X_lock,"r");
+        fgets(cmdline, 300,xlock);
+        fclose(xlock);
+
+        char *word1;
+        word1=strtok(cmdline,"  \n");
+        sprintf(X_lock,"/proc/%s/cmdline",word1);
+
+
+
+        if (!file_exists(X_lock))
+        {
+            return -1;
+        }
+
+        xlock=fopen(X_lock,"r");
+        fgets (X_lock , 300 , xlock);
+        fclose(xlock);
+
+        for (j=0;j<300;j++)
+        {
+            if (X_lock[j]=='\0')
+                X_lock[j]=' ';
+
+        }
+
+
+        char *word;
+        for (word=strtok(X_lock," ");word!=NULL;word=strtok(NULL," "))
+        {
+            if (strcmp(word,"-auth")==0)
+            {
+                xauthpath=strtok(NULL," ");
+                break;
+            }
+        }
+
+
+
+        if (file_exists(xauthpath))
+        {
+            setenv("XAUTHORITY",xauthpath,-1);
+        }
+
+    }
+    else
+        XCloseDisplay(dpy);
+
+
     ipcStart();
     resetFlags();
     intializePaths(user);
     userName=(char *)calloc(strlen(user)+1,sizeof(char));
     strcpy(userName,user);
     removeFile(userName);
-    if(findIndex(userName)==-1)
-     return PAM_AUTH_ERR;
+    if (findIndex(userName)==-1)
+        return PAM_AUTH_ERR;
+
+
 
     system(GTK_FACE_AUTHENTICATE);
+
+
 
 
     if (startTracker(userName)=='y')

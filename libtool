@@ -4,7 +4,7 @@
 # Generated automatically by  (GNU pam-face-authentication 0.2)
 # NOTE: Changes made to this file will be lost: look at ltmain.sh.
 #
-# Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+# Copyright (C) 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
 # Free Software Foundation, Inc.
 #
 # This file is part of GNU Libtool:
@@ -44,7 +44,7 @@ available_tags=" CXX"
 
 # ### BEGIN LIBTOOL CONFIG
 
-# Libtool was configured on host linux:
+# Libtool was configured on host linux-sq7n:
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -147,7 +147,7 @@ pic_flag=" -fPIC -DPIC"
 pic_mode=default
 
 # What is the maximum length of a command?
-max_cmd_len=98304
+max_cmd_len=805306365
 
 # Does compiler simultaneously support -c and -o options?
 compiler_c_o="yes"
@@ -243,6 +243,10 @@ predeps=""
 # shared library.
 postdeps=""
 
+# The directories searched by this compiler when creating a shared
+# library
+compiler_lib_search_dirs=""
+
 # The library search path used internally by the compiler when linking
 # a shared library.
 compiler_lib_search_path=""
@@ -325,10 +329,10 @@ variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COM
 link_all_deplibs=unknown
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec="/usr/lib/gcc/i586-suse-linux/4.2.1 /usr/i586-suse-linux/lib /usr/lib /lib"
+sys_lib_search_path_spec="/usr/lib/gcc/i586-suse-linux/4.3 /usr/i586-suse-linux/lib /usr/lib /lib"
 
 # Run-time system search path for libraries
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/X11R6/lib/Xaw3d /usr/X11R6/lib /usr/lib/Xaw3d /usr/i386-suse-linux/lib /usr/local/lib /opt/kde3/lib /usr/lib/graphviz /usr/lib/graphviz/sharp /usr/lib/graphviz/java /usr/lib/graphviz/perl /usr/lib/graphviz/php /usr/lib/graphviz/ocaml /usr/lib/graphviz/python /usr/lib/graphviz/lua /usr/lib/graphviz/tcl /usr/lib/graphviz/guile /usr/lib/graphviz/ruby /opencv_library_install_path/opencv-1.0.0/lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/X11R6/lib/Xaw3d /usr/X11R6/lib /usr/lib/Xaw3d /usr/i386-suse-linux/lib /usr/local/lib /opt/kde3/lib /usr/lib/graphviz /usr/lib/graphviz/sharp /usr/lib/graphviz/java /usr/lib/graphviz/perl /usr/lib/graphviz/php /usr/lib/graphviz/ocaml /usr/lib/graphviz/python /usr/lib/graphviz/lua /usr/lib/graphviz/tcl /usr/lib/graphviz/guile /usr/lib/graphviz/ruby "
 
 # Fix the shell variable $srcfile for the compiler.
 fix_srcfile_path=""
@@ -343,7 +347,7 @@ export_symbols_cmds="\$NM \$libobjs \$convenience | \$global_symbol_pipe | \$SED
 extract_expsyms_cmds=""
 
 # Symbols that should not be listed in the preloaded symbols.
-exclude_expsyms="_GLOBAL_OFFSET_TABLE_"
+exclude_expsyms="_GLOBAL_OFFSET_TABLE_|_GLOBAL__F[ID]_.*"
 
 # Symbols that must always be exported.
 include_expsyms=""
@@ -7282,7 +7286,7 @@ disable_libs=static
 # End:
 # ### BEGIN LIBTOOL TAG CONFIG: CXX
 
-# Libtool was configured on host linux:
+# Libtool was configured on host linux-sq7n:
 
 # Shell to use when invoking shell scripts.
 SHELL="/bin/sh"
@@ -7385,7 +7389,7 @@ pic_flag=" -fPIC -DPIC"
 pic_mode=default
 
 # What is the maximum length of a command?
-max_cmd_len=98304
+max_cmd_len=805306365
 
 # Does compiler simultaneously support -c and -o options?
 compiler_c_o="yes"
@@ -7464,11 +7468,11 @@ striplib="strip --strip-unneeded"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
-predep_objects="/usr/lib/gcc/i586-suse-linux/4.2.1/../../../crti.o /usr/lib/gcc/i586-suse-linux/4.2.1/crtbeginS.o"
+predep_objects="/usr/lib/gcc/i586-suse-linux/4.3/../../../crti.o /usr/lib/gcc/i586-suse-linux/4.3/crtbeginS.o"
 
 # Dependencies to place after the objects being linked to create a
 # shared library.
-postdep_objects="/usr/lib/gcc/i586-suse-linux/4.2.1/crtendS.o /usr/lib/gcc/i586-suse-linux/4.2.1/../../../crtn.o"
+postdep_objects="/usr/lib/gcc/i586-suse-linux/4.3/crtendS.o /usr/lib/gcc/i586-suse-linux/4.3/../../../crtn.o"
 
 # Dependencies to place before the objects being linked to create a
 # shared library.
@@ -7478,9 +7482,13 @@ predeps=""
 # shared library.
 postdeps="-lstdc++ -lm -lgcc_s -lc -lgcc_s"
 
+# The directories searched by this compiler when creating a shared
+# library
+compiler_lib_search_dirs="/usr/lib/gcc/i586-suse-linux/4.3 /usr/lib/gcc/i586-suse-linux/4.3 /usr/lib/gcc/i586-suse-linux/4.3/../../../../i586-suse-linux/lib /usr/lib/gcc/i586-suse-linux/4.3/../../.."
+
 # The library search path used internally by the compiler when linking
 # a shared library.
-compiler_lib_search_path="-L/usr/lib/gcc/i586-suse-linux/4.2.1 -L/usr/lib/gcc/i586-suse-linux/4.2.1 -L/usr/lib/gcc/i586-suse-linux/4.2.1/../../../../i586-suse-linux/lib -L/usr/lib/gcc/i586-suse-linux/4.2.1/../../.."
+compiler_lib_search_path="-L/usr/lib/gcc/i586-suse-linux/4.3 -L/usr/lib/gcc/i586-suse-linux/4.3 -L/usr/lib/gcc/i586-suse-linux/4.3/../../../../i586-suse-linux/lib -L/usr/lib/gcc/i586-suse-linux/4.3/../../.."
 
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method="pass_all"
@@ -7560,10 +7568,10 @@ variables_saved_for_relink="PATH LD_LIBRARY_PATH LD_RUN_PATH GCC_EXEC_PREFIX COM
 link_all_deplibs=unknown
 
 # Compile-time system search path for libraries
-sys_lib_search_path_spec="/usr/lib/gcc/i586-suse-linux/4.2.1 /usr/i586-suse-linux/lib /usr/lib /lib"
+sys_lib_search_path_spec="/usr/lib/gcc/i586-suse-linux/4.3 /usr/i586-suse-linux/lib /usr/lib /lib"
 
 # Run-time system search path for libraries
-sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/X11R6/lib/Xaw3d /usr/X11R6/lib /usr/lib/Xaw3d /usr/i386-suse-linux/lib /usr/local/lib /opt/kde3/lib /usr/lib/graphviz /usr/lib/graphviz/sharp /usr/lib/graphviz/java /usr/lib/graphviz/perl /usr/lib/graphviz/php /usr/lib/graphviz/ocaml /usr/lib/graphviz/python /usr/lib/graphviz/lua /usr/lib/graphviz/tcl /usr/lib/graphviz/guile /usr/lib/graphviz/ruby /opencv_library_install_path/opencv-1.0.0/lib "
+sys_lib_dlsearch_path_spec="/lib /usr/lib /usr/X11R6/lib/Xaw3d /usr/X11R6/lib /usr/lib/Xaw3d /usr/i386-suse-linux/lib /usr/local/lib /opt/kde3/lib /usr/lib/graphviz /usr/lib/graphviz/sharp /usr/lib/graphviz/java /usr/lib/graphviz/perl /usr/lib/graphviz/php /usr/lib/graphviz/ocaml /usr/lib/graphviz/python /usr/lib/graphviz/lua /usr/lib/graphviz/tcl /usr/lib/graphviz/guile /usr/lib/graphviz/ruby "
 
 # Fix the shell variable $srcfile for the compiler.
 fix_srcfile_path=""
@@ -7578,7 +7586,7 @@ export_symbols_cmds="\$NM \$libobjs \$convenience | \$global_symbol_pipe | \$SED
 extract_expsyms_cmds=""
 
 # Symbols that should not be listed in the preloaded symbols.
-exclude_expsyms=""
+exclude_expsyms="_GLOBAL_OFFSET_TABLE_|_GLOBAL__F[ID]_.*"
 
 # Symbols that must always be exported.
 include_expsyms=""
