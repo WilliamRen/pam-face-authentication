@@ -1,12 +1,14 @@
-CFLAGS =
+
 INCLUDES = \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DBINDIR=\"$(bindir)\" \
 	$(GTK_CFLAGS) \
+	$(X11_CFLAGS) \
 	$(GSL_CFLAGS) \
 	$(OPENCV_CFLAGS)
 
 bin_PROGRAMS = gtk-facemanager gtk-facetracker
+
 
 gtk_facemanager_SOURCES = gtk-facemanager.c libfaceconfigure.c
 gtk_facemanager_LDADD = \
@@ -34,13 +36,14 @@ pam_face_authenticate_so_SOURCES = \
 	pam_face.h \
 	pam_face_defines.h
 
-pam_face_authenticate_so_CFLAGS = -fPIC
-pam_face_authenticate_so_LDFLAGS = -shared
+pam_face_authenticate_so_CFLAGS = -L/usr/X11R6/lib -lX11 -fPIC
+pam_face_authenticate_so_LDFLAGS = -shared 
 pam_face_authenticate_so_LDADD = \
                         $(PAM_LIBS) \
                         $(GSL_LIBS) \
                         $(OPENCV_LIBS) \
-                        libfacedetect.la \
+		           $(X11_LIBS) \
+			libfacedetect.la \
                         libfaceauthenticate.la
 
 extra1dir=/etc/pam-face-authentication/

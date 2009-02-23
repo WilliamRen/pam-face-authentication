@@ -147,45 +147,6 @@ main (int argc, char *argv[])
 
     if (gtk_init_check(&argc, &argv)==FALSE)
     {
-        // bad hack to get it running with gdm
-        FILE *file;
-        char host[256];
-        char cookie[256];
-        char value[256];
-        char display[3];
-        char* strCommand0="xauth add $(hostname)/unix";
-        char* strCommand1;
-        char* strCommand3=" MIT-MAGIC-COOKIE-1 ";
-        system(XAUTH_DISPLAY_EXTRACT_COMMAND);
-        if (file = fopen(XAUTHDISPLAY_EXTRACT_FILE, "r"))
-        {
-            fscanf(file,"%s",display);
-        }
-        fclose(file);
-        if(strlen(display)==0 )
-             { *commAuth=CANCEL;
-                return -1;
-             }
-        char* xauthCommand=(char *)calloc(strlen(XAUTH_EXTRACT_COMMAND)+strlen(display)+strlen(XAUTH_EXTRACT_COMMAND1) +1,sizeof(char));
-        strcat(xauthCommand,XAUTH_EXTRACT_COMMAND);
-        strcat(xauthCommand,display);
-        strcat(xauthCommand,XAUTH_EXTRACT_COMMAND1);
-        system(xauthCommand);
-        if (file = fopen(XAUTH_EXTRACT_FILE, "r"))
-        {
-            fscanf(file,"%s  %s  %s", host, cookie,value);
-            strCommand1 = (char *)calloc(strlen(strCommand0)+strlen(display)+strlen(strCommand3) +strlen(value)+1,sizeof(char));
-            strcat(strCommand1,strCommand0);
-            strcat(strCommand1,display);
-            strcat(strCommand1,strCommand3);
-            strcat(strCommand1,value);
-            if(strlen(value)==0 || strlen(display)==0 )
-             { *commAuth=CANCEL; return -1;}
-            system(strCommand1);
-        }
-    }
-    if (gtk_init_check(&argc, &argv)==FALSE)
-    {
         /* RUN CANCEL CLICK CODE */
         *commAuth=CANCEL;
         return -1;
