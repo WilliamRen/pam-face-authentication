@@ -290,14 +290,15 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             }
         }
     }
-    Display * dpy;
-    dpy = XOpenDisplay(NULL);
-    if (dpy==NULL)
+
+if (xauthpath==NULL)
     {
         // We need to extract the Path where Xauth is stored
         // Following Code Sets Xauthority cookie
 
         // DISPLAY[1] Contains the value
+
+
         sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
         if (!file_exists(X_lock))
         {
@@ -349,8 +350,6 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         }
 
     }
-    else
-        XCloseDisplay(dpy);
 
 
     ipcStart();
