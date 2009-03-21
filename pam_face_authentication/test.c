@@ -164,7 +164,6 @@ view_onButtonPressed (GtkWidget *iconview, GdkEventButton *event, gpointer userd
         view_popup_menu(iconview,event,file);
     }
 */
-    return FALSE;
 }
 void intializeGtkIconView()
 {
