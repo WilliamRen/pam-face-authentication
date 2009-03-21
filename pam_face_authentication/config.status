@@ -341,7 +341,7 @@ Copyright (C) 2006 Free Software Foundation, Inc.
 This config.status script is free software; the Free Software Foundation
 gives unlimited permission to copy, distribute and modify it."
 
-ac_pwd='/home/darksid3hack0r/Desktop/PFA Work/pam-face-authentication-0.2'
+ac_pwd='/home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication'
 srcdir='.'
 INSTALL='/usr/bin/install -c'
 MKDIR_P='/bin/mkdir -p'
@@ -539,19 +539,19 @@ s,@am__isrc@,|#_!!_#|,g
 s,@CYGPATH_W@,|#_!!_#|echo,g
 s,@PACKAGE@,|#_!!_#|pam-face-authentication,g
 s,@VERSION@,|#_!!_#|0.2,g
-s,@ACLOCAL@,|#_!!_#|aclocal-1.10,g
-s,@AUTOCONF@,|#_!!_#|autoconf,g
-s,@AUTOMAKE@,|#_!!_#|automake-1.10,g
-s,@AUTOHEADER@,|#_!!_#|autoheader,g
-s,@MAKEINFO@,|#_!!_#|makeinfo,g
-s,@install_sh@,|#_!!_#|$(SHELL) /home/darksid3hack0r/Desktop/PFA Work/pam-face-authentication-0.2/install-sh,g
+s,@ACLOCAL@,|#_!!_#|${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run aclocal-1.10,g
+s,@AUTOCONF@,|#_!!_#|${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run autoconf,g
+s,@AUTOMAKE@,|#_!!_#|${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run automake-1.10,g
+s,@AUTOHEADER@,|#_!!_#|${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run autoheader,g
+s,@MAKEINFO@,|#_!!_#|${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run makeinfo,g
+s,@install_sh@,|#_!!_#|$(SHELL) /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/install-sh,g
 s,@STRIP@,|#_!!_#|strip,g
 s,@INSTALL_STRIP_PROGRAM@,|#_!!_#|$(install_sh) -c -s,g
 s,@mkdir_p@,|#_!!_#|/bin/mkdir -p,g
 s,@AWK@,|#_!!_#|gawk,g
 s,@SET_MAKE@,|#_!!_#|,g
 s,@am__leading_dot@,|#_!!_#|.,g
-s,@AMTAR@,|#_!!_#|tar,g
+s,@AMTAR@,|#_!!_#|${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run tar,g
 s,@am__tar@,|#_!!_#|${AMTAR} chof - "$$tardir",g
 s,@am__untar@,|#_!!_#|${AMTAR} xf -,g
 s,@CC@,|#_!!_#|gcc,g

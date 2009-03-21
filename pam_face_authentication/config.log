@@ -51,7 +51,6 @@ configure:2005: checking for a BSD-compatible install
 configure:2061: result: /usr/bin/install -c
 configure:2072: checking whether build environment is sane
 configure:2115: result: yes
-configure:2139: WARNING: `missing' script is too old or missing
 configure:2143: checking for a thread-safe mkdir -p
 configure:2182: result: /bin/mkdir -p
 configure:2195: checking for gawk
@@ -677,15 +676,15 @@ pkg_cv_OPENCV_LIBS='-L/usr/local/lib -lcxcore -lcv -lhighgui -lcvaux -lml  '
 ## Output variables. ##
 ## ----------------- ##
 
-ACLOCAL='aclocal-1.10'
+ACLOCAL='${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run aclocal-1.10'
 AMDEPBACKSLASH='\'
 AMDEP_FALSE='#'
 AMDEP_TRUE=''
-AMTAR='tar'
+AMTAR='${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run tar'
 AR='ar'
-AUTOCONF='autoconf'
-AUTOHEADER='autoheader'
-AUTOMAKE='automake-1.10'
+AUTOCONF='${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run autoconf'
+AUTOHEADER='${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run autoheader'
+AUTOMAKE='${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run automake-1.10'
 AWK='gawk'
 CC='gcc'
 CCDEPMODE='depmode=gcc3'
@@ -723,7 +722,7 @@ LIBS='-lpam -lpam '
 LIBTOOL='$(SHELL) $(top_builddir)/libtool'
 LN_S='ln -s'
 LTLIBOBJS=''
-MAKEINFO='makeinfo'
+MAKEINFO='${SHELL} /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/missing --run makeinfo'
 NMEDIT=''
 OBJEXT='o'
 OPENCV_CFLAGS='-I/usr/local/include/opencv  '
@@ -775,7 +774,7 @@ host_vendor='suse'
 htmldir='${docdir}'
 includedir='${prefix}/include'
 infodir='${datarootdir}/info'
-install_sh='$(SHELL) /home/darksid3hack0r/Desktop/PFA Work/pam-face-authentication-0.2/install-sh'
+install_sh='$(SHELL) /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication/install-sh'
 libdir='${exec_prefix}/lib'
 libexecdir='${exec_prefix}/libexec'
 localedir='${datarootdir}/locale'

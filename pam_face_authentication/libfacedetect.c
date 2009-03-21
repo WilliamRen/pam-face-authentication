@@ -484,7 +484,7 @@ int preprocess(IplImage * img,CvPoint plefteye,CvPoint prighteye,IplImage * face
 
     }
     IplImage* rotatedImg = cvCreateImage( cvSize(img->width*3,img->height*3),8,3);
-    if (CheckImageROI(rotatedImg,img->width,img->height,img->width,img->height,1)==-1) return;
+    if (CheckImageROI(rotatedImg,img->width,img->height,img->width,img->height,1)==-1) return -1;
     cvSetImageROI(rotatedImg,cvRect(img->width,img->height,img->width,img->height));
     cvResize(img,rotatedImg,CV_INTER_LINEAR);
     cvResetImageROI(rotatedImg);
