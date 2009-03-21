@@ -221,7 +221,7 @@ double histDifference(IplImage* img1,IplImage* img2)
 
             //     printf("%svn checkout https://pam-face-authentication.googlecode.com/svn/trunk/ pam-face-authentication --username rohan.anile \n ",chiSquare1);
             chiSquare=chiSquare1+chiSquare;
-        }
+        }else
         {
             lastBin1+=hist1[i];
             lastBin2+=hist2[i];
