@@ -1,5 +1,6 @@
-
+DEBUG = -g
 INCLUDES = \
+	-DVERSION=\".3\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DBINDIR=\"$(bindir)\" \
 	$(GTK_CFLAGS) \
@@ -7,26 +8,57 @@ INCLUDES = \
 	$(GSL_CFLAGS) \
 	$(OPENCV_CFLAGS)
 
-bin_PROGRAMS = gtk-facemanager gtk-facetracker
+bin_PROGRAMS = gtk-facemanager \
+	       gtk-facetracker \
+	       svm-predict \
+	       svm-train \
+	       pfatrainer
 
+pfatrainer_SOURCES =	./libsvm/svm.h \
+			./libsvm/svm-scale.c \
+			trainer.c
 
-gtk_facemanager_SOURCES = gtk-facemanager.c libfaceconfigure.c
+svm_predict_SOURCES = ./libsvm/svm-predict.c \
+		      ./libsvm/svm.h \
+		      ./libsvm/svm.cpp
+
+svm_train_SOURCES = 	./libsvm/svm-train.c \
+			./libsvm/svm.h \
+			./libsvm/svm.cpp
+
+gtk_facemanager_SOURCES = gtk-facemanagerU.c \
+			featureDctMod2.c \
+			featureLBPHist.c
+
+install-exec-hook:
+		   chown root $(bindir)/pfatrainer
+		   chmod u+s $(bindir)/pfatrainer
+		   chown root $(bindir)/svm-predict
+		   chmod u+s $(bindir)/svm-predict
+
 gtk_facemanager_LDADD = \
 	$(GTK_LIBS) \
 	$(GSL_LIBS) \
 	$(OPENCV_LIBS) \
 	libfacedetect.la
+
 gtk_facemanager_LDFLAGS = -export-dynamic
 gtk_facetracker_SOURCES = gtk-faceauthenticate.c
 gtk_facetracker_LDADD = \
-	$(GTK_LIBS) \
-	$(GSL_LIBS) \
-	$(OPENCV_LIBS) \
-	libfacedetect.la
+			$(GTK_LIBS) \
+			$(GSL_LIBS) \
+			$(OPENCV_LIBS) \
+			libfacedetect.la
+
 gtk_facetracker_LDFLAGS = -export-dynamic
 extradir=$(prefix)/lib/
 lib_LTLIBRARIES = libfaceauthenticate.la
-extra_LTLIBRARIES = libfacedetect.la
+extra_LTLIBRARIES = libfacedetect.la 
+libfaceauthenticate_la_SOURCES=libfaceauthenticate.c \
+				featureDctMod2.c \
+				featureLBPHist.c \
+				parseSvmPrediction.c
+libfaceauthenticate_la_CFLAGS = $(AM_CFLAGS)
 
 pammod_PROGRAMS = pam_face_authenticate.so
 pammoddir=/lib/security
@@ -34,6 +66,10 @@ pammoddir=/lib/security
 pam_face_authenticate_so_SOURCES = \
 	pam_face_authentication.c \
 	pam_face.h \
+	featureDctMod2.c \
+	featureLBPHist.c \
+	parseSvmPrediction.c \
+	./libsvm/svm-scale.c \
 	pam_face_defines.h
 
 pam_face_authenticate_so_CFLAGS = -L/usr/X11R6/lib -lX11 -fPIC
@@ -47,16 +83,16 @@ pam_face_authenticate_so_LDADD = \
                         libfaceauthenticate.la
 
 extra1dir=/etc/pam-face-authentication/
-extra2dir=/etc/pam-face-authentication/facemanager/
+extra1_DATA = xauth.key display.key prediction db.lst
 
-extra1_DATA = xauth.key display.key
-extra2_DATA = face.key
 uidir=$(pkgdatadir)
 ui_DATA = \
 gtk-faceauthenticate.xml \
 gtk-facemanager.xml \
+gtk-facemanagerU.xml \
 haarcascade_eye.xml \
 haarcascade_nose.xml \
 haarcascade.xml
 
-EXTRA_DIST=$(ui_DATA) $(extra1_DATA) $(extra2_DATA)
+EXTRA_DIST=$(ui_DATA) $(extra1_DATA)
+

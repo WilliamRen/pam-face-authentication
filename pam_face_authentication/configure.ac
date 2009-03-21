@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.50)
-AC_INIT(pam-face-authentication, 0.2,[http://code.google.com/p/pam_face_authentication/issues/list])
+AC_INIT(pam-face-authentication, 0.3,[http://code.google.com/p/pam_face_authentication/issues/list])
 AC_CONFIG_SRCDIR([pam_face_defines.h])
 AM_INIT_AUTOMAKE([1.10.1])
  

@@ -1,7 +1,7 @@
 ////////////////////////////////////////////////////////////////////////
 void allocateMemory();
 void intialize();
-char startTracker(char*);
+char startTracker(int *,char*);
 void writeImageToMemory(IplImage*,char*);
 void ipcStart();
 void setFlags();

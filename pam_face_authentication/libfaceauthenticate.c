@@ -38,7 +38,7 @@ CvMat * projectedTrainFaceMat = 0; // projected training faces
 
 //// Function prototypes
 
-char recognize(char* username,int *percentage);
+char recognize(int *an,char* username,int *percentage);
 int  loadTrainingData();
 int  findNearestNeighbor(float * projectedTestFace);
 
@@ -131,6 +131,7 @@ double faceSplitReturnVal( IplImage*first, IplImage*second)
     return d;
 
 }
+/*
 double getBIT(IplImage* img,double px,double py,double threshold)
 {
     if (px<0 || py<0 || px>=img->width || py>=img->height)
@@ -145,6 +146,9 @@ double getBIT(IplImage* img,double px,double py,double threshold)
             return 0;
     }
 }
+*/
+
+/*
 int checkBit(int i)
 {
     int j=i;
@@ -172,6 +176,7 @@ int checkBit(int i)
     else
         return 0;
 }
+*/
 double histDifference(IplImage* img1,IplImage* img2)
 {
 
@@ -221,7 +226,8 @@ double histDifference(IplImage* img1,IplImage* img2)
 
             //     printf("%svn checkout https://pam-face-authentication.googlecode.com/svn/trunk/ pam-face-authentication --username rohan.anile \n ",chiSquare1);
             chiSquare=chiSquare1+chiSquare;
-        }else
+        }
+        else
         {
             lastBin1+=hist1[i];
             lastBin2+=hist2[i];
@@ -349,112 +355,244 @@ double LBPdiff(    IplImage* image1,    IplImage* image2)
 
 
 
-char recognize(char* username,int* percentage)
+char recognize(int *userid,char* username,int* percentage)
 {
-
-
+    /*
     char* userFile;
-    userFile=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+1,sizeof(char));
-    char* userFileAKS;
-    userFileAKS=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+5,sizeof(char));
 
+    userFile=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+1,sizeof(char));
     strcat(userFile,path);;
     strcat(userFile,username);
     strcat(userFile,imgExt);
-    strcat(userFileAKS,path);;
-    strcat(userFileAKS,username);
-    strcat(userFileAKS,"_AKS");
-    strcat(userFileAKS,imgExt);
-    int i;
-    createLBP(userFile,userFileAKS);
-    testFace = cvLoadImage(userFileAKS, CV_LOAD_IMAGE_GRAYSCALE);
-    int index, nearest;
-    char* userNameReturn;
-    if (findIndex(username)!=-1)
+    */
+
+    char* userFile[300];
+    sprintf(userFile,"/etc/pam-face-authentication/%s.pgm",username);
+
+    IplImage * img = cvLoadImage(userFile,0);
+    printf("%s \n",userFile);
+
+    char temp[200];
+
+    FILE *f1 =fopen("/etc/pam-face-authentication/testFeaturesDCT","w");
+    FILE *f2 =fopen("/etc/pam-face-authentication/testFeaturesLBP","w");
+
+    int Nx = floor((img->width - 4)/4);
+    int Ny= floor((img->height - 4)/4);
+    float* features = (float*)malloc(  Nx*Ny * 18 * sizeof(float) );
+
+
+    featureDctMod2(img,features);
+
+    int Nx1 = floor((img->width - 10)/10);
+    int Ny1= floor((img->height - 10)/10);
+    float* featuresLBP = (float*)malloc(  Nx1*Ny1 * 59 * sizeof(float) );
+    featureLBPHist(img,featuresLBP);
+
+    int i,j,k=0;
+    sprintf(temp,"%d",getuid()); //uid doesnt matter over here
+
+    fputs(temp,f1);
+    fputs(" ",f1);
+    fputs(temp,f2);
+    fputs(" ",f2);
+    for (i=0;i<Ny1;i++)
     {
-        double val;
-
-        double averageValueThreshold=0;
-
-        createLBP(fileNameImage("1",username),fileNameImage("1_AKS",username));
-        createLBP(fileNameImage("2",username),fileNameImage("2_AKS",username));
-        createLBP(fileNameImage("3",username),fileNameImage("3_AKS",username));
-        createLBP(fileNameImage("4",username),fileNameImage("4_AKS",username));
-        createLBP(fileNameImage("5",username),fileNameImage("5_AKS",username));
-        createLBP(fileNameImage("6",username),fileNameImage("6_AKS",username));
-
-        IplImage* image1=cvLoadImage(fileNameImage("1_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-        IplImage* image2=cvLoadImage(fileNameImage("2_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-        IplImage* image3=cvLoadImage(fileNameImage("3_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-        IplImage* image4=cvLoadImage(fileNameImage("4_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-        IplImage* image5=cvLoadImage(fileNameImage("5_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-        IplImage* image6=cvLoadImage(fileNameImage("6_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-
-        double valTestFace[6];
-        valTestFace[0]=LBPdiff(image1,testFace);
-        valTestFace[1]=LBPdiff(image2,testFace);
-        valTestFace[2]=LBPdiff(image3,testFace);
-        valTestFace[3]=LBPdiff(image4,testFace);
-        valTestFace[4]=LBPdiff(image5,testFace);
-        valTestFace[5]=LBPdiff(image6,testFace);
-        int m;
-        int k=-1;
-        int diff = 5000-threshold;
-        int max=diff*2;
-        int count=0;
-        for (m=0;m<6;m++)
+        for (j=0;j<Nx1;j++)
         {
-            if (valTestFace[m]<threshold)
-                count++;
+            for (k=0;k<59;k++)
+            {
+                sprintf(temp,"%d", (i*59*Nx1 + j*59 +k));
+                fputs(temp,f2);
+                fputs(":",f2);
+                sprintf(temp,"%f",featuresLBP[i*59*Nx1 + j*59 +k]);
+                fputs(temp,f2);
+                fputs(" ",f2);
+            }
         }
-        double min=1000000000;
-        for (m=0;m<6;m++)
+    }
+
+    for (i=0;i<Ny;i++)
+    {
+        for (j=0;j<Nx;j++)
         {
-            if (valTestFace[m]<min)
-                min=valTestFace[m];
+            for (k=0;k<6;k++)
+            {
+                sprintf(temp,"%d", (i*18*Nx + j*18 +k));
+                fputs(temp,f1);
+                fputs(":",f1);
+                sprintf(temp,"%f",features[i*18*Nx + j*18 +k]);
+                fputs(temp,f1);
+                fputs(" ",f1);
+            }
+
         }
-        double lowest=5000-min;
-        if (lowest<0)
-            lowest=0;
-        else if (lowest>max)
+    }
+    fputs("\n",f1);
+    fputs("\n",f2);
+    fclose(f1);
+    fclose(f2);
+    //printf(" \n 1testing");
+    char* argv1[4]={"svm-scale","-r","/etc/pam-face-authentication/featuresDCT.range","/etc/pam-face-authentication/testFeaturesDCT"};
+    FILE *fp5=fopen("/etc/pam-face-authentication/testFeaturesDCT.scale","w");
+//    printf(" \n 2testing");
+
+    svmScale(4,argv1,fp5);
+
+    char* argv2[4]={"svm-scale","-r","/etc/pam-face-authentication/featuresLBP.range","/etc/pam-face-authentication/testFeaturesLBP"};
+    FILE *fp6=fopen("/etc/pam-face-authentication/testFeaturesLBP.scale","w");
+    svmScale(4,argv2,fp6);
+    //printf("testing");
+
+    system(BINDIR "/svm-predict -b 1 /etc/pam-face-authentication/testFeaturesDCT.scale /etc/pam-face-authentication/featuresDCT.scale.model /etc/pam-face-authentication/prediction");
+    int ans;
+    double sum=0;
+    int ansMatch=-1;
+    int login=1;
+    double percentage1;
+    parseSvmPrediction(&ans,&percentage1);
+    ansMatch=ans;
+    sum+=percentage1;
+    printf("Answer %d \n",ans);
+    printf("DCT Percent %e \n",percentage1);
+    if (percentage1<.75)
+        login=-1;
+
+         printf("Login %d \n",login);
+    // printf("Answer %d Percentage %e DCT \n",ans,percentage1);
+    system(BINDIR "/svm-predict -b 1 /etc/pam-face-authentication/testFeaturesLBP.scale /etc/pam-face-authentication/featuresLBP.scale.model /etc/pam-face-authentication/prediction");
+    parseSvmPrediction(&ans,&percentage1);
+    printf("Answer %d \n",ans);
+    printf("LBP Percent %e \n",percentage1);
+    if (ansMatch==ans)
+      {
+            sum+=percentage1;
+       *userid=ans;
+      }
+  printf("SUM Percent %e \n",sum);
+    if (login!=-1)
+    {
+        if (percentage1<.75)
+            login=-1;
+    }
+        printf("Login %d \n",login);
+    if (sum<1.65)
+    {
+        login=-1;
+    }
+
+    printf("Login %d \n",login);
+    // printf("Answer %d Percentage %e LBP \n",ans,percentage1);
+
+    if (login==-1)
+        return 'n';
+    else
+        return 'y';
+
+    /*
+        char* userFile;
+        userFile=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+1,sizeof(char));
+        char* userFileAKS;
+        userFileAKS=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+5,sizeof(char));
+
+        strcat(userFile,path);;
+        strcat(userFile,username);
+        strcat(userFile,imgExt);
+        strcat(userFileAKS,path);;
+        strcat(userFileAKS,username);
+        strcat(userFileAKS,"_AKS");
+        strcat(userFileAKS,imgExt);
+        int i;
+        createLBP(userFile,userFileAKS);
+        testFace = cvLoadImage(userFileAKS, CV_LOAD_IMAGE_GRAYSCALE);
+        int index, nearest;
+        char* userNameReturn;
+        if (findIndex(username)!=-1)
         {
-            lowest=100;
+            double val;
+
+            double averageValueThreshold=0;
+
+            createLBP(fileNameImage("1",username),fileNameImage("1_AKS",username));
+            createLBP(fileNameImage("2",username),fileNameImage("2_AKS",username));
+            createLBP(fileNameImage("3",username),fileNameImage("3_AKS",username));
+            createLBP(fileNameImage("4",username),fileNameImage("4_AKS",username));
+            createLBP(fileNameImage("5",username),fileNameImage("5_AKS",username));
+            createLBP(fileNameImage("6",username),fileNameImage("6_AKS",username));
+
+            IplImage* image1=cvLoadImage(fileNameImage("1_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
+            IplImage* image2=cvLoadImage(fileNameImage("2_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
+            IplImage* image3=cvLoadImage(fileNameImage("3_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
+            IplImage* image4=cvLoadImage(fileNameImage("4_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
+            IplImage* image5=cvLoadImage(fileNameImage("5_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
+            IplImage* image6=cvLoadImage(fileNameImage("6_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
+
+            double valTestFace[6];
+            valTestFace[0]=LBPdiff(image1,testFace);
+            valTestFace[1]=LBPdiff(image2,testFace);
+            valTestFace[2]=LBPdiff(image3,testFace);
+            valTestFace[3]=LBPdiff(image4,testFace);
+            valTestFace[4]=LBPdiff(image5,testFace);
+            valTestFace[5]=LBPdiff(image6,testFace);
+            int m;
+            int k=-1;
+            int diff = 5000-threshold;
+            int max=diff*2;
+            int count=0;
+            for (m=0;m<6;m++)
+            {
+                if (valTestFace[m]<threshold)
+                    count++;
+            }
+            double min=1000000000;
+            for (m=0;m<6;m++)
+            {
+                if (valTestFace[m]<min)
+                    min=valTestFace[m];
+            }
+            double lowest=5000-min;
+            if (lowest<0)
+                lowest=0;
+            else if (lowest>max)
+            {
+                lowest=100;
+            }
+            else
+            {
+                lowest = (lowest*100)/max;
+            }
+            (*percentage)=lowest;
+            int counttemp=0;
+            double valTestFacetemp[6];
+            valTestFacetemp[0]=faceSplitReturnVal(image1,testFace);
+            valTestFacetemp[1]=faceSplitReturnVal(image2,testFace);
+            valTestFacetemp[2]=faceSplitReturnVal(image3,testFace);
+            valTestFacetemp[3]=faceSplitReturnVal(image4,testFace);
+            valTestFacetemp[4]=faceSplitReturnVal(image5,testFace);
+            valTestFacetemp[5]=faceSplitReturnVal(image6,testFace);
+
+            for (m=0;m<6;m++)
+            {
+                if (valTestFacetemp[m]<threshold2)
+                    counttemp++;
+
+            }
+
+            if (count>1 && counttemp>1)  // add
+                return 'y';
+            cvReleaseImage( &image1);
+            cvReleaseImage( &image2);
+            cvReleaseImage( &image3);
+            cvReleaseImage( &image4);
+            cvReleaseImage( &image5);
+            cvReleaseImage( &image6);
+            cvReleaseImage( &testFace);
+
         }
         else
-        {
-            lowest = (lowest*100)/max;
-        }
-        (*percentage)=lowest;
-        int counttemp=0;
-        double valTestFacetemp[6];
-        valTestFacetemp[0]=faceSplitReturnVal(image1,testFace);
-        valTestFacetemp[1]=faceSplitReturnVal(image2,testFace);
-        valTestFacetemp[2]=faceSplitReturnVal(image3,testFace);
-        valTestFacetemp[3]=faceSplitReturnVal(image4,testFace);
-        valTestFacetemp[4]=faceSplitReturnVal(image5,testFace);
-        valTestFacetemp[5]=faceSplitReturnVal(image6,testFace);
+            return 'n';
 
-        for (m=0;m<6;m++)
-        {
-            if (valTestFacetemp[m]<threshold2)
-                counttemp++;
-
-        }
-
-        if (count>1 && counttemp>1)  // add
-            return 'y';
-        cvReleaseImage( &image1);
-        cvReleaseImage( &image2);
-        cvReleaseImage( &image3);
-        cvReleaseImage( &image4);
-        cvReleaseImage( &image5);
-        cvReleaseImage( &image6);
-        cvReleaseImage( &testFace);
-
-    }
-    else
-        return 'n';
-
+    */
 }
 int findIndex(char* username)
 {
