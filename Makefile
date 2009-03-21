@@ -34,7 +34,8 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = i686-suse-linux-gnu
 host_triplet = i686-suse-linux-gnu
-bin_PROGRAMS = gtk-facemanager$(EXEEXT) gtk-facetracker$(EXEEXT)
+bin_PROGRAMS = gtk-facemanager$(EXEEXT) gtk-facetracker$(EXEEXT) \
+	svm-predict$(EXEEXT) svm-train$(EXEEXT) pfatrainer$(EXEEXT)
 pammod_PROGRAMS = pam_face_authenticate.so$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(srcdir)/Makefile.am \
@@ -59,22 +60,29 @@ am__vpath_adj = case $$p in \
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(extradir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(pammoddir)" \
-	"$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(extra2dir)" \
-	"$(DESTDIR)$(uidir)"
+	"$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(uidir)"
 extraLTLIBRARIES_INSTALL = $(INSTALL)
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(extra_LTLIBRARIES) $(lib_LTLIBRARIES)
 libfaceauthenticate_la_LIBADD =
-libfaceauthenticate_la_SOURCES = libfaceauthenticate.c
-libfaceauthenticate_la_OBJECTS = libfaceauthenticate.lo
+am_libfaceauthenticate_la_OBJECTS =  \
+	libfaceauthenticate_la-libfaceauthenticate.lo \
+	libfaceauthenticate_la-featureDctMod2.lo \
+	libfaceauthenticate_la-featureLBPHist.lo \
+	libfaceauthenticate_la-parseSvmPrediction.lo
+libfaceauthenticate_la_OBJECTS = $(am_libfaceauthenticate_la_OBJECTS)
+libfaceauthenticate_la_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
+	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
+	$(libfaceauthenticate_la_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
 libfacedetect_la_LIBADD =
 libfacedetect_la_SOURCES = libfacedetect.c
 libfacedetect_la_OBJECTS = libfacedetect.lo
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 pammodPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
 PROGRAMS = $(bin_PROGRAMS) $(pammod_PROGRAMS)
-am_gtk_facemanager_OBJECTS = gtk-facemanager.$(OBJEXT) \
-	libfaceconfigure.$(OBJEXT)
+am_gtk_facemanager_OBJECTS = gtk-facemanagerU.$(OBJEXT) \
+	featureDctMod2.$(OBJEXT) featureLBPHist.$(OBJEXT)
 gtk_facemanager_OBJECTS = $(am_gtk_facemanager_OBJECTS)
 am__DEPENDENCIES_1 =
 gtk_facemanager_DEPENDENCIES = $(am__DEPENDENCIES_1) \
@@ -90,7 +98,11 @@ gtk_facetracker_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
 	$(gtk_facetracker_LDFLAGS) $(LDFLAGS) -o $@
 am_pam_face_authenticate_so_OBJECTS =  \
-	pam_face_authenticate_so-pam_face_authentication.$(OBJEXT)
+	pam_face_authenticate_so-pam_face_authentication.$(OBJEXT) \
+	pam_face_authenticate_so-featureDctMod2.$(OBJEXT) \
+	pam_face_authenticate_so-featureLBPHist.$(OBJEXT) \
+	pam_face_authenticate_so-parseSvmPrediction.$(OBJEXT) \
+	pam_face_authenticate_so-svm-scale.$(OBJEXT)
 pam_face_authenticate_so_OBJECTS =  \
 	$(am_pam_face_authenticate_so_OBJECTS)
 pam_face_authenticate_so_DEPENDENCIES = $(am__DEPENDENCIES_1) \
@@ -100,6 +112,15 @@ pam_face_authenticate_so_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(pam_face_authenticate_so_CFLAGS) $(CFLAGS) \
 	$(pam_face_authenticate_so_LDFLAGS) $(LDFLAGS) -o $@
+am_pfatrainer_OBJECTS = svm-scale.$(OBJEXT) trainer.$(OBJEXT)
+pfatrainer_OBJECTS = $(am_pfatrainer_OBJECTS)
+pfatrainer_LDADD = $(LDADD)
+am_svm_predict_OBJECTS = svm-predict.$(OBJEXT) svm.$(OBJEXT)
+svm_predict_OBJECTS = $(am_svm_predict_OBJECTS)
+svm_predict_LDADD = $(LDADD)
+am_svm_train_OBJECTS = svm-train.$(OBJEXT) svm.$(OBJEXT)
+svm_train_OBJECTS = $(am_svm_train_OBJECTS)
+svm_train_LDADD = $(LDADD)
 DEFAULT_INCLUDES = -I.
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -112,16 +133,26 @@ CCLD = $(CC)
 LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
 	--mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) $(AM_LDFLAGS) \
 	$(LDFLAGS) -o $@
-SOURCES = libfaceauthenticate.c libfacedetect.c \
+CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+LTCXXCOMPILE = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
+	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
+CXXLD = $(CXX)
+CXXLINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
+	--mode=link $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) \
+	$(LDFLAGS) -o $@
+SOURCES = $(libfaceauthenticate_la_SOURCES) libfacedetect.c \
 	$(gtk_facemanager_SOURCES) $(gtk_facetracker_SOURCES) \
-	$(pam_face_authenticate_so_SOURCES)
-DIST_SOURCES = libfaceauthenticate.c libfacedetect.c \
+	$(pam_face_authenticate_so_SOURCES) $(pfatrainer_SOURCES) \
+	$(svm_predict_SOURCES) $(svm_train_SOURCES)
+DIST_SOURCES = $(libfaceauthenticate_la_SOURCES) libfacedetect.c \
 	$(gtk_facemanager_SOURCES) $(gtk_facetracker_SOURCES) \
-	$(pam_face_authenticate_so_SOURCES)
+	$(pam_face_authenticate_so_SOURCES) $(pfatrainer_SOURCES) \
+	$(svm_predict_SOURCES) $(svm_train_SOURCES)
 extra1DATA_INSTALL = $(INSTALL_DATA)
-extra2DATA_INSTALL = $(INSTALL_DATA)
 uiDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(extra1_DATA) $(extra2_DATA) $(ui_DATA)
+DATA = $(extra1_DATA) $(ui_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -161,8 +192,8 @@ ECHO_N = -n
 ECHO_T = 
 EGREP = /usr/bin/grep -E
 EXEEXT = 
-F77 = 
-FFLAGS = 
+F77 = gfortran
+FFLAGS = -g -O2
 GREP = /usr/bin/grep
 GSL_CFLAGS = -I/usr/local/include  
 GSL_LIBS = -L/usr/local/lib -lgsl -lgslcblas -lm  
@@ -206,7 +237,7 @@ abs_top_builddir = /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face
 abs_top_srcdir = /home/darksid3hack0r/Desktop/pam-face-authentication/pam_face_authentication
 ac_ct_CC = gcc
 ac_ct_CXX = g++
-ac_ct_F77 = 
+ac_ct_F77 = gfortran
 am__include = include
 am__leading_dot = .
 am__quote = 
@@ -251,7 +282,9 @@ sysconfdir = ${prefix}/etc
 target_alias = 
 top_builddir = .
 top_srcdir = .
+DEBUG = -g
 INCLUDES = \
+	-DVERSION=\".3\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DBINDIR=\"$(bindir)\" \
 	$(GTK_CFLAGS) \
@@ -259,7 +292,22 @@ INCLUDES = \
 	$(GSL_CFLAGS) \
 	$(OPENCV_CFLAGS)
 
-gtk_facemanager_SOURCES = gtk-facemanager.c libfaceconfigure.c
+pfatrainer_SOURCES = ./libsvm/svm.h \
+			./libsvm/svm-scale.c \
+			trainer.c
+
+svm_predict_SOURCES = ./libsvm/svm-predict.c \
+		      ./libsvm/svm.h \
+		      ./libsvm/svm.cpp
+
+svm_train_SOURCES = ./libsvm/svm-train.c \
+			./libsvm/svm.h \
+			./libsvm/svm.cpp
+
+gtk_facemanager_SOURCES = gtk-facemanagerU.c \
+			featureDctMod2.c \
+			featureLBPHist.c
+
 gtk_facemanager_LDADD = \
 	$(GTK_LIBS) \
 	$(GSL_LIBS) \
@@ -269,19 +317,29 @@ gtk_facemanager_LDADD = \
 gtk_facemanager_LDFLAGS = -export-dynamic
 gtk_facetracker_SOURCES = gtk-faceauthenticate.c
 gtk_facetracker_LDADD = \
-	$(GTK_LIBS) \
-	$(GSL_LIBS) \
-	$(OPENCV_LIBS) \
-	libfacedetect.la
+			$(GTK_LIBS) \
+			$(GSL_LIBS) \
+			$(OPENCV_LIBS) \
+			libfacedetect.la
 
 gtk_facetracker_LDFLAGS = -export-dynamic
 extradir = $(prefix)/lib/
 lib_LTLIBRARIES = libfaceauthenticate.la
-extra_LTLIBRARIES = libfacedetect.la
+extra_LTLIBRARIES = libfacedetect.la 
+libfaceauthenticate_la_SOURCES = libfaceauthenticate.c \
+				featureDctMod2.c \
+				featureLBPHist.c \
+				parseSvmPrediction.c
+
+libfaceauthenticate_la_CFLAGS = $(AM_CFLAGS)
 pammoddir = /lib/security
 pam_face_authenticate_so_SOURCES = \
 	pam_face_authentication.c \
 	pam_face.h \
+	featureDctMod2.c \
+	featureLBPHist.c \
+	parseSvmPrediction.c \
+	./libsvm/svm-scale.c \
 	pam_face_defines.h
 
 pam_face_authenticate_so_CFLAGS = -L/usr/X11R6/lib -lX11 -fPIC
@@ -295,23 +353,22 @@ pam_face_authenticate_so_LDADD = \
                         libfaceauthenticate.la
 
 extra1dir = /etc/pam-face-authentication/
-extra2dir = /etc/pam-face-authentication/facemanager/
-extra1_DATA = xauth.key display.key
-extra2_DATA = face.key
+extra1_DATA = xauth.key display.key prediction db.lst
 uidir = $(pkgdatadir)
 ui_DATA = \
 gtk-faceauthenticate.xml \
 gtk-facemanager.xml \
+gtk-facemanagerU.xml \
 haarcascade_eye.xml \
 haarcascade_nose.xml \
 haarcascade.xml
 
-EXTRA_DIST = $(ui_DATA) $(extra1_DATA) $(extra2_DATA)
+EXTRA_DIST = $(ui_DATA) $(extra1_DATA)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
-.SUFFIXES: .c .lo .o .obj
+.SUFFIXES: .c .cpp .lo .o .obj
 am--refresh:
 	@:
 $(srcdir)/Makefile.in:  $(srcdir)/Makefile.am  $(am__configure_deps)
@@ -417,7 +474,7 @@ clean-libLTLIBRARIES:
 	  rm -f "$${dir}/so_locations"; \
 	done
 libfaceauthenticate.la: $(libfaceauthenticate_la_OBJECTS) $(libfaceauthenticate_la_DEPENDENCIES) 
-	$(LINK) -rpath $(libdir) $(libfaceauthenticate_la_OBJECTS) $(libfaceauthenticate_la_LIBADD) $(LIBS)
+	$(libfaceauthenticate_la_LINK) -rpath $(libdir) $(libfaceauthenticate_la_OBJECTS) $(libfaceauthenticate_la_LIBADD) $(LIBS)
 libfacedetect.la: $(libfacedetect_la_OBJECTS) $(libfacedetect_la_DEPENDENCIES) 
 	$(LINK) -rpath $(extradir) $(libfacedetect_la_OBJECTS) $(libfacedetect_la_LIBADD) $(LIBS)
 install-binPROGRAMS: $(bin_PROGRAMS)
@@ -485,6 +542,15 @@ gtk-facetracker$(EXEEXT): $(gtk_facetracker_OBJECTS) $(gtk_facetracker_DEPENDENC
 pam_face_authenticate.so$(EXEEXT): $(pam_face_authenticate_so_OBJECTS) $(pam_face_authenticate_so_DEPENDENCIES) 
 	@rm -f pam_face_authenticate.so$(EXEEXT)
 	$(pam_face_authenticate_so_LINK) $(pam_face_authenticate_so_OBJECTS) $(pam_face_authenticate_so_LDADD) $(LIBS)
+pfatrainer$(EXEEXT): $(pfatrainer_OBJECTS) $(pfatrainer_DEPENDENCIES) 
+	@rm -f pfatrainer$(EXEEXT)
+	$(LINK) $(pfatrainer_OBJECTS) $(pfatrainer_LDADD) $(LIBS)
+svm-predict$(EXEEXT): $(svm_predict_OBJECTS) $(svm_predict_DEPENDENCIES) 
+	@rm -f svm-predict$(EXEEXT)
+	$(CXXLINK) $(svm_predict_OBJECTS) $(svm_predict_LDADD) $(LIBS)
+svm-train$(EXEEXT): $(svm_train_OBJECTS) $(svm_train_DEPENDENCIES) 
+	@rm -f svm-train$(EXEEXT)
+	$(CXXLINK) $(svm_train_OBJECTS) $(svm_train_LDADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -492,12 +558,25 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+include ./$(DEPDIR)/featureDctMod2.Po
+include ./$(DEPDIR)/featureLBPHist.Po
 include ./$(DEPDIR)/gtk-faceauthenticate.Po
-include ./$(DEPDIR)/gtk-facemanager.Po
-include ./$(DEPDIR)/libfaceauthenticate.Plo
-include ./$(DEPDIR)/libfaceconfigure.Po
+include ./$(DEPDIR)/gtk-facemanagerU.Po
+include ./$(DEPDIR)/libfaceauthenticate_la-featureDctMod2.Plo
+include ./$(DEPDIR)/libfaceauthenticate_la-featureLBPHist.Plo
+include ./$(DEPDIR)/libfaceauthenticate_la-libfaceauthenticate.Plo
+include ./$(DEPDIR)/libfaceauthenticate_la-parseSvmPrediction.Plo
 include ./$(DEPDIR)/libfacedetect.Plo
+include ./$(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Po
+include ./$(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Po
 include ./$(DEPDIR)/pam_face_authenticate_so-pam_face_authentication.Po
+include ./$(DEPDIR)/pam_face_authenticate_so-parseSvmPrediction.Po
+include ./$(DEPDIR)/pam_face_authenticate_so-svm-scale.Po
+include ./$(DEPDIR)/svm-predict.Po
+include ./$(DEPDIR)/svm-scale.Po
+include ./$(DEPDIR)/svm-train.Po
+include ./$(DEPDIR)/svm.Po
+include ./$(DEPDIR)/trainer.Po
 
 .c.o:
 	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -520,6 +599,34 @@ include ./$(DEPDIR)/pam_face_authenticate_so-pam_face_authentication.Po
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(LTCOMPILE) -c -o $@ $<
 
+libfaceauthenticate_la-libfaceauthenticate.lo: libfaceauthenticate.c
+	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -MT libfaceauthenticate_la-libfaceauthenticate.lo -MD -MP -MF $(DEPDIR)/libfaceauthenticate_la-libfaceauthenticate.Tpo -c -o libfaceauthenticate_la-libfaceauthenticate.lo `test -f 'libfaceauthenticate.c' || echo '$(srcdir)/'`libfaceauthenticate.c
+	mv -f $(DEPDIR)/libfaceauthenticate_la-libfaceauthenticate.Tpo $(DEPDIR)/libfaceauthenticate_la-libfaceauthenticate.Plo
+#	source='libfaceauthenticate.c' object='libfaceauthenticate_la-libfaceauthenticate.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -c -o libfaceauthenticate_la-libfaceauthenticate.lo `test -f 'libfaceauthenticate.c' || echo '$(srcdir)/'`libfaceauthenticate.c
+
+libfaceauthenticate_la-featureDctMod2.lo: featureDctMod2.c
+	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -MT libfaceauthenticate_la-featureDctMod2.lo -MD -MP -MF $(DEPDIR)/libfaceauthenticate_la-featureDctMod2.Tpo -c -o libfaceauthenticate_la-featureDctMod2.lo `test -f 'featureDctMod2.c' || echo '$(srcdir)/'`featureDctMod2.c
+	mv -f $(DEPDIR)/libfaceauthenticate_la-featureDctMod2.Tpo $(DEPDIR)/libfaceauthenticate_la-featureDctMod2.Plo
+#	source='featureDctMod2.c' object='libfaceauthenticate_la-featureDctMod2.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -c -o libfaceauthenticate_la-featureDctMod2.lo `test -f 'featureDctMod2.c' || echo '$(srcdir)/'`featureDctMod2.c
+
+libfaceauthenticate_la-featureLBPHist.lo: featureLBPHist.c
+	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -MT libfaceauthenticate_la-featureLBPHist.lo -MD -MP -MF $(DEPDIR)/libfaceauthenticate_la-featureLBPHist.Tpo -c -o libfaceauthenticate_la-featureLBPHist.lo `test -f 'featureLBPHist.c' || echo '$(srcdir)/'`featureLBPHist.c
+	mv -f $(DEPDIR)/libfaceauthenticate_la-featureLBPHist.Tpo $(DEPDIR)/libfaceauthenticate_la-featureLBPHist.Plo
+#	source='featureLBPHist.c' object='libfaceauthenticate_la-featureLBPHist.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -c -o libfaceauthenticate_la-featureLBPHist.lo `test -f 'featureLBPHist.c' || echo '$(srcdir)/'`featureLBPHist.c
+
+libfaceauthenticate_la-parseSvmPrediction.lo: parseSvmPrediction.c
+	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -MT libfaceauthenticate_la-parseSvmPrediction.lo -MD -MP -MF $(DEPDIR)/libfaceauthenticate_la-parseSvmPrediction.Tpo -c -o libfaceauthenticate_la-parseSvmPrediction.lo `test -f 'parseSvmPrediction.c' || echo '$(srcdir)/'`parseSvmPrediction.c
+	mv -f $(DEPDIR)/libfaceauthenticate_la-parseSvmPrediction.Tpo $(DEPDIR)/libfaceauthenticate_la-parseSvmPrediction.Plo
+#	source='parseSvmPrediction.c' object='libfaceauthenticate_la-parseSvmPrediction.lo' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libfaceauthenticate_la_CFLAGS) $(CFLAGS) -c -o libfaceauthenticate_la-parseSvmPrediction.lo `test -f 'parseSvmPrediction.c' || echo '$(srcdir)/'`parseSvmPrediction.c
+
 pam_face_authenticate_so-pam_face_authentication.o: pam_face_authentication.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-pam_face_authentication.o -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-pam_face_authentication.Tpo -c -o pam_face_authenticate_so-pam_face_authentication.o `test -f 'pam_face_authentication.c' || echo '$(srcdir)/'`pam_face_authentication.c
 	mv -f $(DEPDIR)/pam_face_authenticate_so-pam_face_authentication.Tpo $(DEPDIR)/pam_face_authenticate_so-pam_face_authentication.Po
@@ -533,6 +640,139 @@ pam_face_authenticate_so-pam_face_authentication.obj: pam_face_authentication.c
 #	source='pam_face_authentication.c' object='pam_face_authenticate_so-pam_face_authentication.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-pam_face_authentication.obj `if test -f 'pam_face_authentication.c'; then $(CYGPATH_W) 'pam_face_authentication.c'; else $(CYGPATH_W) '$(srcdir)/pam_face_authentication.c'; fi`
+
+pam_face_authenticate_so-featureDctMod2.o: featureDctMod2.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-featureDctMod2.o -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Tpo -c -o pam_face_authenticate_so-featureDctMod2.o `test -f 'featureDctMod2.c' || echo '$(srcdir)/'`featureDctMod2.c
+	mv -f $(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Tpo $(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Po
+#	source='featureDctMod2.c' object='pam_face_authenticate_so-featureDctMod2.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-featureDctMod2.o `test -f 'featureDctMod2.c' || echo '$(srcdir)/'`featureDctMod2.c
+
+pam_face_authenticate_so-featureDctMod2.obj: featureDctMod2.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-featureDctMod2.obj -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Tpo -c -o pam_face_authenticate_so-featureDctMod2.obj `if test -f 'featureDctMod2.c'; then $(CYGPATH_W) 'featureDctMod2.c'; else $(CYGPATH_W) '$(srcdir)/featureDctMod2.c'; fi`
+	mv -f $(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Tpo $(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Po
+#	source='featureDctMod2.c' object='pam_face_authenticate_so-featureDctMod2.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-featureDctMod2.obj `if test -f 'featureDctMod2.c'; then $(CYGPATH_W) 'featureDctMod2.c'; else $(CYGPATH_W) '$(srcdir)/featureDctMod2.c'; fi`
+
+pam_face_authenticate_so-featureLBPHist.o: featureLBPHist.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-featureLBPHist.o -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Tpo -c -o pam_face_authenticate_so-featureLBPHist.o `test -f 'featureLBPHist.c' || echo '$(srcdir)/'`featureLBPHist.c
+	mv -f $(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Tpo $(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Po
+#	source='featureLBPHist.c' object='pam_face_authenticate_so-featureLBPHist.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-featureLBPHist.o `test -f 'featureLBPHist.c' || echo '$(srcdir)/'`featureLBPHist.c
+
+pam_face_authenticate_so-featureLBPHist.obj: featureLBPHist.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-featureLBPHist.obj -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Tpo -c -o pam_face_authenticate_so-featureLBPHist.obj `if test -f 'featureLBPHist.c'; then $(CYGPATH_W) 'featureLBPHist.c'; else $(CYGPATH_W) '$(srcdir)/featureLBPHist.c'; fi`
+	mv -f $(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Tpo $(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Po
+#	source='featureLBPHist.c' object='pam_face_authenticate_so-featureLBPHist.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-featureLBPHist.obj `if test -f 'featureLBPHist.c'; then $(CYGPATH_W) 'featureLBPHist.c'; else $(CYGPATH_W) '$(srcdir)/featureLBPHist.c'; fi`
+
+pam_face_authenticate_so-parseSvmPrediction.o: parseSvmPrediction.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-parseSvmPrediction.o -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-parseSvmPrediction.Tpo -c -o pam_face_authenticate_so-parseSvmPrediction.o `test -f 'parseSvmPrediction.c' || echo '$(srcdir)/'`parseSvmPrediction.c
+	mv -f $(DEPDIR)/pam_face_authenticate_so-parseSvmPrediction.Tpo $(DEPDIR)/pam_face_authenticate_so-parseSvmPrediction.Po
+#	source='parseSvmPrediction.c' object='pam_face_authenticate_so-parseSvmPrediction.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-parseSvmPrediction.o `test -f 'parseSvmPrediction.c' || echo '$(srcdir)/'`parseSvmPrediction.c
+
+pam_face_authenticate_so-parseSvmPrediction.obj: parseSvmPrediction.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-parseSvmPrediction.obj -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-parseSvmPrediction.Tpo -c -o pam_face_authenticate_so-parseSvmPrediction.obj `if test -f 'parseSvmPrediction.c'; then $(CYGPATH_W) 'parseSvmPrediction.c'; else $(CYGPATH_W) '$(srcdir)/parseSvmPrediction.c'; fi`
+	mv -f $(DEPDIR)/pam_face_authenticate_so-parseSvmPrediction.Tpo $(DEPDIR)/pam_face_authenticate_so-parseSvmPrediction.Po
+#	source='parseSvmPrediction.c' object='pam_face_authenticate_so-parseSvmPrediction.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-parseSvmPrediction.obj `if test -f 'parseSvmPrediction.c'; then $(CYGPATH_W) 'parseSvmPrediction.c'; else $(CYGPATH_W) '$(srcdir)/parseSvmPrediction.c'; fi`
+
+pam_face_authenticate_so-svm-scale.o: ./libsvm/svm-scale.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-svm-scale.o -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-svm-scale.Tpo -c -o pam_face_authenticate_so-svm-scale.o `test -f './libsvm/svm-scale.c' || echo '$(srcdir)/'`./libsvm/svm-scale.c
+	mv -f $(DEPDIR)/pam_face_authenticate_so-svm-scale.Tpo $(DEPDIR)/pam_face_authenticate_so-svm-scale.Po
+#	source='./libsvm/svm-scale.c' object='pam_face_authenticate_so-svm-scale.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-svm-scale.o `test -f './libsvm/svm-scale.c' || echo '$(srcdir)/'`./libsvm/svm-scale.c
+
+pam_face_authenticate_so-svm-scale.obj: ./libsvm/svm-scale.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -MT pam_face_authenticate_so-svm-scale.obj -MD -MP -MF $(DEPDIR)/pam_face_authenticate_so-svm-scale.Tpo -c -o pam_face_authenticate_so-svm-scale.obj `if test -f './libsvm/svm-scale.c'; then $(CYGPATH_W) './libsvm/svm-scale.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-scale.c'; fi`
+	mv -f $(DEPDIR)/pam_face_authenticate_so-svm-scale.Tpo $(DEPDIR)/pam_face_authenticate_so-svm-scale.Po
+#	source='./libsvm/svm-scale.c' object='pam_face_authenticate_so-svm-scale.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(pam_face_authenticate_so_CFLAGS) $(CFLAGS) -c -o pam_face_authenticate_so-svm-scale.obj `if test -f './libsvm/svm-scale.c'; then $(CYGPATH_W) './libsvm/svm-scale.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-scale.c'; fi`
+
+svm-scale.o: ./libsvm/svm-scale.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT svm-scale.o -MD -MP -MF $(DEPDIR)/svm-scale.Tpo -c -o svm-scale.o `test -f './libsvm/svm-scale.c' || echo '$(srcdir)/'`./libsvm/svm-scale.c
+	mv -f $(DEPDIR)/svm-scale.Tpo $(DEPDIR)/svm-scale.Po
+#	source='./libsvm/svm-scale.c' object='svm-scale.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o svm-scale.o `test -f './libsvm/svm-scale.c' || echo '$(srcdir)/'`./libsvm/svm-scale.c
+
+svm-scale.obj: ./libsvm/svm-scale.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT svm-scale.obj -MD -MP -MF $(DEPDIR)/svm-scale.Tpo -c -o svm-scale.obj `if test -f './libsvm/svm-scale.c'; then $(CYGPATH_W) './libsvm/svm-scale.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-scale.c'; fi`
+	mv -f $(DEPDIR)/svm-scale.Tpo $(DEPDIR)/svm-scale.Po
+#	source='./libsvm/svm-scale.c' object='svm-scale.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o svm-scale.obj `if test -f './libsvm/svm-scale.c'; then $(CYGPATH_W) './libsvm/svm-scale.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-scale.c'; fi`
+
+svm-predict.o: ./libsvm/svm-predict.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT svm-predict.o -MD -MP -MF $(DEPDIR)/svm-predict.Tpo -c -o svm-predict.o `test -f './libsvm/svm-predict.c' || echo '$(srcdir)/'`./libsvm/svm-predict.c
+	mv -f $(DEPDIR)/svm-predict.Tpo $(DEPDIR)/svm-predict.Po
+#	source='./libsvm/svm-predict.c' object='svm-predict.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o svm-predict.o `test -f './libsvm/svm-predict.c' || echo '$(srcdir)/'`./libsvm/svm-predict.c
+
+svm-predict.obj: ./libsvm/svm-predict.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT svm-predict.obj -MD -MP -MF $(DEPDIR)/svm-predict.Tpo -c -o svm-predict.obj `if test -f './libsvm/svm-predict.c'; then $(CYGPATH_W) './libsvm/svm-predict.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-predict.c'; fi`
+	mv -f $(DEPDIR)/svm-predict.Tpo $(DEPDIR)/svm-predict.Po
+#	source='./libsvm/svm-predict.c' object='svm-predict.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o svm-predict.obj `if test -f './libsvm/svm-predict.c'; then $(CYGPATH_W) './libsvm/svm-predict.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-predict.c'; fi`
+
+svm-train.o: ./libsvm/svm-train.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT svm-train.o -MD -MP -MF $(DEPDIR)/svm-train.Tpo -c -o svm-train.o `test -f './libsvm/svm-train.c' || echo '$(srcdir)/'`./libsvm/svm-train.c
+	mv -f $(DEPDIR)/svm-train.Tpo $(DEPDIR)/svm-train.Po
+#	source='./libsvm/svm-train.c' object='svm-train.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o svm-train.o `test -f './libsvm/svm-train.c' || echo '$(srcdir)/'`./libsvm/svm-train.c
+
+svm-train.obj: ./libsvm/svm-train.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT svm-train.obj -MD -MP -MF $(DEPDIR)/svm-train.Tpo -c -o svm-train.obj `if test -f './libsvm/svm-train.c'; then $(CYGPATH_W) './libsvm/svm-train.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-train.c'; fi`
+	mv -f $(DEPDIR)/svm-train.Tpo $(DEPDIR)/svm-train.Po
+#	source='./libsvm/svm-train.c' object='svm-train.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o svm-train.obj `if test -f './libsvm/svm-train.c'; then $(CYGPATH_W) './libsvm/svm-train.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-train.c'; fi`
+
+.cpp.o:
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+#	source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXXCOMPILE) -c -o $@ $<
+
+.cpp.obj:
+	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ `$(CYGPATH_W) '$<'`
+	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+#	source='$<' object='$@' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
+
+.cpp.lo:
+	$(LTCXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
+	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Plo
+#	source='$<' object='$@' libtool=yes \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(LTCXXCOMPILE) -c -o $@ $<
+
+svm.o: ./libsvm/svm.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT svm.o -MD -MP -MF $(DEPDIR)/svm.Tpo -c -o svm.o `test -f './libsvm/svm.cpp' || echo '$(srcdir)/'`./libsvm/svm.cpp
+	mv -f $(DEPDIR)/svm.Tpo $(DEPDIR)/svm.Po
+#	source='./libsvm/svm.cpp' object='svm.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o svm.o `test -f './libsvm/svm.cpp' || echo '$(srcdir)/'`./libsvm/svm.cpp
+
+svm.obj: ./libsvm/svm.cpp
+	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT svm.obj -MD -MP -MF $(DEPDIR)/svm.Tpo -c -o svm.obj `if test -f './libsvm/svm.cpp'; then $(CYGPATH_W) './libsvm/svm.cpp'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm.cpp'; fi`
+	mv -f $(DEPDIR)/svm.Tpo $(DEPDIR)/svm.Po
+#	source='./libsvm/svm.cpp' object='svm.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) \
+#	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o svm.obj `if test -f './libsvm/svm.cpp'; then $(CYGPATH_W) './libsvm/svm.cpp'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -558,23 +798,6 @@ uninstall-extra1DATA:
 	  f=$(am__strip_dir) \
 	  echo " rm -f '$(DESTDIR)$(extra1dir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(extra1dir)/$$f"; \
-	done
-install-extra2DATA: $(extra2_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(extra2dir)" || $(MKDIR_P) "$(DESTDIR)$(extra2dir)"
-	@list='$(extra2_DATA)'; for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  f=$(am__strip_dir) \
-	  echo " $(extra2DATA_INSTALL) '$$d$$p' '$(DESTDIR)$(extra2dir)/$$f'"; \
-	  $(extra2DATA_INSTALL) "$$d$$p" "$(DESTDIR)$(extra2dir)/$$f"; \
-	done
-
-uninstall-extra2DATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(extra2_DATA)'; for p in $$list; do \
-	  f=$(am__strip_dir) \
-	  echo " rm -f '$(DESTDIR)$(extra2dir)/$$f'"; \
-	  rm -f "$(DESTDIR)$(extra2dir)/$$f"; \
 	done
 install-uiDATA: $(ui_DATA)
 	@$(NORMAL_INSTALL)
@@ -778,7 +1001,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) config.h
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(extradir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pammoddir)" "$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(extra2dir)" "$(DESTDIR)$(uidir)"; do \
+	for dir in "$(DESTDIR)$(extradir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pammoddir)" "$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(uidir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -828,12 +1051,14 @@ info: info-am
 
 info-am:
 
-install-data-am: install-extra1DATA install-extra2DATA \
-	install-extraLTLIBRARIES install-pammodPROGRAMS install-uiDATA
+install-data-am: install-extra1DATA install-extraLTLIBRARIES \
+	install-pammodPROGRAMS install-uiDATA
 
 install-dvi: install-dvi-am
 
 install-exec-am: install-binPROGRAMS install-libLTLIBRARIES
+	@$(NORMAL_INSTALL)
+	$(MAKE) $(AM_MAKEFLAGS) install-exec-hook
 
 install-html: install-html-am
 
@@ -868,11 +1093,10 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-extra1DATA \
-	uninstall-extra2DATA uninstall-extraLTLIBRARIES \
-	uninstall-libLTLIBRARIES uninstall-pammodPROGRAMS \
-	uninstall-uiDATA
+	uninstall-extraLTLIBRARIES uninstall-libLTLIBRARIES \
+	uninstall-pammodPROGRAMS uninstall-uiDATA
 
-.MAKE: install-am install-strip
+.MAKE: install-am install-exec-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am am--refresh check check-am clean \
 	clean-binPROGRAMS clean-extraLTLIBRARIES clean-generic \
@@ -883,8 +1107,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-extra1DATA \
 	distclean-tags distcleancheck distdir distuninstallcheck dvi \
 	dvi-am html html-am info info-am install install-am \
 	install-binPROGRAMS install-data install-data-am install-dvi \
-	install-dvi-am install-exec install-exec-am install-extra1DATA \
-	install-extra2DATA install-extraLTLIBRARIES install-html \
+	install-dvi-am install-exec install-exec-am install-exec-hook \
+	install-extra1DATA install-extraLTLIBRARIES install-html \
 	install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-man install-pammodPROGRAMS \
 	install-pdf install-pdf-am install-ps install-ps-am \
@@ -893,10 +1117,15 @@ uninstall-am: uninstall-binPROGRAMS uninstall-extra1DATA \
 	mostlyclean mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
 	uninstall-am uninstall-binPROGRAMS uninstall-extra1DATA \
-	uninstall-extra2DATA uninstall-extraLTLIBRARIES \
-	uninstall-libLTLIBRARIES uninstall-pammodPROGRAMS \
-	uninstall-uiDATA
+	uninstall-extraLTLIBRARIES uninstall-libLTLIBRARIES \
+	uninstall-pammodPROGRAMS uninstall-uiDATA
 
+
+install-exec-hook:
+		   chown root $(bindir)/pfatrainer
+		   chmod u+s $(bindir)/pfatrainer
+		   chown root $(bindir)/svm-predict
+		   chmod u+s $(bindir)/svm-predict
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.
 .NOEXPORT:

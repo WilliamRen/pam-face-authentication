@@ -598,9 +598,9 @@ cat >"$tmp/subs-2.sed" <<\CEOF
 s,@am__fastdepCXX_TRUE@,|#_!!_#|,g
 s,@am__fastdepCXX_FALSE@,|#_!!_#|#,g
 s,@CXXCPP@,|#_!!_#|g++ -E,g
-s,@F77@,|#_!!_#|,g
-s,@FFLAGS@,|#_!!_#|,g
-s,@ac_ct_F77@,|#_!!_#|,g
+s,@F77@,|#_!!_#|gfortran,g
+s,@FFLAGS@,|#_!!_#|-g -O2,g
+s,@ac_ct_F77@,|#_!!_#|gfortran,g
 s,@LIBTOOL@,|#_!!_#|$(SHELL) $(top_builddir)/libtool,g
 s,@X11_LIBS@,|#_!!_#|-lX11,g
 s,@PKG_CONFIG@,|#_!!_#|/usr/bin/pkg-config,g

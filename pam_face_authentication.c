@@ -28,8 +28,8 @@
 #include <security/_pam_types.h>
 
 #include <X11/Xlib.h>
+#include <pwd.h> /* getpwdid */
 
-#include <dlfcn.h>
 #include "cv.h"
 #include "highgui.h"
 #include <sys/types.h>
@@ -133,7 +133,7 @@ void removeFile(char* userTemp)
     remove(userFile);
 }
 
-char startTracker(char* username)
+char startTracker(int *answer,char* username)
 {
     intialize();
     CvPoint pts[4];
@@ -144,13 +144,16 @@ char startTracker(char* username)
     int percentage;
     CvFont myFont;
     cvInitFont(&myFont,CV_FONT_HERSHEY_DUPLEX, .5f,.5f,0,1,CV_AA);
+    char* fullPath[300];
+    sprintf(fullPath,"/etc/pam-face-authentication/%s.pgm",username);
 
+/*
     char * fullPath;
     fullPath=(char *)calloc(  strlen(path) + strlen(username)+strlen(imgExt)+1,sizeof(char));
     strcat(fullPath,path);;
     strcat(fullPath,username);
     strcat(fullPath,imgExt);
-
+*/
     CvCapture* capture = 0;
     IplImage *frame,*frameNew,*frame_copy = 0;
     capture = cvCaptureFromCAM(0);
@@ -193,9 +196,9 @@ char startTracker(char* username)
 
                         cvSaveImage(fullPath,face);
 
-                        if (recognize(username,&percentage)=='y')
+                        if (recognize(answer,username,&percentage)=='y')
                         {
-                            removeFile(username);
+                            //removeFile(username);
                             AuthenticateButtonClicked=0;
                             *commAuth=EXIT_GUI;
                             cvZero(frame_copy);
@@ -249,7 +252,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int retval;
     const char *user=NULL;
     const char *error;
-    char *userName;
+    char userName[100]="root";
 
     // From fingerprint GUI project
     // We need the Xauth to fork the GUI
@@ -265,7 +268,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     // Following Code Extracts the Display
 
 
-
+/*
     retval = pam_get_user(pamh, &user, NULL);
     if (retval != PAM_SUCCESS)
     {
@@ -277,7 +280,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         D(("username not known"));
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
     }
-
+*/
     pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
     if (pamtty!=NULL&&strlen(pamtty)>0)
     {
@@ -354,23 +357,31 @@ if (xauthpath==NULL)
 
     ipcStart();
     resetFlags();
-    intializePaths(user);
+   // intializePaths(user);
+/*
     userName=(char *)calloc(strlen(user)+1,sizeof(char));
     strcpy(userName,user);
     removeFile(userName);
+*/
+
+    /*
     if (findIndex(userName)==-1)
         return PAM_AUTH_ERR;
 
-
+*/
 
     system(GTK_FACE_AUTHENTICATE);
 
+int answer=-1;
 
 
-
-    if (startTracker(userName)=='y')
+    if (startTracker(&answer,userName)=='y')
     {
-        return PAM_SUCCESS;
+            struct passwd *passwd;
+            passwd = getpwuid (answer);
+            //printf("yooyoyoyo");
+        pam_set_item(pamh, PAM_USER, passwd->pw_gecos);
+       return PAM_SUCCESS;
     }
     else
     {
