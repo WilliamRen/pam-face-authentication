@@ -252,7 +252,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int retval;
     const char *user=NULL;
     const char *error;
-    char userName[100]="root";
+    char *userName;
 
     // From fingerprint GUI project
     // We need the Xauth to fork the GUI
@@ -268,7 +268,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     // Following Code Extracts the Display
 
 
-/*
+
     retval = pam_get_user(pamh, &user, NULL);
     if (retval != PAM_SUCCESS)
     {
@@ -280,7 +280,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         D(("username not known"));
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
     }
-*/
+
     pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
     if (pamtty!=NULL&&strlen(pamtty)>0)
     {
@@ -357,12 +357,11 @@ if (xauthpath==NULL)
 
     ipcStart();
     resetFlags();
-   // intializePaths(user);
-/*
+    intializePaths(user);
     userName=(char *)calloc(strlen(user)+1,sizeof(char));
     strcpy(userName,user);
     removeFile(userName);
-*/
+
 
     /*
     if (findIndex(userName)==-1)
@@ -379,8 +378,7 @@ int answer=-1;
     {
             struct passwd *passwd;
             passwd = getpwuid (answer);
-            //printf("yooyoyoyo");
-        pam_set_item(pamh, PAM_USER, passwd->pw_gecos);
+        if(strcmp(passwd->pw_gecos,userName)==0)
        return PAM_SUCCESS;
     }
     else

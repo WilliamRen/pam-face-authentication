@@ -47,13 +47,13 @@
 #define PACKAGE_NAME "pam-face-authentication"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "pam-face-authentication 0.2"
+#define PACKAGE_STRING "pam-face-authentication 0.3"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "pam-face-authentication"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "0.2"
+#define PACKAGE_VERSION "0.3"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -62,4 +62,4 @@
 #define USE_X11 1
 
 /* Version number of package */
-#define VERSION "0.2"
+#define VERSION "0.3"
