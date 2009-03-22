@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 void  featureDctMod2(IplImage * img,float*  features_final)
 {
 

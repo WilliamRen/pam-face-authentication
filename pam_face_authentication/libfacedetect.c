@@ -1,4 +1,3 @@
-
 /*
     Copyright (C) 2008 Rohan Anil (rohan.anil@gmail.com) , Alex Lau ( avengermojo@gmail.com)
 
@@ -42,16 +41,16 @@
 
 
 static CvScalar colors[] =
-    {
-        {{0,0,255}},
-        {{0,128,255}},
-        {{0,255,255}},
-        {{0,255,0}},
-        {{255,128,0}},
-        {{255,255,0}},
-        {{255,0,0}},
-        {{255,0,255}}
-    };
+{
+    {{0,0,255}},
+    {{0,128,255}},
+    {{0,255,255}},
+    {{0,255,0}},
+    {{255,128,0}},
+    {{255,255,0}},
+    {{255,0,0}},
+    {{255,0,255}}
+};
 
 
 
@@ -73,7 +72,7 @@ char *XML_GTK_BUILDER_FACE_AUTHENTICATE=PKGDATADIR "/gtk-faceauthenticate.xml";
 
 
 
-
+int moveTransparent=0;
 
 int init=0;
 int dtdLeftEyeOnce=0,dtdRightEyeOnce=0,dtdNoseOnce=0;
@@ -148,7 +147,7 @@ void GetSkinMask(IplImage * src_RGB, IplImage * mask_BW, int erosions, int dilat
                                    3 ); //create 2 temp-images
 
     IplImage* src = cvCreateImage(cvGetSize(src_RGB), IPL_DEPTH_8U ,
-                                 3);
+                                  3);
     cvCopyImage(src_RGB, src);
     IplImage* tmpYCR = cvCreateImage(cvGetSize(src), IPL_DEPTH_8U , 3);
     cvCvtColor(src ,tmpYCR , CV_RGB2YCrCb);
@@ -786,7 +785,7 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                     cvSetImageROI(eyeRightPImage,cvRect((minloc.x),(minloc.y),(eyeTemplateRightResized->width),(eyeTemplateRightResized->height)));
                     IplImage* rightEyeSearchArea = cvCreateImage( cvSize((eyeTemplateRightResized->width),(eyeTemplateRightResized->height)),8,1);
                     cvResize( eyeRightPImage,rightEyeSearchArea, CV_INTER_LINEAR ) ;
-                     cvResetImageROI(eyeRightPImage);
+                    cvResetImageROI(eyeRightPImage);
 
                     double XR=(minloc.x +CenterofMass(rightEyeSearchArea,0))*scalex;
                     double YR= (minloc.y+CenterofMass(rightEyeSearchArea,1))*scaley;
@@ -948,43 +947,44 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
         eyeMid.x=((p1LeftEye.x+p1RightEye.x)/2);
         eyeMid.y=((p1LeftEye.y+p1RightEye.y)/2);
         cvFillConvexPoly(img, pts,3,CV_RGB(0,255,0),CV_AA,0 );
-
-        if ((p1LeftEye.x+p1RightEye.x)/2 >nosePosition.x)
-        {
-            pts[0]=eyeMid;
-            pts[1]=p1LeftEye;
-            pts[2]=nosePosition;
-            cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
-        }
-        else if ((p1LeftEye.x+p1RightEye.x)/2<nosePosition.x)
-        {
-            pts[0]=eyeMid;
-            pts[1]=p1RightEye;
-            pts[2]=nosePosition;
-            cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
-        }
-
+        /*
+                if ((p1LeftEye.x+p1RightEye.x)/2 >nosePosition.x)
+                {
+                    pts[0]=eyeMid;
+                    pts[1]=p1LeftEye;
+                    pts[2]=nosePosition;
+                    cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
+                }
+                else if ((p1LeftEye.x+p1RightEye.x)/2<nosePosition.x)
+                {
+                    pts[0]=eyeMid;
+                    pts[1]=p1RightEye;
+                    pts[2]=nosePosition;
+                    cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
+                }
+        */
 
         int colorNo=8;
-
-        if (dtdLeftEye==1 && dtdRightEye==1)
-        {
-            cvCircle(img, p1LeftEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1RightEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1LeftEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1RightEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-        }
-        else
-        {
-            cvCircle(img, p1LeftEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1RightEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1LeftEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1RightEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-            cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-        }
+        /*
+                if (dtdLeftEye==1 && dtdRightEye==1)
+                {
+                    cvCircle(img, p1LeftEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1RightEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1LeftEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1RightEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+                }
+                else
+                {
+                    cvCircle(img, p1LeftEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1RightEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1LeftEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1RightEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+                    cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+                }
+                */
         cvReleaseImage( &eyeFull );
         cvReleaseImage( &eyeRightPImage );
         cvReleaseImage( &eyeLeftPImage );
@@ -1000,7 +1000,55 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
 
     if (dtdLeftEye==1 && dtdRightEye==1)
     {
+
+        CvPixelPosition8u pos_dst;
+        int x =0;
+        int y =0;
+        CV_INIT_PIXEL_POS(pos_dst,
+                          (unsigned char *) img->imageData,
+                          img->widthStep,
+                          cvGetSize(img),
+                          x,y,
+                          img->origin);
+
+        uchar * ptr_dst;
+        double tran=255;
+        double k=(p2.y)/2;
+
+        moveTransparent-=6;
+        if (moveTransparent<=0)
+           {
+            moveTransparent=((p2.y)-(p1.y));
+            }
+
+
+        for ( y=p1.y+moveTransparent;y<((p2.y)/2) +moveTransparent ; y++)
+        {
+
+            k--;
+
+            for ( x=p1.x; x<(p2.x); x++)
+            {
+                if (y<=p2.y)
+                {
+                    ptr_dst = CV_MOVE_TO(pos_dst,x,y,3);
+                    tran=(255-ptr_dst[0])<(255-ptr_dst[1])?((255-ptr_dst[0])<(255-ptr_dst[2])?(255-ptr_dst[0]):(255-ptr_dst[2])):((255-ptr_dst[1])<(255-ptr_dst[2])?(255-ptr_dst[1]):(255-ptr_dst[2]));
+                    //    printf("%e \n" ,tran);
+                    double rat=(k/((p2.y-p1.y)/2));
+
+                    tran=tran-((rat)*tran);
+
+                    ptr_dst[0]=ptr_dst[0]+ (int)((tran*ptr_dst[0])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
+
+                    ptr_dst[1]=ptr_dst[1]+ (int)((tran*ptr_dst[1])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
+
+                    ptr_dst[2]=ptr_dst[2]+(int)((tran*ptr_dst[2])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
+                }
+            }
+
+        }
         cvRectangle(img,p1,p2,colors[3],3,4,0);
+
         (*pLeftEye).x=p1LeftEye.x;
         (*pLeftEye).y=p1LeftEye.y;
         (*pRightEye).x=p1RightEye.x;
@@ -1011,5 +1059,5 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
     {
         return 0;
     }
-}
 
+}

@@ -309,6 +309,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     char featuresLBPpath[120];
 
     char fullimagepath[150];
+    char LBPfullimagepath[150];
     struct passwd *passwd;
     passwd = getpwuid (getuid());
     int status;
@@ -329,6 +330,8 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
         if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
         {
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
+            sprintf(LBPfullimagepath,"%s/.pam-face-authentication/LBP_%s", passwd->pw_dir,de->d_name);
+            createLBP(fullimagepath,LBPfullimagepath);
             IplImage * img = cvLoadImage(fullimagepath,0);
             int Nx = floor((img->width - 4)/4);
             int Ny= floor((img->height - 4)/4);
@@ -464,9 +467,9 @@ main (int argc, char *argv[])
 
     g_timeout_add(40, (GSourceFunc) time_handler, (gpointer) window);
     gtk_builder_connect_signals (builder, NULL);
-    g_object_unref (G_OBJECT (builder));
     gtk_widget_show (window);
     gtk_main ();
+ g_object_unref (G_OBJECT (builder));
 
     return 0;
 }
