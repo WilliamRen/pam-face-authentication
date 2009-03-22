@@ -112,7 +112,8 @@ pam_face_authenticate_so_LINK = $(LIBTOOL) --tag=CC $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CCLD) \
 	$(pam_face_authenticate_so_CFLAGS) $(CFLAGS) \
 	$(pam_face_authenticate_so_LDFLAGS) $(LDFLAGS) -o $@
-am_pfatrainer_OBJECTS = svm-scale.$(OBJEXT) trainer.$(OBJEXT)
+am_pfatrainer_OBJECTS = svm-scale.$(OBJEXT) svm.$(OBJEXT) \
+	libsvm-train.$(OBJEXT) trainer.$(OBJEXT)
 pfatrainer_OBJECTS = $(am_pfatrainer_OBJECTS)
 pfatrainer_LDADD = $(LDADD)
 am_svm_predict_OBJECTS = svm-predict.$(OBJEXT) svm.$(OBJEXT)
@@ -294,6 +295,8 @@ INCLUDES = \
 
 pfatrainer_SOURCES = ./libsvm/svm.h \
 			./libsvm/svm-scale.c \
+                        ./libsvm/svm.cpp \
+			 ./libsvm/libsvm-train.c \
 			trainer.c
 
 svm_predict_SOURCES = ./libsvm/svm-predict.c \
@@ -544,7 +547,7 @@ pam_face_authenticate.so$(EXEEXT): $(pam_face_authenticate_so_OBJECTS) $(pam_fac
 	$(pam_face_authenticate_so_LINK) $(pam_face_authenticate_so_OBJECTS) $(pam_face_authenticate_so_LDADD) $(LIBS)
 pfatrainer$(EXEEXT): $(pfatrainer_OBJECTS) $(pfatrainer_DEPENDENCIES) 
 	@rm -f pfatrainer$(EXEEXT)
-	$(LINK) $(pfatrainer_OBJECTS) $(pfatrainer_LDADD) $(LIBS)
+	$(CXXLINK) $(pfatrainer_OBJECTS) $(pfatrainer_LDADD) $(LIBS)
 svm-predict$(EXEEXT): $(svm_predict_OBJECTS) $(svm_predict_DEPENDENCIES) 
 	@rm -f svm-predict$(EXEEXT)
 	$(CXXLINK) $(svm_predict_OBJECTS) $(svm_predict_LDADD) $(LIBS)
@@ -567,6 +570,7 @@ include ./$(DEPDIR)/libfaceauthenticate_la-featureLBPHist.Plo
 include ./$(DEPDIR)/libfaceauthenticate_la-libfaceauthenticate.Plo
 include ./$(DEPDIR)/libfaceauthenticate_la-parseSvmPrediction.Plo
 include ./$(DEPDIR)/libfacedetect.Plo
+include ./$(DEPDIR)/libsvm-train.Po
 include ./$(DEPDIR)/pam_face_authenticate_so-featureDctMod2.Po
 include ./$(DEPDIR)/pam_face_authenticate_so-featureLBPHist.Po
 include ./$(DEPDIR)/pam_face_authenticate_so-pam_face_authentication.Po
@@ -710,6 +714,20 @@ svm-scale.obj: ./libsvm/svm-scale.c
 #	source='./libsvm/svm-scale.c' object='svm-scale.obj' libtool=no \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o svm-scale.obj `if test -f './libsvm/svm-scale.c'; then $(CYGPATH_W) './libsvm/svm-scale.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/svm-scale.c'; fi`
+
+libsvm-train.o: ./libsvm/libsvm-train.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsvm-train.o -MD -MP -MF $(DEPDIR)/libsvm-train.Tpo -c -o libsvm-train.o `test -f './libsvm/libsvm-train.c' || echo '$(srcdir)/'`./libsvm/libsvm-train.c
+	mv -f $(DEPDIR)/libsvm-train.Tpo $(DEPDIR)/libsvm-train.Po
+#	source='./libsvm/libsvm-train.c' object='libsvm-train.o' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsvm-train.o `test -f './libsvm/libsvm-train.c' || echo '$(srcdir)/'`./libsvm/libsvm-train.c
+
+libsvm-train.obj: ./libsvm/libsvm-train.c
+	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT libsvm-train.obj -MD -MP -MF $(DEPDIR)/libsvm-train.Tpo -c -o libsvm-train.obj `if test -f './libsvm/libsvm-train.c'; then $(CYGPATH_W) './libsvm/libsvm-train.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/libsvm-train.c'; fi`
+	mv -f $(DEPDIR)/libsvm-train.Tpo $(DEPDIR)/libsvm-train.Po
+#	source='./libsvm/libsvm-train.c' object='libsvm-train.obj' libtool=no \
+#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
+#	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o libsvm-train.obj `if test -f './libsvm/libsvm-train.c'; then $(CYGPATH_W) './libsvm/libsvm-train.c'; else $(CYGPATH_W) '$(srcdir)/./libsvm/libsvm-train.c'; fi`
 
 svm-predict.o: ./libsvm/svm-predict.c
 	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT svm-predict.o -MD -MP -MF $(DEPDIR)/svm-predict.Tpo -c -o svm-predict.o `test -f './libsvm/svm-predict.c' || echo '$(srcdir)/'`./libsvm/svm-predict.c
