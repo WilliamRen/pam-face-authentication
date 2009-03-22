@@ -16,6 +16,8 @@ bin_PROGRAMS = gtk-facemanager \
 
 pfatrainer_SOURCES =	./libsvm/svm.h \
 			./libsvm/svm-scale.c \
+                        ./libsvm/svm.cpp \
+			 ./libsvm/libsvm-train.c \
 			trainer.c
 
 svm_predict_SOURCES = ./libsvm/svm-predict.c \

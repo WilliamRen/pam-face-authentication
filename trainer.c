@@ -7,7 +7,7 @@ int svmScale(int argc,char **argv,FILE* fp1);
 int
 main (int argc, char *argv[])
 {
-    if(argv[1]!="")
+    if(argv[1]!=NULL)
     {
 FILE *fileKey;
     if ( !(fileKey = fopen("/etc/pam-face-authentication/db.lst", "a")) )
@@ -126,4 +126,9 @@ system(BINDIR "/svm-train -t 2 -c 8 -g 0.0001220703125 -b 1 /etc/pam-face-authen
 system(BINDIR "/svm-train -t 2 -c 8 -g 0.0001220703125 -b 1 /etc/pam-face-authentication/featuresLBP.scale /etc/pam-face-authentication/featuresLBP.scale.model");
 
 
+char* argv3[11]={"svm-train","-t","2","-c","8","-g","0.0001220703125","-b","1","/etc/pam-face-authentication/featuresDCT.scale","/etc/pam-face-authentication/featuresDCT.scale.model"};
+svmTrain(11,argv3);
+
+char* argv4[11]={"svm-train","-t","2","-c","8","-g","0.0001220703125","-b","1","/etc/pam-face-authentication/featuresLBP.scale","/etc/pam-face-authentication/featuresLBP.scale.model"};
+svmTrain(11,argv4);
 }
