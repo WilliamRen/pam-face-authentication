@@ -476,7 +476,7 @@ char recognize(int *userid,char* username,int* percentage)
             login=-1;
     }
         printf("Login %d \n",login);
-    if (sum<1.65)
+    if (sum<1.60)
     {
         login=-1;
     }
