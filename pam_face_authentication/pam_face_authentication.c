@@ -133,7 +133,7 @@ void removeFile(char* userTemp)
     remove(userFile);
 }
 
-char startTracker(int *answer,char* username)
+char startTracker(int *answer,char* username,int currentUserId)
 {
     intialize();
     CvPoint pts[4];
@@ -196,7 +196,7 @@ char startTracker(int *answer,char* username)
 
                         cvSaveImage(fullPath,face);
 
-                        if (recognize(answer,username,&percentage)=='y')
+                        if (recognize(answer,username,&percentage,currentUserId)=='y')
                         {
                             //removeFile(username);
                             AuthenticateButtonClicked=0;
@@ -375,11 +375,17 @@ if(xauthpath==NULL)
 
 int answer=-1;
 
+struct passwd *userpasswd;
+userpasswd = getpwnam(userName);
+int currentUserId=userpasswd->pw_uid;
 
-    if (startTracker(&answer,userName)=='y')
+
+    if (startTracker(&answer,userName,currentUserId)=='y')
     {
             struct passwd *passwd;
+
             passwd = getpwuid (answer);
+
       printf("%s\n",userName);
             printf("%s\n",passwd->pw_gecos);
 

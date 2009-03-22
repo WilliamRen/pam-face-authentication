@@ -38,7 +38,7 @@ CvMat * projectedTrainFaceMat = 0; // projected training faces
 
 //// Function prototypes
 
-char recognize(int *an,char* username,int *percentage);
+char recognize(int *an,char* username,int *percentage,int currentUserId);
 int  loadTrainingData();
 int  findNearestNeighbor(float * projectedTestFace);
 
@@ -355,7 +355,7 @@ double LBPdiff(    IplImage* image1,    IplImage* image2)
 
 
 
-char recognize(int *userid,char* username,int* percentage)
+char recognize(int *userid,char* username,int* percentage,int currentUserId)
 {
     /*
     char* userFile;
@@ -370,7 +370,7 @@ char recognize(int *userid,char* username,int* percentage)
     sprintf(userFile,"/etc/pam-face-authentication/%s.pgm",username);
 
     IplImage * img = cvLoadImage(userFile,0);
-    printf("%s \n",userFile);
+  //  printf("%s \n",userFile);
 
     char temp[200];
 
@@ -452,6 +452,8 @@ char recognize(int *userid,char* username,int* percentage)
     double percentage1;
     parseSvmPrediction(&ans,&percentage1);
     ansMatch=ans;
+    if(ans!=currentUserId)
+    return 'n';
     sum+=percentage1;
     printf("Answer %d \n",ans);
     printf("DCT Percent %e \n",percentage1);
