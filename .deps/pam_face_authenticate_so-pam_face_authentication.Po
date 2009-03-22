@@ -38,7 +38,9 @@ pam_face_authenticate_so-pam_face_authentication.o:  \
   /usr/include/limits.h /usr/include/bits/posix1_lim.h \
   /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
   /usr/include/bits/posix2_lim.h /usr/include/ctype.h \
-  /usr/include/malloc.h pam_face_defines.h pam_face.h
+  /usr/include/malloc.h /usr/include/pthread.h /usr/include/sched.h \
+  /usr/include/bits/sched.h /usr/include/signal.h \
+  /usr/include/bits/setjmp.h pam_face_defines.h pam_face.h
 
 /usr/include/security/pam_modules.h:
 
@@ -189,6 +191,16 @@ pam_face_authenticate_so-pam_face_authentication.o:  \
 /usr/include/ctype.h:
 
 /usr/include/malloc.h:
+
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/signal.h:
+
+/usr/include/bits/setjmp.h:
 
 pam_face_defines.h:
 

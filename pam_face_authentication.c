@@ -47,10 +47,38 @@
 #include <time.h>
 #include <ctype.h>
 #include <malloc.h>
+#include <pthread.h>
+
 
 #include "pam_face_defines.h"
 #include "pam_face.h"
 CvPoint pLeftEye,pRightEye;
+int authenticateThreadReturn=0;
+int threadNumber=0;
+int answer=-1;
+char *userName;
+int percentageRecognition;
+int currentUserIdRecognition;
+int numberofNo=0;
+int numberofYes=0;
+
+void *funcRecognition(void )
+{
+    if (recognize(&answer,userName,&percentageRecognition,currentUserIdRecognition)=='y')
+    {
+        numberofYes++;
+        if ((numberofYes>=numberofNo))
+            authenticateThreadReturn=1;
+    }
+    else
+    {
+        authenticateThreadReturn=0;
+        numberofNo++;
+    }
+    printf("Thread Complete \n");
+    threadNumber=0;
+}
+
 int file_exists(const char* filename)
 {
     FILE* file;
@@ -73,6 +101,8 @@ void setFlags()
     if ((*commAuth)==CANCEL)
     {
         CancelButtonClicked=1;
+        numberofNo=0;
+        numberofYes=0;
     }
     if ((*commAuth)==AUTHENTICATE)
     {
@@ -141,19 +171,19 @@ char startTracker(int *answer,char* username,int currentUserId)
     pts[1]=cvPoint(IMAGE_WIDTH,0);
     pts[2]=cvPoint(IMAGE_WIDTH,20);
     pts[3]=cvPoint(0,20);
-    int percentage;
+
     CvFont myFont;
     cvInitFont(&myFont,CV_FONT_HERSHEY_DUPLEX, .5f,.5f,0,1,CV_AA);
     char fullPath[300];
     sprintf(fullPath,"/etc/pam-face-authentication/%s.pgm",username);
 
-/*
-    char * fullPath;
-    fullPath=(char *)calloc(  strlen(path) + strlen(username)+strlen(imgExt)+1,sizeof(char));
-    strcat(fullPath,path);;
-    strcat(fullPath,username);
-    strcat(fullPath,imgExt);
-*/
+    /*
+        char * fullPath;
+        fullPath=(char *)calloc(  strlen(path) + strlen(username)+strlen(imgExt)+1,sizeof(char));
+        strcat(fullPath,path);;
+        strcat(fullPath,username);
+        strcat(fullPath,imgExt);
+    */
     CvCapture* capture = 0;
     IplImage *frame,*frameNew,*frame_copy = 0;
     capture = cvCaptureFromCAM(0);
@@ -192,11 +222,8 @@ char startTracker(int *answer,char* username,int currentUserId)
                         j=preprocess(frameNew,pLeftEye,pRightEye,face);
                     if (j==1)
                     {
-
-
                         cvSaveImage(fullPath,face);
-
-                        if (recognize(answer,username,&percentage,currentUserId)=='y')
+                        if (authenticateThreadReturn==1)
                         {
                             //removeFile(username);
                             AuthenticateButtonClicked=0;
@@ -206,8 +233,23 @@ char startTracker(int *answer,char* username,int currentUserId)
                             cvReleaseImage( &frameNew );
                             cvReleaseImage( &frame_copy );
                             cvReleaseCapture( &capture );
-                            return 'y';
+                            return 'y';;
                         }
+                        if (threadNumber==0)
+                        {
+                            pthread_t thread1;
+                            pthread_create( &thread1, NULL, &funcRecognition,NULL );
+                            threadNumber=1;
+                        }
+
+
+
+                        /*
+                                if (recognize(answer,username,&percentage,currentUserId)=='y')
+                                {
+
+                                }
+                        */
                         //    printf("percent %d \n",percentage);
                     }
                     cvReleaseImage( &face );
@@ -252,7 +294,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int retval;
     const char *user=NULL;
     const char *error;
-    char *userName;
+
 
     // From fingerprint GUI project
     // We need the Xauth to fork the GUI
@@ -281,7 +323,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
     }
 
- pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
+    pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
     if (pamtty!=NULL&&strlen(pamtty)>0)
     {
         if (pamtty[0]==':')
@@ -289,13 +331,14 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             if (display==NULL)
             {
                 display=pamtty;
-               setenv("DISPLAY",display,-1);
+                setenv("DISPLAY",display,-1);
             }
         }
     }
 
-if(xauthpath==NULL)
-{        // We need to extract the Path where Xauth is stored
+    if (xauthpath==NULL)
+    {
+        // We need to extract the Path where Xauth is stored
         // Following Code Sets Xauthority cookie
 
         // DISPLAY[1] Contains the value
@@ -304,11 +347,11 @@ if(xauthpath==NULL)
 
         sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
 
-       /* if (!file_exists(X_lock))
-        {
-            return -1;
-        }
-        */
+        /* if (!file_exists(X_lock))
+         {
+             return -1;
+         }
+         */
         char str[50];
         xlock=fopen(X_lock,"r");
         fgets(cmdline, 300,xlock);
@@ -320,12 +363,12 @@ if(xauthpath==NULL)
         sprintf(X_lock,"/proc/%s/cmdline",word1);
 
 
-/*
-        if (!file_exists(X_lock))
-        {
-            return -1;
-        }
-*/
+        /*
+                if (!file_exists(X_lock))
+                {
+                    return -1;
+                }
+        */
         xlock=fopen(X_lock,"r");
         fgets (X_lock , 300 , xlock);
         fclose(xlock);
@@ -353,7 +396,7 @@ if(xauthpath==NULL)
         {
             setenv("XAUTHORITY",xauthpath,-1);
         }
-}
+    }
 
 
 
@@ -369,30 +412,30 @@ if(xauthpath==NULL)
     if (findIndex(userName)==-1)
         return PAM_AUTH_ERR;
 
-*/
+    */
 
     system(GTK_FACE_AUTHENTICATE);
 
-int answer=-1;
-
-struct passwd *userpasswd;
-userpasswd = getpwnam(userName);
-int currentUserId=userpasswd->pw_uid;
 
 
-    if (startTracker(&answer,userName,currentUserId)=='y')
+    struct passwd *userpasswd;
+    userpasswd = getpwnam(userName);
+    currentUserIdRecognition=userpasswd->pw_uid;
+
+
+    if (startTracker(&answer,userName,currentUserIdRecognition)=='y')
     {
-            struct passwd *passwd;
+        struct passwd *passwd;
 
-            passwd = getpwuid (answer);
+        passwd = getpwuid (answer);
 
-      printf("%s\n",userName);
-            printf("%s\n",passwd->pw_gecos);
+        printf("%s\n",userName);
+        printf("%s\n",passwd->pw_gecos);
 
-       if(strcmp(passwd->pw_gecos,userName)==0)
+        if (strcmp(passwd->pw_gecos,userName)==0)
         {
 
-           // fprintf(t,"AAAA\n");
+            // fprintf(t,"AAAA\n");
 
             return PAM_SUCCESS;
 

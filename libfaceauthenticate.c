@@ -242,6 +242,7 @@ double histDifference(IplImage* img1,IplImage* img2)
     return chiSquare;
 
 }
+/*
 void createLBP(char * fullpath1,char * fullpath2)
 {
     int i=0;
@@ -305,6 +306,7 @@ void createLBP(char * fullpath1,char * fullpath2)
     cvReleaseImage( &image1);
     cvReleaseImage( &image1T);
 }
+*/
 double LBPdiff(    IplImage* image1,    IplImage* image2)
 
 {
@@ -357,6 +359,7 @@ double LBPdiff(    IplImage* image1,    IplImage* image2)
 
 char recognize(int *userid,char* username,int* percentage,int currentUserId)
 {
+    //printf("started \n");
     /*
     char* userFile;
 
@@ -489,7 +492,12 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     if (login==-1)
         return 'n';
     else
-        return 'y';
+       {
+           // Second Checkpoint
+
+            return 'y';
+
+       }
 
     /*
         char* userFile;
