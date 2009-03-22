@@ -144,7 +144,7 @@ char startTracker(int *answer,char* username)
     int percentage;
     CvFont myFont;
     cvInitFont(&myFont,CV_FONT_HERSHEY_DUPLEX, .5f,.5f,0,1,CV_AA);
-    char* fullPath[300];
+    char fullPath[300];
     sprintf(fullPath,"/etc/pam-face-authentication/%s.pgm",username);
 
 /*
@@ -258,7 +258,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     // We need the Xauth to fork the GUI
     int j;
     const char *pamtty=NULL;
-    char X_lock[100];
+    char X_lock[300];
     char cmdline[300];
     FILE *xlock;
     int length;
@@ -281,7 +281,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
     }
 
-    pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
+ pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
     if (pamtty!=NULL&&strlen(pamtty)>0)
     {
         if (pamtty[0]==':')
@@ -289,40 +289,43 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             if (display==NULL)
             {
                 display=pamtty;
-                setenv("DISPLAY",display,-1);
+               setenv("DISPLAY",display,-1);
             }
         }
     }
 
-if (xauthpath==NULL)
-    {
-        // We need to extract the Path where Xauth is stored
+if(xauthpath==NULL)
+{        // We need to extract the Path where Xauth is stored
         // Following Code Sets Xauthority cookie
 
         // DISPLAY[1] Contains the value
 
 
+
         sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
-        if (!file_exists(X_lock))
+
+       /* if (!file_exists(X_lock))
         {
             return -1;
         }
+        */
         char str[50];
         xlock=fopen(X_lock,"r");
         fgets(cmdline, 300,xlock);
         fclose(xlock);
+
 
         char *word1;
         word1=strtok(cmdline,"  \n");
         sprintf(X_lock,"/proc/%s/cmdline",word1);
 
 
-
+/*
         if (!file_exists(X_lock))
         {
             return -1;
         }
-
+*/
         xlock=fopen(X_lock,"r");
         fgets (X_lock , 300 , xlock);
         fclose(xlock);
@@ -346,13 +349,12 @@ if (xauthpath==NULL)
         }
 
 
-
-        if (file_exists(xauthpath))
+        if (file_exists(xauthpath)==1)
         {
             setenv("XAUTHORITY",xauthpath,-1);
         }
+}
 
-    }
 
 
     ipcStart();
@@ -378,12 +380,18 @@ int answer=-1;
     {
             struct passwd *passwd;
             passwd = getpwuid (answer);
-        if(strcmp(passwd->pw_gecos,userName)==0)
-       return PAM_SUCCESS;
-    }
-    else
-    {
-        return PAM_AUTH_ERR;
+      printf("%s\n",userName);
+            printf("%s\n",passwd->pw_gecos);
+
+       if(strcmp(passwd->pw_gecos,userName)==0)
+        {
+
+           // fprintf(t,"AAAA\n");
+
+            return PAM_SUCCESS;
+
+        }
+
     }
 
 }

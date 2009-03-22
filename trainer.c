@@ -7,6 +7,8 @@ int svmScale(int argc,char **argv,FILE* fp1);
 int
 main (int argc, char *argv[])
 {
+    if(argv[1]!="")
+    {
 FILE *fileKey;
     if ( !(fileKey = fopen("/etc/pam-face-authentication/db.lst", "a")) )
     {
@@ -16,7 +18,7 @@ FILE *fileKey;
      fprintf(fileKey,argv[1]);
   fprintf(fileKey,"\n");
     fclose(fileKey);
-
+    }
 
     FILE *fp1,*fp2,*fp3,*fp4,*fp0;
     if ( !(fp0 = fopen("/etc/pam-face-authentication/db.lst", "r")) )
