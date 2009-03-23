@@ -64,7 +64,8 @@ int numberofYes=0;
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 
 void *funcRecognition(void )
-{   pthread_mutex_lock( &mutex1 );
+{
+    pthread_mutex_lock( &mutex1 );
     if (recognize(&answer,userName,&percentageRecognition,currentUserIdRecognition)=='y')
     {
         numberofYes++;
@@ -78,7 +79,7 @@ void *funcRecognition(void )
     }
     //printf("Thread Complete \n");
     threadNumber=0;
-   pthread_mutex_unlock( &mutex1 );
+    pthread_mutex_unlock( &mutex1 );
 }
 
 int file_exists(const char* filename)
@@ -224,9 +225,9 @@ char startTracker(int *answer,char* username,int currentUserId)
                         j=preprocess(frameNew,pLeftEye,pRightEye,face);
                     if (j==1)
                     {
-                    if ((threadNumber==0) && (authenticateThreadReturn!=1))
+                        if ((threadNumber==0) && (authenticateThreadReturn!=1))
                         {
-                           threadNumber=1;
+                            threadNumber=1;
                             cvSaveImage(fullPath,face);
                             pthread_t thread1;
                             pthread_create( &thread1, NULL, &funcRecognition,NULL );
@@ -445,6 +446,10 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
         }
 
+    }
+    else
+    {
+        return PAM_AUTH_ERR;
     }
 
 }
