@@ -60,7 +60,8 @@ am__vpath_adj = case $$p in \
 am__strip_dir = `echo $$p | sed -e 's|^.*/||'`;
 am__installdirs = "$(DESTDIR)$(extradir)" "$(DESTDIR)$(libdir)" \
 	"$(DESTDIR)$(bindir)" "$(DESTDIR)$(pammoddir)" \
-	"$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(uidir)"
+	"$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(extra2dir)" \
+	"$(DESTDIR)$(uidir)"
 extraLTLIBRARIES_INSTALL = $(INSTALL)
 libLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(extra_LTLIBRARIES) $(lib_LTLIBRARIES)
@@ -152,8 +153,9 @@ DIST_SOURCES = $(libfaceauthenticate_la_SOURCES) libfacedetect.c \
 	$(pam_face_authenticate_so_SOURCES) $(pfatrainer_SOURCES) \
 	$(svm_predict_SOURCES) $(svm_train_SOURCES)
 extra1DATA_INSTALL = $(INSTALL_DATA)
+extra2DATA_INSTALL = $(INSTALL_DATA)
 uiDATA_INSTALL = $(INSTALL_DATA)
-DATA = $(extra1_DATA) $(ui_DATA)
+DATA = $(extra1_DATA) $(extra2_DATA) $(ui_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -356,7 +358,9 @@ pam_face_authenticate_so_LDADD = \
                         libfaceauthenticate.la
 
 extra1dir = /etc/pam-face-authentication/
+extra2dir = /etc/pam-face-authentication/dummy/
 extra1_DATA = xauth.key display.key prediction db.lst
+extra2_DATA = featuresAverage featuresDistance featuresDCT featuresLBP
 uidir = $(pkgdatadir)
 ui_DATA = \
 gtk-faceauthenticate.xml \
@@ -366,7 +370,7 @@ haarcascade_eye.xml \
 haarcascade_nose.xml \
 haarcascade.xml
 
-EXTRA_DIST = $(ui_DATA) $(extra1_DATA)
+EXTRA_DIST = $(ui_DATA) $(extra1_DATA) $(extra2_DATA)
 all: config.h
 	$(MAKE) $(AM_MAKEFLAGS) all-am
 
@@ -817,6 +821,23 @@ uninstall-extra1DATA:
 	  echo " rm -f '$(DESTDIR)$(extra1dir)/$$f'"; \
 	  rm -f "$(DESTDIR)$(extra1dir)/$$f"; \
 	done
+install-extra2DATA: $(extra2_DATA)
+	@$(NORMAL_INSTALL)
+	test -z "$(extra2dir)" || $(MKDIR_P) "$(DESTDIR)$(extra2dir)"
+	@list='$(extra2_DATA)'; for p in $$list; do \
+	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
+	  f=$(am__strip_dir) \
+	  echo " $(extra2DATA_INSTALL) '$$d$$p' '$(DESTDIR)$(extra2dir)/$$f'"; \
+	  $(extra2DATA_INSTALL) "$$d$$p" "$(DESTDIR)$(extra2dir)/$$f"; \
+	done
+
+uninstall-extra2DATA:
+	@$(NORMAL_UNINSTALL)
+	@list='$(extra2_DATA)'; for p in $$list; do \
+	  f=$(am__strip_dir) \
+	  echo " rm -f '$(DESTDIR)$(extra2dir)/$$f'"; \
+	  rm -f "$(DESTDIR)$(extra2dir)/$$f"; \
+	done
 install-uiDATA: $(ui_DATA)
 	@$(NORMAL_INSTALL)
 	test -z "$(uidir)" || $(MKDIR_P) "$(DESTDIR)$(uidir)"
@@ -1019,7 +1040,7 @@ all-am: Makefile $(LTLIBRARIES) $(PROGRAMS) $(DATA) config.h
 install-binPROGRAMS: install-libLTLIBRARIES
 
 installdirs:
-	for dir in "$(DESTDIR)$(extradir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pammoddir)" "$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(uidir)"; do \
+	for dir in "$(DESTDIR)$(extradir)" "$(DESTDIR)$(libdir)" "$(DESTDIR)$(bindir)" "$(DESTDIR)$(pammoddir)" "$(DESTDIR)$(extra1dir)" "$(DESTDIR)$(extra2dir)" "$(DESTDIR)$(uidir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -1069,8 +1090,8 @@ info: info-am
 
 info-am:
 
-install-data-am: install-extra1DATA install-extraLTLIBRARIES \
-	install-pammodPROGRAMS install-uiDATA
+install-data-am: install-extra1DATA install-extra2DATA \
+	install-extraLTLIBRARIES install-pammodPROGRAMS install-uiDATA
 
 install-dvi: install-dvi-am
 
@@ -1111,8 +1132,9 @@ ps: ps-am
 ps-am:
 
 uninstall-am: uninstall-binPROGRAMS uninstall-extra1DATA \
-	uninstall-extraLTLIBRARIES uninstall-libLTLIBRARIES \
-	uninstall-pammodPROGRAMS uninstall-uiDATA
+	uninstall-extra2DATA uninstall-extraLTLIBRARIES \
+	uninstall-libLTLIBRARIES uninstall-pammodPROGRAMS \
+	uninstall-uiDATA
 
 .MAKE: install-am install-exec-am install-strip
 
@@ -1126,8 +1148,8 @@ uninstall-am: uninstall-binPROGRAMS uninstall-extra1DATA \
 	dvi-am html html-am info info-am install install-am \
 	install-binPROGRAMS install-data install-data-am install-dvi \
 	install-dvi-am install-exec install-exec-am install-exec-hook \
-	install-extra1DATA install-extraLTLIBRARIES install-html \
-	install-html-am install-info install-info-am \
+	install-extra1DATA install-extra2DATA install-extraLTLIBRARIES \
+	install-html install-html-am install-info install-info-am \
 	install-libLTLIBRARIES install-man install-pammodPROGRAMS \
 	install-pdf install-pdf-am install-ps install-ps-am \
 	install-strip install-uiDATA installcheck installcheck-am \
@@ -1135,8 +1157,9 @@ uninstall-am: uninstall-binPROGRAMS uninstall-extra1DATA \
 	mostlyclean mostlyclean-compile mostlyclean-generic \
 	mostlyclean-libtool pdf pdf-am ps ps-am tags uninstall \
 	uninstall-am uninstall-binPROGRAMS uninstall-extra1DATA \
-	uninstall-extraLTLIBRARIES uninstall-libLTLIBRARIES \
-	uninstall-pammodPROGRAMS uninstall-uiDATA
+	uninstall-extra2DATA uninstall-extraLTLIBRARIES \
+	uninstall-libLTLIBRARIES uninstall-pammodPROGRAMS \
+	uninstall-uiDATA
 
 
 install-exec-hook:

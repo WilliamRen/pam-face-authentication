@@ -85,8 +85,9 @@ pam_face_authenticate_so_LDADD = \
                         libfaceauthenticate.la
 
 extra1dir=/etc/pam-face-authentication/
+extra2dir=/etc/pam-face-authentication/dummy/
 extra1_DATA = xauth.key display.key prediction db.lst
-
+extra2_DATA = featuresAverage featuresDistance featuresDCT featuresLBP
 uidir=$(pkgdatadir)
 ui_DATA = \
 gtk-faceauthenticate.xml \
@@ -96,5 +97,5 @@ haarcascade_eye.xml \
 haarcascade_nose.xml \
 haarcascade.xml
 
-EXTRA_DIST=$(ui_DATA) $(extra1_DATA)
+EXTRA_DIST=$(ui_DATA) $(extra1_DATA) $(extra2_DATA)
 
