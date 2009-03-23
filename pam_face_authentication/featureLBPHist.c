@@ -49,8 +49,8 @@ void  featureLBPHist(IplImage * img,float *features_final)
     int lbpArry[256];
 
     IplImage* imgLBP=cvCreateImage( cvSize(img->width,img->height), 8, img->nChannels );
-    int Nx = floor((img->width - 10)/10);
-    int Ny= floor((img->height - 10)/10);
+    int Nx = floor((img->width )/30);
+    int Ny= floor((img->height)/20);
 
     int i,j=0;
 
@@ -102,8 +102,8 @@ void  featureLBPHist(IplImage * img,float *features_final)
     {
         for (j=0;j<Nx;j++)
         {
-            int startX=10*j;
-            int startY=10*i;
+            int startX=30*j;
+            int startY=20*i;
             int count=0;
             for (k=0;k<256;k++)
             {
@@ -126,7 +126,7 @@ void  featureLBPHist(IplImage * img,float *features_final)
             for (l=0;l<20;l++)
             {
 
-                for (m=0;m<20;m++)
+                for (m=0;m<30;m++)
                 {
                     CvScalar s;
                     s=cvGet2D(imgLBP,startY+l,startX+m);
@@ -140,7 +140,7 @@ void  featureLBPHist(IplImage * img,float *features_final)
 
 cvReleaseImage( &imgLBP);
 }
-
+/*
 void createLBP(char * fullpath1,char * fullpath2)
 {
     printf("%s %s \n",fullpath1,fullpath2);

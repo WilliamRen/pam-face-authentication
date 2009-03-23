@@ -43,6 +43,9 @@ GtkWidget *gtkWelcome;
 GtkWidget *gtkIconView;
 GtkWidget *gtkWebcamImage;
 GtkWidget *gtkCountFace;
+
+
+
 void loadCVPIXBUF(GtkWidget *imgCapturedFace,IplImage* image)
 {
     unsigned char *gdataUserFace;
@@ -146,7 +149,8 @@ view_popup_menu (GtkWidget *iconview,GdkEventButton *event, char * filename)
 
 gboolean
 view_onButtonPressed (GtkWidget *iconview, GdkEventButton *event, gpointer userdata)
-{  gtk_icon_view_unselect_all ((GtkIconView*)iconview);
+{
+    gtk_icon_view_unselect_all ((GtkIconView*)iconview);
     GtkTreePath *path;
     GtkTreePath *cell;
     if (gtk_icon_view_get_item_at_pos((GtkIconView*)iconview,(gint) event->x,event->y,(GtkTreePath**)&path,(GtkCellRenderer**)&cell))
@@ -162,7 +166,7 @@ view_onButtonPressed (GtkWidget *iconview, GdkEventButton *event, gpointer userd
         // printf("%s \n",file);
         view_popup_menu(iconview,event,file);
     }
-return FALSE;
+    return FALSE;
 }
 void intializeGtkIconView()
 {
@@ -245,7 +249,7 @@ on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
         "Novell, China",
         " ",
         "Nickolay V. Shmyrev <nshmyrev@yandex.ru>",
-        "GNOME",
+        "",
 
         NULL
     };
@@ -301,13 +305,17 @@ on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
 void
 on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
 {
+
+    int i,j,k=0;
+    float* featuresLBPAverage = (float*)calloc(  7*4 * 59 , sizeof(float) );
+    float numberOfImages=0;
     struct dirent *de=NULL;
     DIR *d=NULL;
     char dirpath[120];
     char temp[200];
     char featuresDCTpath[120];
     char featuresLBPpath[120];
-
+    char featuresConfig[120];
     char fullimagepath[150];
     char LBPfullimagepath[150];
     struct passwd *passwd;
@@ -317,35 +325,27 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     status = mkdir(dirpath, S_IRWXU );
     sprintf(featuresDCTpath,"%s/.pam-face-authentication/features/featuresDCT", passwd->pw_dir);
     sprintf(featuresLBPpath,"%s/.pam-face-authentication/features/featuresLBP", passwd->pw_dir);
-
-
     FILE *f1 =fopen(featuresDCTpath,"w");
     FILE *f2 =fopen(featuresLBPpath,"w");
-
     sprintf(dirpath,"%s/.pam-face-authentication/train/", passwd->pw_dir);
-
     d=opendir(dirpath);
     while (de = readdir(d))
     {
         if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
         {
+            numberOfImages++;
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
-            sprintf(LBPfullimagepath,"%s/.pam-face-authentication/LBP_%s", passwd->pw_dir,de->d_name);
-            createLBP(fullimagepath,LBPfullimagepath);
             IplImage * img = cvLoadImage(fullimagepath,0);
             int Nx = floor((img->width - 4)/4);
             int Ny= floor((img->height - 4)/4);
             float* features = (float*)malloc(  Nx*Ny * 18 * sizeof(float) );
-
-
             featureDctMod2(img,features);
 
-            int Nx1 = floor((img->width - 10)/10);
-            int Ny1= floor((img->height - 10)/10);
+            int Nx1 = floor((img->width)/30);
+            int Ny1= floor((img->height)/20);
             float* featuresLBP = (float*)malloc(  Nx1*Ny1 * 59 * sizeof(float) );
             featureLBPHist(img,featuresLBP);
 
-            int i,j,k=0;
             sprintf(temp,"%d",getuid());
             fputs(temp,f1);
             fputs(" ",f1);
@@ -361,6 +361,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
                         fputs(temp,f2);
                         fputs(":",f2);
                         sprintf(temp,"%f",featuresLBP[i*59*Nx1 + j*59 +k]);
+                        featuresLBPAverage[i*59*Nx1 + j*59 +k]+=featuresLBP[i*59*Nx1 + j*59 +k];
                         fputs(temp,f2);
                         fputs(" ",f2);
                     }
@@ -385,48 +386,120 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
             }
             fputs("\n",f1);
             fputs("\n",f2);
+        }
+    }
+
+    fclose(f1);
+    fclose(f2);
+
+    for (i=0;i<7;i++)
+    {
+        for (j=0;j<4;j++)
+        {
+            for (k=0;k<59;k++)
+            {
+                featuresLBPAverage[i*59*4 + j*59 +k]=   featuresLBPAverage[i*59*4 + j*59 +k]/numberOfImages;
+            }
+        }
+    }
+    double MaxDistance=0;
+    d=opendir(dirpath);
+    while (de = readdir(d))
+    {
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        {
+
+            sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
+            IplImage * img = cvLoadImage(fullimagepath,0);
+            int Nx1 = floor((img->width)/30);
+            int Ny1= floor((img->height)/20);
+            float* featuresLBP = (float*)malloc(  Nx1*Ny1 * 59 * sizeof(float) );
+            featureLBPHist(img,featuresLBP);
+            double weights[7][4]  =
+            {
+                {.2,   .2,  .2, .2},
+                { 1,  1.5, 1.5,  1},
+                { 1,  2  ,   2,  1},
+                {.5,  1.2, 1.2, .5},
+                {.3,  1.2, 1.2, .3},
+                {.3,  1.1, 1.1, .3},
+                {.1,  .5,   .5, .1}
+            };
+            double distance=0;
+            for (i=0;i<7;i++)
+            {
+                for (j=0;j<4;j++)
+                {
+                    for (k=0;k<59;k++)
+                    {
+                        distance+=(weights[i][j]*pow((featuresLBPAverage[i*59*4 + j*59 +k]-featuresLBP[i*59*4 + j*59 +k]),2))/((featuresLBPAverage[i*59*4 + j*59 +k]+featuresLBP[i*59*4 + j*59 +k])+1);
+
+                    }
+                }
+            }
+            (sqrt(distance)>MaxDistance);
+            MaxDistance=sqrt(distance);
+         //   printf("%e \n",distance);
+
 
 
         }
     }
 
+    sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresDistance", passwd->pw_dir);
+    FILE *fd=fopen(featuresConfig,"w");
+    sprintf(temp,"%e\n",MaxDistance);
+    fputs(temp,fd);
+    fclose(fd);
 
-    fclose(f1);
-    fclose(f2);
+    sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresAverage", passwd->pw_dir);
+    fd=fopen(featuresConfig,"w");
+    for (i=0;i<7;i++)
+    {
+        for (j=0;j<4;j++)
+        {
+            for (k=0;k<59;k++)
+            {
+                sprintf(temp,"%f",featuresLBPAverage[i*59*4 + j*59 +k]);
+                fputs(temp,fd);
+                fputs(" ",fd);
+            }
+        }
+    }
+    fputs("\n",fd);
+    fclose(fd);
 
-/*
-Append feature directory to /etc/pam-face-authentication/db.lst
-*/
+    /*
+    Append feature directory to /etc/pam-face-authentication/db.lst
+    */
 
-FILE *fileKey;
-char path[250];
-int ifExist=0;
-sprintf(dirpath,"%s/.pam-face-authentication/features", passwd->pw_dir);
+    FILE *fileKey;
+    char path[250];
+    int ifExist=0;
+    sprintf(dirpath,"%s/.pam-face-authentication/features", passwd->pw_dir);
 
     if ( !(fileKey = fopen("/etc/pam-face-authentication/db.lst", "r")) )
     {
         fprintf(stderr, "Error 1 Occurred Accessing db.lst\n");
         exit(0);
     }
- while (fscanf(fileKey,"%s", path)!=EOF )
+    while (fscanf(fileKey,"%s", path)!=EOF )
     {
         if (strcmp(path,dirpath)==0)
         {
-        ifExist=1;
+            ifExist=1;
         }
     }
     fclose(fileKey);
-if(ifExist==0)
-{
-    char temptrainer[300];
-    sprintf(temptrainer,"%s/pfatrainer %s",BINDIR,dirpath);
-    system(temptrainer);
-}
-else
-system(BINDIR "/pfatrainer");
-
-/* NEED PROGRESS BAR */
-
+    if (ifExist==0)
+    {
+        char temptrainer[300];
+        sprintf(temptrainer,"%s/pfatrainer %s",BINDIR,dirpath);
+        system(temptrainer);
+    }
+    else
+        system(BINDIR "/pfatrainer");
+    /* NEED PROGRESS BAR */
 }
 /*
 
@@ -438,17 +511,14 @@ gtkCaptureFace_clicked_cb  (GtkButton *button,gpointer user_data)
     val=gtk_spin_button_get_value ((GtkSpinButton*)gtkCountFace);
     numberOfFaces=(int)val;
     //ŗ  printf("%d \n",numberOfFaces);
-
 }
 int
 main (int argc, char *argv[])
 {
-
     intialize();
     capture = cvCaptureFromCAM(0);
     cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
     cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
-
     char welcomeMessage[100];
     struct passwd *passwd;
     passwd = getpwuid ( getuid());
@@ -461,15 +531,12 @@ main (int argc, char *argv[])
     gtkIconView=(GTK_WIDGET (gtk_builder_get_object (builder, "gtkIconView")));
     gtkWebcamImage = GTK_WIDGET (gtk_builder_get_object (builder, "gtkWebcamImage"));
     gtkCountFace = (GTK_WIDGET (gtk_builder_get_object (builder, "gtkCountFace")));
-
     intializeGtkIconView();
     gtk_label_set_label (GTK_LABEL(gtkWelcome),welcomeMessage);
-
     g_timeout_add(40, (GSourceFunc) time_handler, (gpointer) window);
     gtk_builder_connect_signals (builder, NULL);
     gtk_widget_show (window);
     gtk_main ();
- g_object_unref (G_OBJECT (builder));
-
+    g_object_unref (G_OBJECT (builder));
     return 0;
 }

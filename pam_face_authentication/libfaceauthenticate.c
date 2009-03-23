@@ -20,6 +20,7 @@
 */
 #include <stdio.h>
 #include <string.h>
+#include <pwd.h>
 #include "cv.h"
 #include "cvaux.h"
 #include "highgui.h"
@@ -27,6 +28,7 @@
 
 
 //// Global variables
+
 IplImage * testFace        = 0; // array of face images
 int numberOfTrainingFaces               = 0; // the number of training images
 int numberOfEigenVectors                   = 0; // the number of eigenvalues
@@ -329,7 +331,7 @@ double LBPdiff(    IplImage* image1,    IplImage* image2)
         {.5,  1.2, 1.2,.5},
         {.3,  1.2,  1.2, .3},
         {.3,  1.1,  1.1,  .3},
-        {.1,  .5,       1, .1 }
+        {.1,  .5,     1, .1 }
     };
 
     int m,n;
@@ -369,13 +371,65 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     strcat(userFile,imgExt);
     */
 
-    char* userFile[300];
+    char userFile[300];
     sprintf(userFile,"/etc/pam-face-authentication/%s.pgm",username);
 
     IplImage * img = cvLoadImage(userFile,0);
-  //  printf("%s \n",userFile);
+    //  printf("%s \n",userFile);
 
     char temp[200];
+    char featuresConfig[300];
+    char* sDistanceThreshold[100];
+    double distanceThreshold=0;
+    double computedDistance=0;
+    double weights[7][4]  =
+    {
+        {.2,   .2,  .2, .2},
+        { 1,  1.5, 1.5,  1},
+        { 1,  2  ,   2,  1},
+        {.5,  1.2, 1.2, .5},
+        {.3,  1.2, 1.2, .3},
+        {.3,  1.1, 1.1, .3},
+        {.1,  .5,   .5, .1}
+    };
+
+    struct passwd *userpasswd;
+    userpasswd = getpwnam(username);
+
+
+    sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresDistance", userpasswd->pw_dir);
+    FILE *fileFeaturesDistance =fopen(featuresConfig,"r");
+    fscanf (fileFeaturesDistance, "%s",sDistanceThreshold);
+    distanceThreshold=atof(sDistanceThreshold);
+    fclose(fileFeaturesDistance);
+
+    sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresAverage", userpasswd->pw_dir);
+    FILE *fileFeaturesAverage =fopen(featuresConfig,"r");
+    char *buffer;
+    unsigned long fileLen;
+    fseek(fileFeaturesAverage, 0, SEEK_END);
+    fileLen=ftell(fileFeaturesAverage);
+    fseek(fileFeaturesAverage, 0, SEEK_SET);
+    buffer=(char *)calloc((fileLen+1),sizeof(char));
+    float* featuresAverage = (float*)calloc(4*7 * 59 ,sizeof(float) );
+
+    if (!buffer)
+    {
+        fprintf(stderr, "Memory error!");
+        fclose(fileFeaturesAverage);
+        return -1;
+    }
+    fread(buffer,1,fileLen,fileFeaturesAverage);
+    char *word1;
+    int index=0;
+    word1=strtok(buffer,"  \n");
+    while (word1!=NULL)
+    {
+        //printf("%e BUFFER\n",atof(word1));
+        featuresAverage[index]=(float)atof(word1);
+        index++;
+        word1=strtok(NULL,"  \n");
+    }
 
     FILE *f1 =fopen("/etc/pam-face-authentication/testFeaturesDCT","w");
     FILE *f2 =fopen("/etc/pam-face-authentication/testFeaturesLBP","w");
@@ -387,8 +441,8 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
 
     featureDctMod2(img,features);
 
-    int Nx1 = floor((img->width - 10)/10);
-    int Ny1= floor((img->height - 10)/10);
+    int Nx1 = floor((img->width)/30);
+    int Ny1= floor((img->height)/20);
     float* featuresLBP = (float*)malloc(  Nx1*Ny1 * 59 * sizeof(float) );
     featureLBPHist(img,featuresLBP);
 
@@ -408,12 +462,21 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
                 sprintf(temp,"%d", (i*59*Nx1 + j*59 +k));
                 fputs(temp,f2);
                 fputs(":",f2);
+                double sumHist=(featuresLBP[i*59*4 + j*59 +k]+featuresAverage[i*59*4 + j*59 +k])+1;
+              //  printf("%e \n",sumHist);
+                computedDistance+=(weights[i][j]*pow((featuresLBP[i*59*4 + j*59 +k]-featuresAverage[i*59*4 + j*59 +k]),2))/sumHist;
+               // printf("%e \n",computedDistance);
                 sprintf(temp,"%f",featuresLBP[i*59*Nx1 + j*59 +k]);
                 fputs(temp,f2);
                 fputs(" ",f2);
             }
         }
     }
+    computedDistance=sqrt(computedDistance);
+
+    //printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
+    if(computedDistance>distanceThreshold)
+    return 'n';
 
     for (i=0;i<Ny;i++)
     {
@@ -455,49 +518,49 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     double percentage1;
     parseSvmPrediction(&ans,&percentage1);
     ansMatch=ans;
-    if(ans!=currentUserId)
-    return 'n';
+    if (ans!=currentUserId)
+        return 'n';
     sum+=percentage1;
-    printf("Answer %d \n",ans);
-    printf("DCT Percent %e \n",percentage1);
-    if (percentage1<.75)
+    //printf("Answer %d \n",ans);
+    //printf("DCT Percent %e \n",percentage1);
+    if (percentage1<.78)
         login=-1;
 
-         printf("Login %d \n",login);
+    //printf("Login %d \n",login);
     // printf("Answer %d Percentage %e DCT \n",ans,percentage1);
     system(BINDIR "/svm-predict -b 1 /etc/pam-face-authentication/testFeaturesLBP.scale /etc/pam-face-authentication/featuresLBP.scale.model /etc/pam-face-authentication/prediction");
     parseSvmPrediction(&ans,&percentage1);
-    printf("Answer %d \n",ans);
-    printf("LBP Percent %e \n",percentage1);
+    //printf("Answer %d \n",ans);
+    //printf("LBP Percent %e \n",percentage1);
     if (ansMatch==ans)
-      {
-            sum+=percentage1;
-       *userid=ans;
-      }
-  printf("SUM Percent %e \n",sum);
+    {
+        sum+=percentage1;
+        *userid=ans;
+    }
+    //printf("SUM Percent %e \n",sum);
     if (login!=-1)
     {
-        if (percentage1<.75)
+        if (percentage1<.78)
             login=-1;
     }
-        printf("Login %d \n",login);
-    if (sum<1.60)
+    //printf("Login %d \n",login);
+    if (sum<1.65)
     {
         login=-1;
     }
 
-    printf("Login %d \n",login);
+    //printf("Login %d \n",login);
     // printf("Answer %d Percentage %e LBP \n",ans,percentage1);
 
     if (login==-1)
         return 'n';
     else
-       {
-           // Second Checkpoint
+    {
+        // Second Checkpoint
 
-            return 'y';
+        return 'y';
 
-       }
+    }
 
     /*
         char* userFile;
