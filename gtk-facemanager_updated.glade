@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.3 on Sun Mar  1 01:12:50 2009 -->
+<!--Generated with glade3 3.4.3 on Thu Mar 26 05:16:22 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="gtk-facemanager">
     <property name="title" translatable="yes">Face Manager</property>
     <property name="resizable">False</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ALWAYS</property>
-    <property name="deletable">False</property>
+    <signal name="destroy" handler="on_gtkfacemanager_destroy"/>
     <child>
       <widget class="GtkHBox" id="hbox1">
         <property name="visible">True</property>

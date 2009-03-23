@@ -44,6 +44,12 @@ GtkWidget *gtkIconView;
 GtkWidget *gtkWebcamImage;
 GtkWidget *gtkCountFace;
 
+void
+on_gtkfacemanager_destroy  (GtkObject       *object,
+                                        gpointer         user_data)
+{
+exit(0);
+}
 
 
 void loadCVPIXBUF(GtkWidget *imgCapturedFace,IplImage* image)
