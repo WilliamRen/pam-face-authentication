@@ -28,10 +28,11 @@
 #include <sys/shm.h>
 #include <unistd.h>
 
+/*
 char *XAUTH_EXTRACT_COMMAND="xauth -f /var/lib/gdm/";
 char *XAUTH_EXTRACT_COMMAND1=".Xauth -b list>/etc/pam-face-authentication/xauth.key";
 char* XAUTH_DISPLAY_EXTRACT_COMMAND="echo $DISPLAY >/etc/pam-face-authentication/display.key";
-
+*/
 void resetFlags();
 void ipcStart();
 char *shared;

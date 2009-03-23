@@ -340,9 +340,10 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             }
         }
     }
-
+ //printf("%s Xauth\n",xauthpath);
     if (xauthpath==NULL)
     {
+   //     printf("No Xauth\n",xauthpath);
         // We need to extract the Path where Xauth is stored
         // Following Code Sets Xauthority cookie
 

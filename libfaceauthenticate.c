@@ -474,7 +474,11 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     }
     computedDistance=sqrt(computedDistance);
 
-    //printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
+   printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
+    double thresholdEmpericalDistance=40.0;
+    if(distanceThreshold<thresholdEmpericalDistance);
+    distanceThreshold=thresholdEmpericalDistance;
+
     if(computedDistance>distanceThreshold)
     return 'n';
 
@@ -521,8 +525,8 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     if (ans!=currentUserId)
         return 'n';
     sum+=percentage1;
-    //printf("Answer %d \n",ans);
-    //printf("DCT Percent %e \n",percentage1);
+    printf("Answer %d \n",ans);
+    printf("DCT Percent %e \n",percentage1);
     if (percentage1<.78)
         login=-1;
 
@@ -530,14 +534,14 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     // printf("Answer %d Percentage %e DCT \n",ans,percentage1);
     system(BINDIR "/svm-predict -b 1 /etc/pam-face-authentication/testFeaturesLBP.scale /etc/pam-face-authentication/featuresLBP.scale.model /etc/pam-face-authentication/prediction");
     parseSvmPrediction(&ans,&percentage1);
-    //printf("Answer %d \n",ans);
-    //printf("LBP Percent %e \n",percentage1);
+    printf("Answer %d \n",ans);
+    printf("LBP Percent %e \n",percentage1);
     if (ansMatch==ans)
     {
         sum+=percentage1;
         *userid=ans;
     }
-    //printf("SUM Percent %e \n",sum);
+    printf("SUM Percent %e \n",sum);
     if (login!=-1)
     {
         if (percentage1<.78)
