@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<!--Generated with glade3 3.4.3 on Sat Feb 28 17:40:51 2009 -->
+<!--Generated with glade3 3.4.3 on Thu Mar 26 05:16:22 2009 -->
 <interface>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">100</property>
     <property name="lower">1</property>
-    <property name="page_increment">10</property>
+    <property name="page_increment">9</property>
     <property name="step_increment">1</property>
     <property name="page_size">10</property>
     <property name="value">10</property>
@@ -13,7 +13,7 @@
     <property name="title" translatable="yes">Face Manager</property>
     <property name="resizable">False</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ALWAYS</property>
-    <property name="deletable">False</property>
+    <signal handler="on_gtkfacemanager_destroy" name="destroy"/>
     <child>
       <object class="GtkHBox" id="hbox1">
         <property name="visible">True</property>
@@ -78,6 +78,7 @@
                 </child>
                 <child>
                   <object class="GtkSpinButton" id="gtkCountFace">
+                    <property name="height_request">34</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="adjustment">adjustment1</property>
