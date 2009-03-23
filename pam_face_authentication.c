@@ -61,9 +61,10 @@ int percentageRecognition;
 int currentUserIdRecognition;
 int numberofNo=0;
 int numberofYes=0;
+pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 
 void *funcRecognition(void )
-{
+{   pthread_mutex_lock( &mutex1 );
     if (recognize(&answer,userName,&percentageRecognition,currentUserIdRecognition)=='y')
     {
         numberofYes++;
@@ -75,8 +76,9 @@ void *funcRecognition(void )
         authenticateThreadReturn=0;
         numberofNo++;
     }
-    printf("Thread Complete \n");
+    //printf("Thread Complete \n");
     threadNumber=0;
+   pthread_mutex_unlock( &mutex1 );
 }
 
 int file_exists(const char* filename)
@@ -222,7 +224,14 @@ char startTracker(int *answer,char* username,int currentUserId)
                         j=preprocess(frameNew,pLeftEye,pRightEye,face);
                     if (j==1)
                     {
-                        cvSaveImage(fullPath,face);
+                    if ((threadNumber==0) && (authenticateThreadReturn!=1))
+                        {
+                           threadNumber=1;
+                            cvSaveImage(fullPath,face);
+                            pthread_t thread1;
+                            pthread_create( &thread1, NULL, &funcRecognition,NULL );
+
+                        }
                         if (authenticateThreadReturn==1)
                         {
                             //removeFile(username);
@@ -235,12 +244,7 @@ char startTracker(int *answer,char* username,int currentUserId)
                             cvReleaseCapture( &capture );
                             return 'y';;
                         }
-                        if (threadNumber==0)
-                        {
-                            pthread_t thread1;
-                            pthread_create( &thread1, NULL, &funcRecognition,NULL );
-                            threadNumber=1;
-                        }
+
 
 
 
@@ -429,8 +433,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
         passwd = getpwuid (answer);
 
-        printf("%s\n",userName);
-        printf("%s\n",passwd->pw_gecos);
+        //printf("%s\n",userName);
+        //printf("%s\n",passwd->pw_gecos);
 
         if (strcmp(passwd->pw_gecos,userName)==0)
         {
