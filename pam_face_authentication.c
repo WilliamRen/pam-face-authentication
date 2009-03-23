@@ -71,6 +71,8 @@ void *funcRecognition(void )
         numberofYes++;
         if ((numberofYes>=numberofNo))
             authenticateThreadReturn=1;
+        else
+          numberofYes=numberofNo-1;
     }
     else
     {

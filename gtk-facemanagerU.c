@@ -46,9 +46,9 @@ GtkWidget *gtkCountFace;
 
 void
 on_gtkfacemanager_destroy  (GtkObject       *object,
-                                        gpointer         user_data)
+                            gpointer         user_data)
 {
-exit(0);
+    exit(0);
 }
 
 
@@ -235,9 +235,7 @@ static gboolean time_handler(GtkWidget *widget)
     loadCVPIXBUF(gtkWebcamImage,frame_copy);
 
 
-
-
-    if ( cvWaitKey( 4 ) >= 0 )
+    if ( cvWaitKey( 1 ) >= 0 )
         {}
 
     return TRUE;
@@ -311,6 +309,15 @@ on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
 void
 on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
 {
+    GtkWidget *dialog;
+    dialog = gtk_message_dialog_new(window,
+                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_OK,
+                                    "Training will take ~ (1 - 5) mins", "title");
+    gtk_window_set_title(GTK_WINDOW(dialog), "Face Training Alert");
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
 
     int i,j,k=0;
     float* featuresLBPAverage = (float*)calloc(  7*4 * 59 , sizeof(float) );
@@ -445,7 +452,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
             }
             (sqrt(distance)>MaxDistance);
             MaxDistance=sqrt(distance);
-         //   printf("%e \n",distance);
+            //   printf("%e \n",distance);
 
 
 
@@ -506,6 +513,17 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     else
         system(BINDIR "/pfatrainer");
     /* NEED PROGRESS BAR */
+
+    dialog = gtk_message_dialog_new(window,
+                                    GTK_DIALOG_DESTROY_WITH_PARENT,
+                                    GTK_MESSAGE_INFO,
+                                    GTK_BUTTONS_OK,
+                                    "Training is Complete! =)");
+    gtk_window_set_title(GTK_WINDOW(dialog), "Face Training Alert");
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+
+
 }
 /*
 
