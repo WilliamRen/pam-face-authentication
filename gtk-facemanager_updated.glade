@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.3 on Thu Mar 26 05:16:22 2009 -->
+<!--Generated with glade3 3.4.3 on Thu Mar 26 06:08:10 2009 -->
 <glade-interface>
   <widget class="GtkWindow" id="gtk-facemanager">
     <property name="title" translatable="yes">Face Manager</property>
@@ -20,8 +20,8 @@
                 <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
                 <child>
                   <widget class="GtkIconView" id="gtkIconView">
-                    <property name="width_request">280</property>
-                    <property name="height_request">300</property>
+                    <property name="width_request">250</property>
+                    <property name="height_request">250</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="spacing">2</property>
@@ -31,6 +31,44 @@
               </widget>
               <packing>
                 <property name="padding">6</property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkHButtonBox" id="hbuttonbox2">
+                <property name="visible">True</property>
+                <property name="extension_events">GDK_EXTENSION_EVENTS_CURSOR</property>
+                <property name="layout_style">GTK_BUTTONBOX_SPREAD</property>
+                <child>
+                  <widget class="GtkButton" id="gtkAbout">
+                    <property name="width_request">125</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="label" translatable="yes">gtk-about</property>
+                    <property name="use_stock">True</property>
+                    <property name="response_id">0</property>
+                    <signal name="clicked" handler="on_gtkAbout_clicked"/>
+                  </widget>
+                </child>
+                <child>
+                  <widget class="GtkButton" id="gtkSave">
+                    <property name="width_request">125</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="label" translatable="yes">gtk-save</property>
+                    <property name="use_stock">True</property>
+                    <property name="response_id">0</property>
+                    <signal name="clicked" handler="on_gtkSave_clicked"/>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </widget>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </widget>
@@ -56,26 +94,25 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkHButtonBox" id="hbuttonbox2">
+              <widget class="GtkHBox" id="hbox2">
                 <property name="visible">True</property>
-                <property name="layout_style">GTK_BUTTONBOX_CENTER</property>
                 <child>
-                  <widget class="GtkButton" id="gtkAbout">
+                  <widget class="GtkLabel" id="gtkWelcome">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">gtk-about</property>
-                    <property name="use_stock">True</property>
-                    <property name="response_id">0</property>
-                    <signal name="clicked" handler="on_gtkAbout_clicked"/>
+                    <property name="justify">GTK_JUSTIFY_CENTER</property>
                   </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="padding">12</property>
+                  </packing>
                 </child>
                 <child>
                   <widget class="GtkSpinButton" id="gtkCountFace">
-                    <property name="height_request">34</property>
+                    <property name="width_request">40</property>
+                    <property name="height_request">26</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="adjustment">10 1 100 1 9 10</property>
+                    <property name="adjustment">1 1 20 1 9 10</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -83,6 +120,8 @@
                 </child>
                 <child>
                   <widget class="GtkButton" id="gtkCaptureFace">
+                    <property name="width_request">60</property>
+                    <property name="height_request">26</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -95,45 +134,9 @@
                     <property name="position">2</property>
                   </packing>
                 </child>
-                <child>
-                  <widget class="GtkButton" id="gtkSave">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">gtk-save</property>
-                    <property name="use_stock">True</property>
-                    <property name="response_id">0</property>
-                    <signal name="clicked" handler="on_gtkSave_clicked"/>
-                  </widget>
-                  <packing>
-                    <property name="position">3</property>
-                  </packing>
-                </child>
               </widget>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
                 <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkVBox" id="vbox3">
-                <property name="visible">True</property>
-                <child>
-                  <widget class="GtkLabel" id="gtkWelcome">
-                    <property name="visible">True</property>
-                    <property name="justify">GTK_JUSTIFY_CENTER</property>
-                  </widget>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="padding">12</property>
-                  </packing>
-                </child>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">2</property>
               </packing>
             </child>
           </widget>

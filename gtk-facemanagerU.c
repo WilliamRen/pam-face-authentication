@@ -130,7 +130,7 @@ readFilesAndLoadGtkIconView()
         {
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
             // printf("%s",fullimagepath);
-            p1 =  gdk_pixbuf_new_from_file_at_size  (fullimagepath,60,80,&err);
+            p1 =  gdk_pixbuf_new_from_file_at_size  (fullimagepath,73,100,&err);
 
             gtk_list_store_append(list_store, &iter);
             gtk_list_store_set(list_store, &iter, COL_DISPLAY_NAME,de->d_name, COL_PIXBUF, p1, -1);
