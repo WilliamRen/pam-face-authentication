@@ -79,7 +79,8 @@ static CvMemStorage* storage = 0;
 static CvHaarClassifierCascade* cascade = 0;
 static CvHaarClassifierCascade* nested_cascade = 0;
 double scale = 1;
-
+int widthEye=0;
+int widthFace=0;
 /*
 int dtdLeftEyeOnce=0,dtdRightEyeOnce=0,dtdNoseOnce=0;
 int dtdLeftEye=0,dtdRightEye=0,dtdNose=0;
@@ -115,7 +116,8 @@ double facep2[4];
 double eyeLength=0;
 
 void intialize()
-{   cascade = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_FACE, 0, 0, 0 );
+{
+    cascade = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_FACE, 0, 0, 0 );
     nested_cascade = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_EYE, 0, 0, 0 );
     storage = cvCreateMemStorage(0);
 
@@ -130,7 +132,7 @@ void intialize()
     storageEyeLeft    = cvCreateMemStorage(0);
     storageEyeRight   = cvCreateMemStorage(0);
     storageNose       = cvCreateMemStorage(0);
-*/
+    */
 }
 
 void intializePaths(char * username)
@@ -597,22 +599,22 @@ int CheckImageROI(IplImage* img,double x, double y,double width,double height,do
 
 int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
 {
-
-   IplImage *gray, *small_img;
+    int bothEyesDetectedApprox=0;
+    IplImage *gray, *small_img;
     int i, j;
-
+    int width;
     gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );
     small_img = cvCreateImage( cvSize( cvRound (img->width/scale),
-                         cvRound (img->height/scale)), 8, 1 );
+                                       cvRound (img->height/scale)), 8, 1 );
 
     cvCvtColor( img, gray, CV_BGR2GRAY );
     cvResize( gray, small_img, CV_INTER_LINEAR );
     cvEqualizeHist( small_img, small_img );
     cvClearMemStorage( storage );
 
-    if( cascade )
+    if ( cascade )
     {
-           CvSeq* faces = cvHaarDetectObjects( small_img, cascade, storage,
+        CvSeq* faces = cvHaarDetectObjects( small_img, cascade, storage,
                                             1.1, 2, 0
                                             |CV_HAAR_FIND_BIGGEST_OBJECT
                                             |CV_HAAR_DO_ROUGH_SEARCH
@@ -621,7 +623,7 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                                             ,
                                             cvSize(90, 90) );
 
-        for( i = 0; i < (faces ? faces->total : 0); i++ )
+        for ( i = 0; i < (faces ? faces->total : 0); i++ )
         {
             CvRect* r = (CvRect*)cvGetSeqElem( faces, i );
             CvMat small_img_roi;
@@ -629,463 +631,541 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
             CvPoint center;
             CvScalar color = colors[i%8];
             int radius;
+            width=r->width*scale;
             center.x = cvRound((r->x + r->width*0.5)*scale);
             center.y = cvRound((r->y + r->height*0.5)*scale);
             radius = cvRound((r->width + r->height)*0.25*scale);
             cvCircle( img, center, radius, color, 3, 8, 0 );
             cvGetSubRect( small_img, &small_img_roi, *r );
             nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
-                                        1.1, 2, 0
-                                        //|CV_HAAR_FIND_BIGGEST_OBJECT
-                                        //|CV_HAAR_DO_ROUGH_SEARCH
-                                        //|CV_HAAR_DO_CANNY_PRUNING
-                                        //|CV_HAAR_SCALE_IMAGE
-                                        ,
-                                        cvSize(0, 0) );
-                    (*pLeftEye).x=0;
-                    (*pLeftEye).y=0;
-                    (*pRightEye).x=0;
-                    (*pRightEye).y=0;
+                                                  1.1, 2, 0
+                                                  //|CV_HAAR_FIND_BIGGEST_OBJECT
+                                                  //|CV_HAAR_DO_ROUGH_SEARCH
+                                                  //|CV_HAAR_DO_CANNY_PRUNING
+                                                  //|CV_HAAR_SCALE_IMAGE
+                                                  ,
+                                                  cvSize(0, 0) );
+            (*pLeftEye).x=0;
+            (*pLeftEye).y=0;
+            (*pRightEye).x=0;
+            (*pRightEye).y=0;
 
 
-            for( j = 0; j < (nested_objects ? nested_objects->total : 0); j++ )
+            for ( j = 0; j < (nested_objects ? nested_objects->total : 0); j++ )
             {
                 CvRect* nr = (CvRect*)cvGetSeqElem( nested_objects, j );
                 center.x = cvRound((r->x + nr->x + nr->width*0.5)*scale);
                 center.y = cvRound((r->y + nr->y + nr->height*0.5)*scale);
-                if(center.x<cvRound((r->x + r->width*0.5)*scale))
+                cvSetImageROI(gray,cvRect(center.x-4,center.y-4,8,8));
+                IplImage* eyeDetect = cvCreateImage(cvSize(8,8),8,1);
+                cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
+                cvResetImageROI(gray);
+                double xCordinate=(center.x-4+CenterofMass(eyeDetect,0))*scale;
+                double yCordinate=(center.y-4+CenterofMass(eyeDetect,1))*scale;
+                cvReleaseImage( &eyeDetect );
+                if (center.x<cvRound((r->x + r->width*0.5)*scale))
                 {
-                    (*pLeftEye).x=center.x;
-                    (*pLeftEye).y=center.y;
+
+
+                    (*pLeftEye).x=xCordinate;
+                    (*pLeftEye).y=yCordinate;
 
                 }
                 else
                 {
-                    (*pRightEye).x=center.x;
-                    (*pRightEye).y=center.y;
+                    (*pRightEye).x=xCordinate;
+                    (*pRightEye).y=yCordinate;
 
                 }
-                radius = cvRound((nr->width + nr->height)*0.25*scale);
-                cvCircle( img, center, radius, color, 3, 8, 0 );
+           //     radius = 4;
+             //   cvCircle( img, cvPoint(xCordinate,yCordinate), radius, color, 1, 8, 0 );
+            }
+            if (((*pRightEye).y!=0) && ((*pRightEye).x!=0) && ((*pLeftEye).y==0) && ((*pLeftEye).x==0))
+            {
+
+              //  printf("Target Aquired \n");
+                bothEyesDetectedApprox=1;
+                if (widthEye!=0 && widthFace!=0)
+                    (*pLeftEye).x=(*pRightEye).x-cvRound((width*widthEye)/widthFace);
+              //  printf("Target Aquired  %d %d %d\n",(*pLeftEye).x,(*pRightEye).x,cvRound((width*widthEye)/widthFace));
+                if ((*pLeftEye).x>0)
+                {
+                    (*pLeftEye).y=(*pRightEye).y;
+
+                    cvSetImageROI(gray,cvRect((*pLeftEye).x-8,(*pLeftEye).y-4,16,8));
+                    IplImage* eyeDetect = cvCreateImage(cvSize(16,8),8,1);
+                    cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
+                    cvResetImageROI(gray);
+                    double xCordinate=((*pLeftEye).x-8+CenterofMass(eyeDetect,0))*scale;
+                    double yCordinate=((*pLeftEye).y-4+CenterofMass(eyeDetect,1))*scale;
+                    (*pLeftEye).x=xCordinate;
+                    (*pLeftEye).y=yCordinate;
+                    cvReleaseImage( &eyeDetect );
+                }
+
+
+
+            }
+
+            if (((*pRightEye).y==0) && ((*pRightEye).x==0) && ((*pLeftEye).y!=0) && ((*pLeftEye).x!=0))
+            {
+                bothEyesDetectedApprox=1;
+                if (widthEye!=0 && widthFace!=0)
+                    (*pRightEye).x=(*pLeftEye).x+cvRound((width*widthEye)/widthFace);
+             //   printf("Target Aquired IIIIII %d\n",(*pRightEye).x);
+
+                if ((*pRightEye).x>0)
+                {
+                    (*pRightEye).y=(*pLeftEye).y;
+                    cvSetImageROI(gray,cvRect((*pRightEye).x-8,(*pRightEye).y-4,16,8));
+                    IplImage* eyeDetect = cvCreateImage(cvSize(16,8),8,1);
+                    cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
+                    cvResetImageROI(gray);
+                    double xCordinate=((*pRightEye).x-8+CenterofMass(eyeDetect,0))*scale;
+                    double yCordinate=((*pRightEye).y-4+CenterofMass(eyeDetect,1))*scale;
+                    (*pRightEye).x=xCordinate;
+                    (*pRightEye).y=yCordinate;
+                    cvReleaseImage( &eyeDetect );
+
+
+                }
             }
 
         }
+
     }
 
     //cvShowImage( "result", img );
     cvReleaseImage( &gray );
     cvReleaseImage( &small_img );
-if(((*pRightEye).y!=0) && ((*pRightEye).x!=0) && ((*pLeftEye).y!=0) && ((*pLeftEye).x!=0))
-return 1;
-else
-return -1;
-
-
-/*
-    cvSetErrMode( CV_ErrModeSilent );
-    dtdLeftEye=0;
-    dtdRightEye=0;
-    dtdNose=0;
-    IplImage* gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );
-    IplImage* small_img = cvCreateImage( cvSize( cvRound (img->width),cvRound (img->height)),8, 1 );
-    int i,i1;
-    cvCvtColor( img, gray, CV_BGR2GRAY );
-    cvResize( gray, small_img, CV_INTER_LINEAR );
-    cvEqualizeHist( small_img, small_img );
-    CvSeq* faces = cvHaarDetectObjects( small_img,cascadeFace, storageFace,1.1, 7, 0,cvSize(100,100) );
-    CvPoint p1;
-    CvPoint p2;
-    if (faces->total>0)
+    if (((*pRightEye).y!=0) && ((*pRightEye).x!=0) && ((*pLeftEye).y!=0) && ((*pLeftEye).x!=0))
     {
+                    CvScalar color = colors[4];
+        cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 4, color, 1, 8, 0 );
+        cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 4, color, 1, 8, 0 );
 
-        int max=0;
-        int indexFace=-1;
-        for ( i = 0; i < faces->total; i++ )
+        if (bothEyesDetectedApprox!=1)
         {
-            CvRect* r1 = (CvRect*)cvGetSeqElem(faces, i );
-            if (max>r1->width*r1->height)
+            if (cvRound(sqrt(pow((*pRightEye).y-(*pLeftEye).y,2) +pow((*pRightEye).x-(*pLeftEye).x,2)))>0)
             {
-                max=r1->width*r1->height;
-                indexFace=i;
+                widthEye=cvRound(sqrt(pow((*pRightEye).y-(*pLeftEye).y,2) +pow((*pRightEye).x-(*pLeftEye).x,2)));
+
+                widthFace=width;
             }
         }
 
+        return 1;
+    }
+    else
+        return -1;
 
-        CvRect* r = (CvRect*)cvGetSeqElem( faces, indexFace );
 
-        p1.x=(r->x);
-        p1.y=(r->y);
-        p2.x=(r->x+r->width);
-        p2.y=(r->y+r->height);
-        IplImage* eyeLeftPImage = cvCreateImage( cvSize(r->width*2,r->height),8,1);
-        IplImage* eyeRightPImage = cvCreateImage( cvSize(r->width*2,r->height),8,1);
-        IplImage* eyeFull = cvCreateImage( cvSize(r->width*4,r->height),8,1);
 
-        double scalex=.25;
-        double scaley=.25;
-
-        if (CheckImageROI(small_img,(r->x),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4),3)==-1) return -1;
-        cvSetImageROI(small_img,cvRect((r->x),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4)));
-        cvResize( small_img,eyeLeftPImage, CV_INTER_LINEAR ) ;
-        cvResetImageROI(small_img);
-
-        int leftEyeDisplacementX=(r->x);
-        int leftEyeDisplacementY=(r->y)+((r->height))/4;
-        if (CheckImageROI(small_img,(((r->x)+(r->width)/2)),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4),4)==-1) return -1;
-        cvSetImageROI(small_img,cvRect((((r->x)+(r->width)/2)),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4)));
-        cvResize(small_img,eyeRightPImage, CV_INTER_LINEAR);
-        cvResetImageROI(small_img);
-
-        int rightEyeDisplacementX=(r->x)+(r->width)/2;
-        int rightEyeDisplacementY=(r->y)+((r->height))/4;
-
-        if (CheckImageROI(small_img,(r->x),(r->y),(r->width),(r->height),5)==-1) return -1;
-        cvSetImageROI(small_img,cvRect((r->x),(r->y),(r->width),(r->height)));
-        IplImage* noseSearchArea = cvCreateImage( cvSize((r->width),(r->height)),8,1);
-        cvResize( small_img,noseSearchArea, CV_INTER_LINEAR ) ;
-        cvResetImageROI(small_img);
-        CvSeq *   eyel = cvHaarDetectObjects( eyeLeftPImage, cascadeEyeLeft, storageEyeLeft,1.1, 6, CV_HAAR_DO_CANNY_PRUNING,cvSize(22,22) );
-        CvSeq *   eyer = cvHaarDetectObjects( eyeRightPImage, cascadeEyeRight, storageEyeRight,1.1,6, CV_HAAR_DO_CANNY_PRUNING,cvSize(22,22) );
-        CvSeq *   nose = cvHaarDetectObjects( noseSearchArea, cascadeNose, storageNose,1.1, 6, CV_HAAR_DO_CANNY_PRUNING,cvSize(18,15) );
-
-        if (eyel->total>0)
+    /*
+        cvSetErrMode( CV_ErrModeSilent );
+        dtdLeftEye=0;
+        dtdRightEye=0;
+        dtdNose=0;
+        IplImage* gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );
+        IplImage* small_img = cvCreateImage( cvSize( cvRound (img->width),cvRound (img->height)),8, 1 );
+        int i,i1;
+        cvCvtColor( img, gray, CV_BGR2GRAY );
+        cvResize( gray, small_img, CV_INTER_LINEAR );
+        cvEqualizeHist( small_img, small_img );
+        CvSeq* faces = cvHaarDetectObjects( small_img,cascadeFace, storageFace,1.1, 7, 0,cvSize(100,100) );
+        CvPoint p1;
+        CvPoint p2;
+        if (faces->total>0)
         {
+
             int max=0;
-            int indexEyeLeft=-1;
-            for ( i1 = 0; i1 < (eyel ? eyel->total : 0); i1++ )
+            int indexFace=-1;
+            for ( i = 0; i < faces->total; i++ )
             {
-                CvRect* r1 = (CvRect*)cvGetSeqElem( eyel, i1 );
+                CvRect* r1 = (CvRect*)cvGetSeqElem(faces, i );
                 if (max>r1->width*r1->height)
                 {
                     max=r1->width*r1->height;
-                    indexEyeLeft=i1;
+                    indexFace=i;
                 }
             }
 
-            dtdLeftEye=1;
-            dtdLeftEyeOnce=1;
-            CvRect* r1 = (CvRect*)cvGetSeqElem( eyel, indexEyeLeft );
-            CvPoint p1 ={r1->x,r1->y};
-            CvPoint p2 ={r1->x+r1->width,r1->y+r1->height};
-            //printf(" 1 %d %d %d %d \n",(r1->x),(r1->y),(r1->width),(r1->height));
-            if (CheckImageROI(eyeLeftPImage,(r1->x),(r1->y),(r1->width),(r1->height),6)==-1) return -1;
-            cvSetImageROI(eyeLeftPImage,cvRect((r1->x),(r1->y),(r1->width),(r1->height)));
-            IplImage* leftEyeSearchArea = cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
-            cvResize( eyeLeftPImage,leftEyeSearchArea, CV_INTER_LINEAR ) ;
-            cvResetImageROI(eyeLeftPImage);
 
-            double XL=(r1->x+CenterofMass(leftEyeSearchArea,0))*scalex;
-            double YL= (r1->y+CenterofMass(leftEyeSearchArea,1))*scaley;
-            p1LeftEye.x= leftEyeDisplacementX+XL;
-            p1LeftEye.y= leftEyeDisplacementY +YL;
-            faceWidth[2]=r->width;
-            faceHeight[2]=r->height;
-            eyeTemplateLeft= cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
-            cvResize( leftEyeSearchArea,eyeTemplateLeft, CV_INTER_LINEAR ) ;
-            cvReleaseImage( &leftEyeSearchArea );
-        }
-        else if (dtdLeftEyeOnce==1)
-        {
-            double ratioWidth=(r->width/faceWidth[2]);
-            double ratioHeight=(r->height/faceHeight[2]);
-            if ((eyeLeftPImage->width-(eyeTemplateLeft->width)*ratioWidth)>=0 && ((eyeLeftPImage->height)-(eyeTemplateLeft->height)*ratioHeight)>=0 &&ratioWidth>0 && ratioHeight>0  &&ratioWidth<4 && ratioHeight<4)
+            CvRect* r = (CvRect*)cvGetSeqElem( faces, indexFace );
+
+            p1.x=(r->x);
+            p1.y=(r->y);
+            p2.x=(r->x+r->width);
+            p2.y=(r->y+r->height);
+            IplImage* eyeLeftPImage = cvCreateImage( cvSize(r->width*2,r->height),8,1);
+            IplImage* eyeRightPImage = cvCreateImage( cvSize(r->width*2,r->height),8,1);
+            IplImage* eyeFull = cvCreateImage( cvSize(r->width*4,r->height),8,1);
+
+            double scalex=.25;
+            double scaley=.25;
+
+            if (CheckImageROI(small_img,(r->x),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4),3)==-1) return -1;
+            cvSetImageROI(small_img,cvRect((r->x),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4)));
+            cvResize( small_img,eyeLeftPImage, CV_INTER_LINEAR ) ;
+            cvResetImageROI(small_img);
+
+            int leftEyeDisplacementX=(r->x);
+            int leftEyeDisplacementY=(r->y)+((r->height))/4;
+            if (CheckImageROI(small_img,(((r->x)+(r->width)/2)),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4),4)==-1) return -1;
+            cvSetImageROI(small_img,cvRect((((r->x)+(r->width)/2)),(((r->y))+(((r->height))/4)),((r->width)/2),(((r->height)*1)/4)));
+            cvResize(small_img,eyeRightPImage, CV_INTER_LINEAR);
+            cvResetImageROI(small_img);
+
+            int rightEyeDisplacementX=(r->x)+(r->width)/2;
+            int rightEyeDisplacementY=(r->y)+((r->height))/4;
+
+            if (CheckImageROI(small_img,(r->x),(r->y),(r->width),(r->height),5)==-1) return -1;
+            cvSetImageROI(small_img,cvRect((r->x),(r->y),(r->width),(r->height)));
+            IplImage* noseSearchArea = cvCreateImage( cvSize((r->width),(r->height)),8,1);
+            cvResize( small_img,noseSearchArea, CV_INTER_LINEAR ) ;
+            cvResetImageROI(small_img);
+            CvSeq *   eyel = cvHaarDetectObjects( eyeLeftPImage, cascadeEyeLeft, storageEyeLeft,1.1, 6, CV_HAAR_DO_CANNY_PRUNING,cvSize(22,22) );
+            CvSeq *   eyer = cvHaarDetectObjects( eyeRightPImage, cascadeEyeRight, storageEyeRight,1.1,6, CV_HAAR_DO_CANNY_PRUNING,cvSize(22,22) );
+            CvSeq *   nose = cvHaarDetectObjects( noseSearchArea, cascadeNose, storageNose,1.1, 6, CV_HAAR_DO_CANNY_PRUNING,cvSize(18,15) );
+
+            if (eyel->total>0)
             {
-                IplImage* eyeTemplateLeftResized = cvCreateImage( cvSize((eyeTemplateLeft->width)*ratioWidth,(eyeTemplateLeft->height)*ratioHeight),8,1);
-                cvResize(eyeTemplateLeft,eyeTemplateLeftResized , CV_INTER_LINEAR);
-                IplImage* resultMatch = cvCreateImage( cvSize( 1+ (eyeLeftPImage->width-eyeTemplateLeftResized->width),1+ ((eyeLeftPImage->height)-eyeTemplateLeftResized->height)  ), IPL_DEPTH_32F, 1 );
-                cvMatchTemplate( eyeLeftPImage, eyeTemplateLeftResized, resultMatch, CV_TM_SQDIFF );
-                CvPoint    minloc, maxloc;
-                minloc=cvPoint(0,0);
-                maxloc=cvPoint(0,0);
-                double		minval, maxval;
-                cvMinMaxLoc( resultMatch, &minval, &maxval, &minloc, &maxloc, 0 );
-                //printf(" 2 %d %d %d %d \n",(minloc.x),(minloc.y),(eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height));
-                if (CheckImageROI(eyeLeftPImage,(minloc.x),(minloc.y),(eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height),7)==-1) return -1;
-                cvSetImageROI(eyeLeftPImage,cvRect((minloc.x),(minloc.y),(eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height)));
-                IplImage* leftEyeSearchArea = cvCreateImage( cvSize((eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height)),8,1);
+                int max=0;
+                int indexEyeLeft=-1;
+                for ( i1 = 0; i1 < (eyel ? eyel->total : 0); i1++ )
+                {
+                    CvRect* r1 = (CvRect*)cvGetSeqElem( eyel, i1 );
+                    if (max>r1->width*r1->height)
+                    {
+                        max=r1->width*r1->height;
+                        indexEyeLeft=i1;
+                    }
+                }
+
+                dtdLeftEye=1;
+                dtdLeftEyeOnce=1;
+                CvRect* r1 = (CvRect*)cvGetSeqElem( eyel, indexEyeLeft );
+                CvPoint p1 ={r1->x,r1->y};
+                CvPoint p2 ={r1->x+r1->width,r1->y+r1->height};
+                //printf(" 1 %d %d %d %d \n",(r1->x),(r1->y),(r1->width),(r1->height));
+                if (CheckImageROI(eyeLeftPImage,(r1->x),(r1->y),(r1->width),(r1->height),6)==-1) return -1;
+                cvSetImageROI(eyeLeftPImage,cvRect((r1->x),(r1->y),(r1->width),(r1->height)));
+                IplImage* leftEyeSearchArea = cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
                 cvResize( eyeLeftPImage,leftEyeSearchArea, CV_INTER_LINEAR ) ;
                 cvResetImageROI(eyeLeftPImage);
 
-                double XL=(minloc.x +CenterofMass(leftEyeSearchArea,0))*scalex;
-                double YL= (minloc.y+CenterofMass(leftEyeSearchArea,1))*scaley;
+                double XL=(r1->x+CenterofMass(leftEyeSearchArea,0))*scalex;
+                double YL= (r1->y+CenterofMass(leftEyeSearchArea,1))*scaley;
                 p1LeftEye.x= leftEyeDisplacementX+XL;
                 p1LeftEye.y= leftEyeDisplacementY +YL;
-
-                cvReleaseImage( &eyeTemplateLeftResized );
-                cvReleaseImage( &resultMatch );
+                faceWidth[2]=r->width;
+                faceHeight[2]=r->height;
+                eyeTemplateLeft= cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
+                cvResize( leftEyeSearchArea,eyeTemplateLeft, CV_INTER_LINEAR ) ;
                 cvReleaseImage( &leftEyeSearchArea );
             }
-        }
-
-        if (eyer->total>0)
-        {
-            int max=0;
-            int indexEyeRight=-1;
-            for ( i1 = 0; i1 < (eyer ? eyer->total : 0); i1++ )
+            else if (dtdLeftEyeOnce==1)
             {
-                CvRect* r1 = (CvRect*)cvGetSeqElem( eyer, i1 );
-                if (max>r1->width*r1->height)
+                double ratioWidth=(r->width/faceWidth[2]);
+                double ratioHeight=(r->height/faceHeight[2]);
+                if ((eyeLeftPImage->width-(eyeTemplateLeft->width)*ratioWidth)>=0 && ((eyeLeftPImage->height)-(eyeTemplateLeft->height)*ratioHeight)>=0 &&ratioWidth>0 && ratioHeight>0  &&ratioWidth<4 && ratioHeight<4)
                 {
-                    max=r1->width*r1->height;
-                    indexEyeRight=i1;
+                    IplImage* eyeTemplateLeftResized = cvCreateImage( cvSize((eyeTemplateLeft->width)*ratioWidth,(eyeTemplateLeft->height)*ratioHeight),8,1);
+                    cvResize(eyeTemplateLeft,eyeTemplateLeftResized , CV_INTER_LINEAR);
+                    IplImage* resultMatch = cvCreateImage( cvSize( 1+ (eyeLeftPImage->width-eyeTemplateLeftResized->width),1+ ((eyeLeftPImage->height)-eyeTemplateLeftResized->height)  ), IPL_DEPTH_32F, 1 );
+                    cvMatchTemplate( eyeLeftPImage, eyeTemplateLeftResized, resultMatch, CV_TM_SQDIFF );
+                    CvPoint    minloc, maxloc;
+                    minloc=cvPoint(0,0);
+                    maxloc=cvPoint(0,0);
+                    double		minval, maxval;
+                    cvMinMaxLoc( resultMatch, &minval, &maxval, &minloc, &maxloc, 0 );
+                    //printf(" 2 %d %d %d %d \n",(minloc.x),(minloc.y),(eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height));
+                    if (CheckImageROI(eyeLeftPImage,(minloc.x),(minloc.y),(eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height),7)==-1) return -1;
+                    cvSetImageROI(eyeLeftPImage,cvRect((minloc.x),(minloc.y),(eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height)));
+                    IplImage* leftEyeSearchArea = cvCreateImage( cvSize((eyeTemplateLeftResized->width),(eyeTemplateLeftResized->height)),8,1);
+                    cvResize( eyeLeftPImage,leftEyeSearchArea, CV_INTER_LINEAR ) ;
+                    cvResetImageROI(eyeLeftPImage);
+
+                    double XL=(minloc.x +CenterofMass(leftEyeSearchArea,0))*scalex;
+                    double YL= (minloc.y+CenterofMass(leftEyeSearchArea,1))*scaley;
+                    p1LeftEye.x= leftEyeDisplacementX+XL;
+                    p1LeftEye.y= leftEyeDisplacementY +YL;
+
+                    cvReleaseImage( &eyeTemplateLeftResized );
+                    cvReleaseImage( &resultMatch );
+                    cvReleaseImage( &leftEyeSearchArea );
                 }
             }
-            CvRect* r1 = (CvRect*)cvGetSeqElem( eyer, indexEyeRight );
-            CvPoint p1 ={r1->x,r1->y};
-            CvPoint p2 ={r1->x+r1->width,r1->y+r1->height};
-            if (eyeRightPImage->width>(r1->x)+(r1->width) && eyeRightPImage->height>(r1->y)+(r1->height))
-            {
-                if (CheckImageROI(eyeRightPImage,(r1->x),(r1->y),(r1->width),(r1->height),8)==-1) return -1;
-                cvSetImageROI(eyeRightPImage,cvRect((r1->x),(r1->y),(r1->width),(r1->height)));
-                IplImage* rightEyeSearchArea = cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
-                cvResize( eyeRightPImage,rightEyeSearchArea, CV_INTER_LINEAR ) ;
-                cvResetImageROI(eyeRightPImage);
 
-                double XR=(r1->x +CenterofMass(rightEyeSearchArea,0))*scalex;
-                double YR= (r1->y+CenterofMass(rightEyeSearchArea,1))*scaley;
-                p1RightEye.x= rightEyeDisplacementX+XR;
-                p1RightEye.y= rightEyeDisplacementY +YR;
-                dtdRightEye=1;
-                dtdRightEyeOnce=1;
-                faceWidth[3]=r->width;
-                faceHeight[3]=r->height;
-                facep1[3]=r->x;
-                facep2[3]=r->y;
-                eyeTemplateRight= cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
-                cvResize( rightEyeSearchArea,eyeTemplateRight, CV_INTER_LINEAR ) ;
-                cvReleaseImage( &rightEyeSearchArea );
-            }
-        }
-
-        else if (dtdRightEyeOnce==1)
-        {
-            double ratioWidth=(r->width/faceWidth[3]);
-            double ratioHeight=(r->height/faceHeight[3]);
-            if (ratioWidth>0 &&  ratioHeight>0 &&ratioWidth<4&&  ratioHeight<4&&(eyeRightPImage->width-(eyeTemplateRight->width)*ratioWidth)>=0 && ((eyeRightPImage->height)-(eyeTemplateRight->height)*ratioHeight)>=0 &&ratioWidth>0 && ratioHeight>0 )
+            if (eyer->total>0)
             {
-                IplImage* eyeTemplateRightResized = cvCreateImage( cvSize((eyeTemplateRight->width)*ratioWidth,(eyeTemplateRight->height)*ratioHeight),8,1);
-                cvResize(eyeTemplateRight,eyeTemplateRightResized , CV_INTER_LINEAR);
-                IplImage* resultMatch = cvCreateImage( cvSize( 1+ (eyeRightPImage->width-eyeTemplateRightResized->width),1+ ((eyeRightPImage->height)-eyeTemplateRightResized->height)  ), IPL_DEPTH_32F, 1 );
-                cvMatchTemplate( eyeRightPImage, eyeTemplateRightResized, resultMatch, CV_TM_SQDIFF );
-                CvPoint minloc, maxloc;
-                minloc=cvPoint(0,0);
-                maxloc=cvPoint(0,0);
-                minloc=cvPoint(0,0);
-                maxloc=cvPoint(0,0);
-                double minval, maxval;
-                cvMinMaxLoc( resultMatch, &minval, &maxval, &minloc, &maxloc, 0 );
-                if ((minloc.x)>=0 && (minloc.y)>=0 && (eyeTemplateRightResized->width)<=eyeRightPImage->width && (eyeTemplateRightResized->height)<=eyeRightPImage->height )
+                int max=0;
+                int indexEyeRight=-1;
+                for ( i1 = 0; i1 < (eyer ? eyer->total : 0); i1++ )
                 {
-                    if (CheckImageROI(eyeRightPImage,(minloc.x),(minloc.y),(eyeTemplateRightResized->width),(eyeTemplateRightResized->height),9)==-1) return -1;
-                    cvSetImageROI(eyeRightPImage,cvRect((minloc.x),(minloc.y),(eyeTemplateRightResized->width),(eyeTemplateRightResized->height)));
-                    IplImage* rightEyeSearchArea = cvCreateImage( cvSize((eyeTemplateRightResized->width),(eyeTemplateRightResized->height)),8,1);
+                    CvRect* r1 = (CvRect*)cvGetSeqElem( eyer, i1 );
+                    if (max>r1->width*r1->height)
+                    {
+                        max=r1->width*r1->height;
+                        indexEyeRight=i1;
+                    }
+                }
+                CvRect* r1 = (CvRect*)cvGetSeqElem( eyer, indexEyeRight );
+                CvPoint p1 ={r1->x,r1->y};
+                CvPoint p2 ={r1->x+r1->width,r1->y+r1->height};
+                if (eyeRightPImage->width>(r1->x)+(r1->width) && eyeRightPImage->height>(r1->y)+(r1->height))
+                {
+                    if (CheckImageROI(eyeRightPImage,(r1->x),(r1->y),(r1->width),(r1->height),8)==-1) return -1;
+                    cvSetImageROI(eyeRightPImage,cvRect((r1->x),(r1->y),(r1->width),(r1->height)));
+                    IplImage* rightEyeSearchArea = cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
                     cvResize( eyeRightPImage,rightEyeSearchArea, CV_INTER_LINEAR ) ;
                     cvResetImageROI(eyeRightPImage);
 
-                    double XR=(minloc.x +CenterofMass(rightEyeSearchArea,0))*scalex;
-                    double YR= (minloc.y+CenterofMass(rightEyeSearchArea,1))*scaley;
+                    double XR=(r1->x +CenterofMass(rightEyeSearchArea,0))*scalex;
+                    double YR= (r1->y+CenterofMass(rightEyeSearchArea,1))*scaley;
                     p1RightEye.x= rightEyeDisplacementX+XR;
                     p1RightEye.y= rightEyeDisplacementY +YR;
+                    dtdRightEye=1;
+                    dtdRightEyeOnce=1;
+                    faceWidth[3]=r->width;
+                    faceHeight[3]=r->height;
+                    facep1[3]=r->x;
+                    facep2[3]=r->y;
+                    eyeTemplateRight= cvCreateImage( cvSize((r1->width),(r1->height)),8,1);
+                    cvResize( rightEyeSearchArea,eyeTemplateRight, CV_INTER_LINEAR ) ;
                     cvReleaseImage( &rightEyeSearchArea );
                 }
-                cvReleaseImage( &eyeTemplateRightResized );
-                cvReleaseImage( &resultMatch );
-
             }
-        }
 
-        if (nose->total>0 && dtdRightEye==1 && dtdLeftEye==1)
-        {
-            int indexNose=0;
-            int areaMax=0;
-            for ( i1 = 0; i1 < (nose ? nose->total : 0); i1++ )
+            else if (dtdRightEyeOnce==1)
             {
-                CvRect* r1 = (CvRect*)cvGetSeqElem( nose, i1 );
-                if ( r1->width*r1->height>areaMax)
+                double ratioWidth=(r->width/faceWidth[3]);
+                double ratioHeight=(r->height/faceHeight[3]);
+                if (ratioWidth>0 &&  ratioHeight>0 &&ratioWidth<4&&  ratioHeight<4&&(eyeRightPImage->width-(eyeTemplateRight->width)*ratioWidth)>=0 && ((eyeRightPImage->height)-(eyeTemplateRight->height)*ratioHeight)>=0 &&ratioWidth>0 && ratioHeight>0 )
                 {
-                    areaMax=r1->width*r1->height;
-                    indexNose=i1;
-                }
-            }
-            dtdNose=1;
-            dtdNoseOnce=1;
-            eyeLength=((p1RightEye.x-p1LeftEye.x)>0)?(p1RightEye.x-p1LeftEye.x):0;
-            CvRect* r1 = (CvRect*)cvGetSeqElem( nose, indexNose );
-            p1Nose.x=r->x+r1->x;
-            p1Nose.y=r->y+r1->y;
-            p2Nose.x=(r->x+ r1->x+r1->width);
-            p2Nose.y=(r1->y+r->y+r1->height);
-            faceWidth[0]=r->width;
-            faceHeight[0]=r->height;
-            noseTemplate = cvCreateImage( cvSize((p2Nose.x-p1Nose.x),(p2Nose.y-p1Nose.y)),8,1);
-            if (CheckImageROI(noseSearchArea,(r1->x),(r1->y),(r1->width),(r1->height),10)==-1) return -1;
-            cvSetImageROI(noseSearchArea,cvRect((r1->x),(r1->y),(r1->width),(r1->height)));
-            cvResize( noseSearchArea,noseTemplate, CV_INTER_LINEAR ) ;
-            cvResetImageROI(noseSearchArea);
-
-        }
-        else if (dtdNoseOnce==1 && dtdRightEye==1 && dtdLeftEye==1)
-        {
-            double eyew=((p1RightEye.x-p1LeftEye.x)>0)?(p1RightEye.x-p1LeftEye.x):0;
-
-            double leftD =((p1LeftEye.x-r->x)>0)? (p1LeftEye.x-r->x) :0;
-            double ratioWidth=(eyew/eyeLength);
-            double ratioHeight=(eyew/eyeLength);
-            if (ratioWidth!=0 && ratioHeight!=0 && ratioWidth<4 && ratioHeight<4  && eyew>0)
-            {
-                IplImage* noseTemplateResized = cvCreateImage( cvSize((noseTemplate->width)*ratioWidth,(noseTemplate->height)*ratioHeight),8,1);
-                cvResize(noseTemplate,noseTemplateResized, CV_INTER_LINEAR);
-                IplImage* resultMatch = cvCreateImage( cvSize( 1+ ((p1RightEye.x-p1LeftEye.x)-(noseTemplateResized->width)),1+ ((r->height)*5/8-noseTemplateResized->height)  ), IPL_DEPTH_32F, 1 );
-                IplImage* noseSearchAreaReduced= cvCreateImage( cvSize(eyew,(r->height)*5/8),8,1);
-                if (leftD>0 &&  leftD<noseSearchArea->width &&  (leftD+eyew)<noseSearchArea->width && eyew>0 && eyew<IMAGE_WIDTH)
-                {
-                    //printf("6 %d %d %d %d \n",leftD,(r->height)/4,eyew,(r->height)*5/8);
-                    if (CheckImageROI(noseSearchArea,leftD,(r->height)/4,eyew,(r->height)*5/8,11)==-1) return -1;
-                    cvSetImageROI(noseSearchArea,cvRect(leftD,(r->height)/4,eyew,(r->height)*5/8));
-                    cvResize( noseSearchArea,noseSearchAreaReduced, CV_INTER_LINEAR ) ;
-                    cvResetImageROI(noseSearchArea);
-
-                    cvMatchTemplate( noseSearchAreaReduced, noseTemplateResized, resultMatch, CV_TM_SQDIFF );
-                    CvPoint  minloc, maxloc;
+                    IplImage* eyeTemplateRightResized = cvCreateImage( cvSize((eyeTemplateRight->width)*ratioWidth,(eyeTemplateRight->height)*ratioHeight),8,1);
+                    cvResize(eyeTemplateRight,eyeTemplateRightResized , CV_INTER_LINEAR);
+                    IplImage* resultMatch = cvCreateImage( cvSize( 1+ (eyeRightPImage->width-eyeTemplateRightResized->width),1+ ((eyeRightPImage->height)-eyeTemplateRightResized->height)  ), IPL_DEPTH_32F, 1 );
+                    cvMatchTemplate( eyeRightPImage, eyeTemplateRightResized, resultMatch, CV_TM_SQDIFF );
+                    CvPoint minloc, maxloc;
+                    minloc=cvPoint(0,0);
+                    maxloc=cvPoint(0,0);
                     minloc=cvPoint(0,0);
                     maxloc=cvPoint(0,0);
                     double minval, maxval;
                     cvMinMaxLoc( resultMatch, &minval, &maxval, &minloc, &maxloc, 0 );
-                    p1Nose.x=r->x + (p1LeftEye.x-r->x)+minloc.x;
-                    p1Nose.y=r->y +(r->height)/4+ minloc.y ;
-                    p2Nose.x= r->x+ (p1LeftEye.x-r->x)+minloc.x + noseTemplateResized->width;
-                    p2Nose.y=r->y+(r->height)/4+ minloc.y + noseTemplateResized->height ;
-                    cvReleaseImage( &noseTemplateResized );
+                    if ((minloc.x)>=0 && (minloc.y)>=0 && (eyeTemplateRightResized->width)<=eyeRightPImage->width && (eyeTemplateRightResized->height)<=eyeRightPImage->height )
+                    {
+                        if (CheckImageROI(eyeRightPImage,(minloc.x),(minloc.y),(eyeTemplateRightResized->width),(eyeTemplateRightResized->height),9)==-1) return -1;
+                        cvSetImageROI(eyeRightPImage,cvRect((minloc.x),(minloc.y),(eyeTemplateRightResized->width),(eyeTemplateRightResized->height)));
+                        IplImage* rightEyeSearchArea = cvCreateImage( cvSize((eyeTemplateRightResized->width),(eyeTemplateRightResized->height)),8,1);
+                        cvResize( eyeRightPImage,rightEyeSearchArea, CV_INTER_LINEAR ) ;
+                        cvResetImageROI(eyeRightPImage);
+
+                        double XR=(minloc.x +CenterofMass(rightEyeSearchArea,0))*scalex;
+                        double YR= (minloc.y+CenterofMass(rightEyeSearchArea,1))*scaley;
+                        p1RightEye.x= rightEyeDisplacementX+XR;
+                        p1RightEye.y= rightEyeDisplacementY +YR;
+                        cvReleaseImage( &rightEyeSearchArea );
+                    }
+                    cvReleaseImage( &eyeTemplateRightResized );
                     cvReleaseImage( &resultMatch );
-                    cvReleaseImage( &noseSearchAreaReduced );
+
                 }
             }
-        }
 
-
-        if (((p2Nose.y+p1Nose.y)/2 -(p1RightEye.y+p1LeftEye.y)/2) <.3*(p1RightEye.x-p1LeftEye.x))
-        {
-            p2Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.3*(p1RightEye.x-p1LeftEye.x);
-            p1Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.2*(p1RightEye.x-p1LeftEye.x);
-        }
-
-        if (((p2Nose.y+p1Nose.y)/2 -(p1RightEye.y+p1LeftEye.y)/2) >.8*(p1RightEye.x-p1LeftEye.x))
-        {
-            p2Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.3*(p1RightEye.x-p1LeftEye.x);
-            p1Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.2*(p1RightEye.x-p1LeftEye.x);
-        }
-        CvPoint nosePosition=cvPoint((p2Nose.x+p1Nose.x)/2,((p2Nose.y+p1Nose.y)/2));
-
-        if (dtdRightEyeOnce==1 && dtdLeftEyeOnce==1 && dtdNose==0 && ((p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3)>10&& ((p1LeftEye.x)+(2*(p1RightEye.x-p1LeftEye.x))/3)<IMAGE_WIDTH &&(p1LeftEye.y)>10 &&(p1LeftEye.y)<230)
-        {
-            //    printf("%d %d %d %d \n",(p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3,(p1LeftEye.y)-10,(p1RightEye.x-p1LeftEye.x)/3,20);
-            if (CheckImageROI(small_img,(p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3,(p1LeftEye.y)-10,(p1RightEye.x-p1LeftEye.x)/3,20,13)==-1) return -1;
-            cvSetImageROI(small_img,cvRect((p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3,(p1LeftEye.y)-10,(p1RightEye.x-p1LeftEye.x)/3,20));
-            IplImage* pixelsBtIris = cvCreateImage( cvSize((p1RightEye.x-p1LeftEye.x)/3,20),8,1);
-            cvResize( small_img,pixelsBtIris, CV_INTER_LINEAR ) ;
-            cvResetImageROI(small_img);
-
-            cvEqualizeHist( pixelsBtIris, pixelsBtIris );
-            CvPixelPosition8u pos_src;
-            CV_INIT_PIXEL_POS(pos_src,(unsigned char *) pixelsBtIris->imageData,pixelsBtIris->widthStep,cvGetSize(pixelsBtIris),0,0,pixelsBtIris->origin);
-            uchar * ptr_src;
-            int x=0;
-            int y=0;
-            uchar Intensity;
-            double sumPixels[400];
-            double totalX2;
-            double totalX1;
-            double totalX0;
-            int to1;
-            int to2;
-            to1=pixelsBtIris->width;
-            to2=pixelsBtIris->height;
-
-            int max=0;
-            int maxIndex=0;
-            for ( x=0; x<to1; x++)
+            if (nose->total>0 && dtdRightEye==1 && dtdLeftEye==1)
             {
-                sumPixels[x]=0;
-                for ( y=0;y<to2; y++)
+                int indexNose=0;
+                int areaMax=0;
+                for ( i1 = 0; i1 < (nose ? nose->total : 0); i1++ )
                 {
-
-                    ptr_src = CV_MOVE_TO(pos_src,x,y,1);
-                    Intensity = ptr_src[0];
-                    sumPixels[x]+=Intensity;
+                    CvRect* r1 = (CvRect*)cvGetSeqElem( nose, i1 );
+                    if ( r1->width*r1->height>areaMax)
+                    {
+                        areaMax=r1->width*r1->height;
+                        indexNose=i1;
+                    }
                 }
-                if (sumPixels[x]>max)
+                dtdNose=1;
+                dtdNoseOnce=1;
+                eyeLength=((p1RightEye.x-p1LeftEye.x)>0)?(p1RightEye.x-p1LeftEye.x):0;
+                CvRect* r1 = (CvRect*)cvGetSeqElem( nose, indexNose );
+                p1Nose.x=r->x+r1->x;
+                p1Nose.y=r->y+r1->y;
+                p2Nose.x=(r->x+ r1->x+r1->width);
+                p2Nose.y=(r1->y+r->y+r1->height);
+                faceWidth[0]=r->width;
+                faceHeight[0]=r->height;
+                noseTemplate = cvCreateImage( cvSize((p2Nose.x-p1Nose.x),(p2Nose.y-p1Nose.y)),8,1);
+                if (CheckImageROI(noseSearchArea,(r1->x),(r1->y),(r1->width),(r1->height),10)==-1) return -1;
+                cvSetImageROI(noseSearchArea,cvRect((r1->x),(r1->y),(r1->width),(r1->height)));
+                cvResize( noseSearchArea,noseTemplate, CV_INTER_LINEAR ) ;
+                cvResetImageROI(noseSearchArea);
+
+            }
+            else if (dtdNoseOnce==1 && dtdRightEye==1 && dtdLeftEye==1)
+            {
+                double eyew=((p1RightEye.x-p1LeftEye.x)>0)?(p1RightEye.x-p1LeftEye.x):0;
+
+                double leftD =((p1LeftEye.x-r->x)>0)? (p1LeftEye.x-r->x) :0;
+                double ratioWidth=(eyew/eyeLength);
+                double ratioHeight=(eyew/eyeLength);
+                if (ratioWidth!=0 && ratioHeight!=0 && ratioWidth<4 && ratioHeight<4  && eyew>0)
                 {
-                    maxIndex=x;
-                    max=sumPixels[x];
+                    IplImage* noseTemplateResized = cvCreateImage( cvSize((noseTemplate->width)*ratioWidth,(noseTemplate->height)*ratioHeight),8,1);
+                    cvResize(noseTemplate,noseTemplateResized, CV_INTER_LINEAR);
+                    IplImage* resultMatch = cvCreateImage( cvSize( 1+ ((p1RightEye.x-p1LeftEye.x)-(noseTemplateResized->width)),1+ ((r->height)*5/8-noseTemplateResized->height)  ), IPL_DEPTH_32F, 1 );
+                    IplImage* noseSearchAreaReduced= cvCreateImage( cvSize(eyew,(r->height)*5/8),8,1);
+                    if (leftD>0 &&  leftD<noseSearchArea->width &&  (leftD+eyew)<noseSearchArea->width && eyew>0 && eyew<IMAGE_WIDTH)
+                    {
+                        //printf("6 %d %d %d %d \n",leftD,(r->height)/4,eyew,(r->height)*5/8);
+                        if (CheckImageROI(noseSearchArea,leftD,(r->height)/4,eyew,(r->height)*5/8,11)==-1) return -1;
+                        cvSetImageROI(noseSearchArea,cvRect(leftD,(r->height)/4,eyew,(r->height)*5/8));
+                        cvResize( noseSearchArea,noseSearchAreaReduced, CV_INTER_LINEAR ) ;
+                        cvResetImageROI(noseSearchArea);
+
+                        cvMatchTemplate( noseSearchAreaReduced, noseTemplateResized, resultMatch, CV_TM_SQDIFF );
+                        CvPoint  minloc, maxloc;
+                        minloc=cvPoint(0,0);
+                        maxloc=cvPoint(0,0);
+                        double minval, maxval;
+                        cvMinMaxLoc( resultMatch, &minval, &maxval, &minloc, &maxloc, 0 );
+                        p1Nose.x=r->x + (p1LeftEye.x-r->x)+minloc.x;
+                        p1Nose.y=r->y +(r->height)/4+ minloc.y ;
+                        p2Nose.x= r->x+ (p1LeftEye.x-r->x)+minloc.x + noseTemplateResized->width;
+                        p2Nose.y=r->y+(r->height)/4+ minloc.y + noseTemplateResized->height ;
+                        cvReleaseImage( &noseTemplateResized );
+                        cvReleaseImage( &resultMatch );
+                        cvReleaseImage( &noseSearchAreaReduced );
+                    }
                 }
             }
 
-            nosePosition.x=(p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3+maxIndex;
-            if ((nosePosition.x-(p1LeftEye.x+p1RightEye.x)/2)/(p1RightEye.x-p1LeftEye.x)>.125)
-                nosePosition.x=nosePosition.x + .4*(p1RightEye.x-nosePosition.x);
-            else if (((p1LeftEye.x+p1RightEye.x)/2-nosePosition.x)/(p1RightEye.x-p1LeftEye.x)>.125)
-                nosePosition.x=nosePosition.x - .4*(nosePosition.x-p1LeftEye.x);
-            cvReleaseImage( &pixelsBtIris );
-        }
+
+            if (((p2Nose.y+p1Nose.y)/2 -(p1RightEye.y+p1LeftEye.y)/2) <.3*(p1RightEye.x-p1LeftEye.x))
+            {
+                p2Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.3*(p1RightEye.x-p1LeftEye.x);
+                p1Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.2*(p1RightEye.x-p1LeftEye.x);
+            }
+
+            if (((p2Nose.y+p1Nose.y)/2 -(p1RightEye.y+p1LeftEye.y)/2) >.8*(p1RightEye.x-p1LeftEye.x))
+            {
+                p2Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.3*(p1RightEye.x-p1LeftEye.x);
+                p1Nose.y=(p1RightEye.y+p1LeftEye.y)/2+.2*(p1RightEye.x-p1LeftEye.x);
+            }
+            CvPoint nosePosition=cvPoint((p2Nose.x+p1Nose.x)/2,((p2Nose.y+p1Nose.y)/2));
+
+            if (dtdRightEyeOnce==1 && dtdLeftEyeOnce==1 && dtdNose==0 && ((p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3)>10&& ((p1LeftEye.x)+(2*(p1RightEye.x-p1LeftEye.x))/3)<IMAGE_WIDTH &&(p1LeftEye.y)>10 &&(p1LeftEye.y)<230)
+            {
+                //    printf("%d %d %d %d \n",(p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3,(p1LeftEye.y)-10,(p1RightEye.x-p1LeftEye.x)/3,20);
+                if (CheckImageROI(small_img,(p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3,(p1LeftEye.y)-10,(p1RightEye.x-p1LeftEye.x)/3,20,13)==-1) return -1;
+                cvSetImageROI(small_img,cvRect((p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3,(p1LeftEye.y)-10,(p1RightEye.x-p1LeftEye.x)/3,20));
+                IplImage* pixelsBtIris = cvCreateImage( cvSize((p1RightEye.x-p1LeftEye.x)/3,20),8,1);
+                cvResize( small_img,pixelsBtIris, CV_INTER_LINEAR ) ;
+                cvResetImageROI(small_img);
+
+                cvEqualizeHist( pixelsBtIris, pixelsBtIris );
+                CvPixelPosition8u pos_src;
+                CV_INIT_PIXEL_POS(pos_src,(unsigned char *) pixelsBtIris->imageData,pixelsBtIris->widthStep,cvGetSize(pixelsBtIris),0,0,pixelsBtIris->origin);
+                uchar * ptr_src;
+                int x=0;
+                int y=0;
+                uchar Intensity;
+                double sumPixels[400];
+                double totalX2;
+                double totalX1;
+                double totalX0;
+                int to1;
+                int to2;
+                to1=pixelsBtIris->width;
+                to2=pixelsBtIris->height;
+
+                int max=0;
+                int maxIndex=0;
+                for ( x=0; x<to1; x++)
+                {
+                    sumPixels[x]=0;
+                    for ( y=0;y<to2; y++)
+                    {
+
+                        ptr_src = CV_MOVE_TO(pos_src,x,y,1);
+                        Intensity = ptr_src[0];
+                        sumPixels[x]+=Intensity;
+                    }
+                    if (sumPixels[x]>max)
+                    {
+                        maxIndex=x;
+                        max=sumPixels[x];
+                    }
+                }
+
+                nosePosition.x=(p1LeftEye.x)+(p1RightEye.x-p1LeftEye.x)/3+maxIndex;
+                if ((nosePosition.x-(p1LeftEye.x+p1RightEye.x)/2)/(p1RightEye.x-p1LeftEye.x)>.125)
+                    nosePosition.x=nosePosition.x + .4*(p1RightEye.x-nosePosition.x);
+                else if (((p1LeftEye.x+p1RightEye.x)/2-nosePosition.x)/(p1RightEye.x-p1LeftEye.x)>.125)
+                    nosePosition.x=nosePosition.x - .4*(nosePosition.x-p1LeftEye.x);
+                cvReleaseImage( &pixelsBtIris );
+            }
 
 
-        int  LINE_WIDTH=1,LINE_TYPE=CV_AA;
-        cvLine(img, p1LeftEye, nosePosition ,CV_RGB(255,255,255), LINE_WIDTH,LINE_TYPE ,0);
-        cvLine(img, p1RightEye, nosePosition ,CV_RGB(255,255,255), LINE_WIDTH,LINE_TYPE ,0);
-        cvLine(img, cvPoint((p1LeftEye.x-3),p1LeftEye.y+2), nosePosition ,CV_RGB(255,255,255), 4,LINE_TYPE ,0);
-        cvLine(img, cvPoint((p1RightEye.x+3),p1RightEye.y+2), nosePosition ,CV_RGB(255,255,255), 4,LINE_TYPE ,0);
-        CvPoint pts[3];
-        pts[0]=p1LeftEye;
-        pts[1]=p1RightEye;
-        pts[2]=nosePosition;
-        CvPoint eyeMid;
-        eyeMid.x=((p1LeftEye.x+p1RightEye.x)/2);
-        eyeMid.y=((p1LeftEye.y+p1RightEye.y)/2);
-        cvFillConvexPoly(img, pts,3,CV_RGB(0,255,0),CV_AA,0 );
-        */
-        /*
-                if ((p1LeftEye.x+p1RightEye.x)/2 >nosePosition.x)
-                {
-                    pts[0]=eyeMid;
-                    pts[1]=p1LeftEye;
-                    pts[2]=nosePosition;
-                    cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
-                }
-                else if ((p1LeftEye.x+p1RightEye.x)/2<nosePosition.x)
-                {
-                    pts[0]=eyeMid;
-                    pts[1]=p1RightEye;
-                    pts[2]=nosePosition;
-                    cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
-                }
-        */
+            int  LINE_WIDTH=1,LINE_TYPE=CV_AA;
+            cvLine(img, p1LeftEye, nosePosition ,CV_RGB(255,255,255), LINE_WIDTH,LINE_TYPE ,0);
+            cvLine(img, p1RightEye, nosePosition ,CV_RGB(255,255,255), LINE_WIDTH,LINE_TYPE ,0);
+            cvLine(img, cvPoint((p1LeftEye.x-3),p1LeftEye.y+2), nosePosition ,CV_RGB(255,255,255), 4,LINE_TYPE ,0);
+            cvLine(img, cvPoint((p1RightEye.x+3),p1RightEye.y+2), nosePosition ,CV_RGB(255,255,255), 4,LINE_TYPE ,0);
+            CvPoint pts[3];
+            pts[0]=p1LeftEye;
+            pts[1]=p1RightEye;
+            pts[2]=nosePosition;
+            CvPoint eyeMid;
+            eyeMid.x=((p1LeftEye.x+p1RightEye.x)/2);
+            eyeMid.y=((p1LeftEye.y+p1RightEye.y)/2);
+            cvFillConvexPoly(img, pts,3,CV_RGB(0,255,0),CV_AA,0 );
+            */
+    /*
+            if ((p1LeftEye.x+p1RightEye.x)/2 >nosePosition.x)
+            {
+                pts[0]=eyeMid;
+                pts[1]=p1LeftEye;
+                pts[2]=nosePosition;
+                cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
+            }
+            else if ((p1LeftEye.x+p1RightEye.x)/2<nosePosition.x)
+            {
+                pts[0]=eyeMid;
+                pts[1]=p1RightEye;
+                pts[2]=nosePosition;
+                cvFillConvexPoly(img, pts,3,CV_RGB(0,180,0),CV_AA,0 );
+            }
+    */
 
-        //int colorNo=8;
+    //int colorNo=8;
 
-        /*
-                if (dtdLeftEye==1 && dtdRightEye==1)
-                {
-                    cvCircle(img, p1LeftEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1RightEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1LeftEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1RightEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-                }
-                else
-                {
-                    cvCircle(img, p1LeftEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1RightEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1LeftEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1RightEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-                    cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
-                }
-                */
-       /* cvReleaseImage( &eyeFull );
-        cvReleaseImage( &eyeRightPImage );
-        cvReleaseImage( &eyeLeftPImage );
-        cvReleaseImage( &noseSearchArea );
+    /*
+            if (dtdLeftEye==1 && dtdRightEye==1)
+            {
+                cvCircle(img, p1LeftEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1RightEye, 2, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1LeftEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1RightEye, 4, CV_RGB(0,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+            }
+            else
+            {
+                cvCircle(img, p1LeftEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1RightEye, 2, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1LeftEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1RightEye, 4, CV_RGB(180,180,0), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1LeftEye,7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+                cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
+            }
+            */
+    /* cvReleaseImage( &eyeFull );
+     cvReleaseImage( &eyeRightPImage );
+     cvReleaseImage( &eyeLeftPImage );
+     cvReleaseImage( &noseSearchArea );
     }
     CvPoint pts[4];
     pts[0]=cvPoint(0,200);
@@ -1098,63 +1178,63 @@ return -1;
     if (dtdLeftEye==1 && dtdRightEye==1)
     {
 
-        CvPixelPosition8u pos_dst;
-        int x =0;
-        int y =0;
-        CV_INIT_PIXEL_POS(pos_dst,
-                          (unsigned char *) img->imageData,
-                          img->widthStep,
-                          cvGetSize(img),
-                          x,y,
-                          img->origin);
+     CvPixelPosition8u pos_dst;
+     int x =0;
+     int y =0;
+     CV_INIT_PIXEL_POS(pos_dst,
+                       (unsigned char *) img->imageData,
+                       img->widthStep,
+                       cvGetSize(img),
+                       x,y,
+                       img->origin);
 
-        uchar * ptr_dst;
-        double tran=255;
-        double k=(p2.y)/2;
+     uchar * ptr_dst;
+     double tran=255;
+     double k=(p2.y)/2;
 
-        moveTransparent-=6;
-        if (moveTransparent<=0)
-           {
-            moveTransparent=((p2.y)-(p1.y));
-            }
-
-
-        for ( y=p1.y+moveTransparent;y<((p2.y)/2) +moveTransparent ; y++)
+     moveTransparent-=6;
+     if (moveTransparent<=0)
         {
+         moveTransparent=((p2.y)-(p1.y));
+         }
 
-            k--;
 
-            for ( x=p1.x; x<(p2.x); x++)
-            {
-                if (y<=p2.y)
-                {
-                    ptr_dst = CV_MOVE_TO(pos_dst,x,y,3);
-                    tran=(255-ptr_dst[0])<(255-ptr_dst[1])?((255-ptr_dst[0])<(255-ptr_dst[2])?(255-ptr_dst[0]):(255-ptr_dst[2])):((255-ptr_dst[1])<(255-ptr_dst[2])?(255-ptr_dst[1]):(255-ptr_dst[2]));
-                    //    printf("%e \n" ,tran);
-                    double rat=(k/((p2.y-p1.y)/2));
+     for ( y=p1.y+moveTransparent;y<((p2.y)/2) +moveTransparent ; y++)
+     {
 
-                    tran=tran-((rat)*tran);
+         k--;
 
-                    ptr_dst[0]=ptr_dst[0]+ (int)((tran*ptr_dst[0])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
+         for ( x=p1.x; x<(p2.x); x++)
+         {
+             if (y<=p2.y)
+             {
+                 ptr_dst = CV_MOVE_TO(pos_dst,x,y,3);
+                 tran=(255-ptr_dst[0])<(255-ptr_dst[1])?((255-ptr_dst[0])<(255-ptr_dst[2])?(255-ptr_dst[0]):(255-ptr_dst[2])):((255-ptr_dst[1])<(255-ptr_dst[2])?(255-ptr_dst[1]):(255-ptr_dst[2]));
+                 //    printf("%e \n" ,tran);
+                 double rat=(k/((p2.y-p1.y)/2));
 
-                    ptr_dst[1]=ptr_dst[1]+ (int)((tran*ptr_dst[1])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
+                 tran=tran-((rat)*tran);
 
-                    ptr_dst[2]=ptr_dst[2]+(int)((tran*ptr_dst[2])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
-                }
-            }
+                 ptr_dst[0]=ptr_dst[0]+ (int)((tran*ptr_dst[0])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
 
-        }
-        cvRectangle(img,p1,p2,colors[3],3,4,0);
+                 ptr_dst[1]=ptr_dst[1]+ (int)((tran*ptr_dst[1])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
 
-        (*pLeftEye).x=p1LeftEye.x;
-        (*pLeftEye).y=p1LeftEye.y;
-        (*pRightEye).x=p1RightEye.x;
-        (*pRightEye).y=p1RightEye.y;
-        return 1;
+                 ptr_dst[2]=ptr_dst[2]+(int)((tran*ptr_dst[2])/(ptr_dst[0]+ptr_dst[2]+ptr_dst[1]));
+             }
+         }
+
+     }
+     cvRectangle(img,p1,p2,colors[3],3,4,0);
+
+     (*pLeftEye).x=p1LeftEye.x;
+     (*pLeftEye).y=p1LeftEye.y;
+     (*pRightEye).x=p1RightEye.x;
+     (*pRightEye).y=p1RightEye.y;
+     return 1;
     }
     else
     {
-        return 0;
+     return 0;
     }
-*/
+    */
 }
