@@ -56,7 +56,7 @@ static CvScalar colors[] =
 
 
 char *HAAR_CASCADE_FACE=PKGDATADIR "/haarcascade.xml";
-char *HAAR_CASCADE_EYE=PKGDATADIR "/haarcascade_eye.xml";
+char *HAAR_CASCADE_EYE=PKGDATADIR "/haarcascade_eye_tree_eyeglasses.xml";
 char *HAAR_CASCADE_NOSE=PKGDATADIR "/haarcascade_nose.xml";
 char *path;
 char *imgPath;
@@ -75,6 +75,12 @@ char *XML_GTK_BUILDER_FACE_AUTHENTICATE=PKGDATADIR "/gtk-faceauthenticate.xml";
 int moveTransparent=0;
 
 int init=0;
+static CvMemStorage* storage = 0;
+static CvHaarClassifierCascade* cascade = 0;
+static CvHaarClassifierCascade* nested_cascade = 0;
+double scale = 1;
+
+/*
 int dtdLeftEyeOnce=0,dtdRightEyeOnce=0,dtdNoseOnce=0;
 int dtdLeftEye=0,dtdRightEye=0,dtdNose=0;
 CvPoint p1Nose,p2Nose,p1LeftEye,p1RightEye;
@@ -88,7 +94,7 @@ static CvHaarClassifierCascade* cascadeFace;
 static CvHaarClassifierCascade* cascadeEyeLeft;
 static CvHaarClassifierCascade* cascadeEyeRight;
 static CvHaarClassifierCascade* cascadeNose;
-
+*/
 int faceDetect( IplImage* ,CvPoint *,CvPoint *);
 void GetSkinMask(IplImage * src_RGB, IplImage * mask_BW, int erosions, int dilations);
 void rotate(double angle, float centreX, float centreY,IplImage * img,IplImage * dstimg);
@@ -109,17 +115,24 @@ double facep2[4];
 double eyeLength=0;
 
 void intialize()
-{
+{   cascade = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_FACE, 0, 0, 0 );
+    nested_cascade = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_EYE, 0, 0, 0 );
+    storage = cvCreateMemStorage(0);
+
+    /*
+
     cascadeFace       = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_FACE, 0, 0, 0 );
     cascadeEyeLeft    = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_EYE, 0, 0, 0 );
     cascadeEyeRight   = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_EYE, 0, 0, 0 );
     cascadeNose       = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_NOSE, 0, 0, 0 );
+
     storageFace       = cvCreateMemStorage(0);
     storageEyeLeft    = cvCreateMemStorage(0);
     storageEyeRight   = cvCreateMemStorage(0);
     storageNose       = cvCreateMemStorage(0);
-
+*/
 }
+
 void intializePaths(char * username)
 {
     char * constChar= "/etc/pam-face-authentication/";
@@ -133,10 +146,13 @@ void intializePaths(char * username)
 }
 void allocateMemory()
 {
+    cvClearMemStorage( storage );
+    /*
     cvClearMemStorage(storageFace );
     cvClearMemStorage( storageNose );
     cvClearMemStorage( storageEyeLeft );
     cvClearMemStorage( storageEyeRight );
+    */
 }
 
 void GetSkinMask(IplImage * src_RGB, IplImage * mask_BW, int erosions, int dilations)
@@ -267,17 +283,12 @@ double CenterofMass(IplImage* src,int flagXY)
 
 void rotate(double angle, float centreX, float centreY,IplImage * img,IplImage * dstimg)
 {
-
-
     CvPoint2D32f centre;
     CvMat *translate = cvCreateMat(2, 3, CV_32FC1);
-
     centre.x = centreX;
     centre.y = centreY;
-
     cv2DRotationMatrix(centre, angle, 1.0, translate);
     //printf(" %e %e %e %e %e MVALUES \n",translate[0],translate[1],translate[2],translate[3],translate[4],translate[5]);
-
     cvWarpAffine(img,dstimg,translate,CV_INTER_LINEAR+CV_WARP_FILL_OUTLIERS,cvScalarAll(0));
     cvReleaseMat(&translate);
 }
@@ -587,6 +598,90 @@ int CheckImageROI(IplImage* img,double x, double y,double width,double height,do
 int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
 {
 
+   IplImage *gray, *small_img;
+    int i, j;
+
+    gray = cvCreateImage( cvSize(img->width,img->height), 8, 1 );
+    small_img = cvCreateImage( cvSize( cvRound (img->width/scale),
+                         cvRound (img->height/scale)), 8, 1 );
+
+    cvCvtColor( img, gray, CV_BGR2GRAY );
+    cvResize( gray, small_img, CV_INTER_LINEAR );
+    cvEqualizeHist( small_img, small_img );
+    cvClearMemStorage( storage );
+
+    if( cascade )
+    {
+           CvSeq* faces = cvHaarDetectObjects( small_img, cascade, storage,
+                                            1.1, 2, 0
+                                            |CV_HAAR_FIND_BIGGEST_OBJECT
+                                            |CV_HAAR_DO_ROUGH_SEARCH
+                                            //|CV_HAAR_DO_CANNY_PRUNING
+                                            //|CV_HAAR_SCALE_IMAGE
+                                            ,
+                                            cvSize(90, 90) );
+
+        for( i = 0; i < (faces ? faces->total : 0); i++ )
+        {
+            CvRect* r = (CvRect*)cvGetSeqElem( faces, i );
+            CvMat small_img_roi;
+            CvSeq* nested_objects;
+            CvPoint center;
+            CvScalar color = colors[i%8];
+            int radius;
+            center.x = cvRound((r->x + r->width*0.5)*scale);
+            center.y = cvRound((r->y + r->height*0.5)*scale);
+            radius = cvRound((r->width + r->height)*0.25*scale);
+            cvCircle( img, center, radius, color, 3, 8, 0 );
+            cvGetSubRect( small_img, &small_img_roi, *r );
+            nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
+                                        1.1, 2, 0
+                                        //|CV_HAAR_FIND_BIGGEST_OBJECT
+                                        //|CV_HAAR_DO_ROUGH_SEARCH
+                                        //|CV_HAAR_DO_CANNY_PRUNING
+                                        //|CV_HAAR_SCALE_IMAGE
+                                        ,
+                                        cvSize(0, 0) );
+                    (*pLeftEye).x=0;
+                    (*pLeftEye).y=0;
+                    (*pRightEye).x=0;
+                    (*pRightEye).y=0;
+
+
+            for( j = 0; j < (nested_objects ? nested_objects->total : 0); j++ )
+            {
+                CvRect* nr = (CvRect*)cvGetSeqElem( nested_objects, j );
+                center.x = cvRound((r->x + nr->x + nr->width*0.5)*scale);
+                center.y = cvRound((r->y + nr->y + nr->height*0.5)*scale);
+                if(center.x<cvRound((r->x + r->width*0.5)*scale))
+                {
+                    (*pLeftEye).x=center.x;
+                    (*pLeftEye).y=center.y;
+
+                }
+                else
+                {
+                    (*pRightEye).x=center.x;
+                    (*pRightEye).y=center.y;
+
+                }
+                radius = cvRound((nr->width + nr->height)*0.25*scale);
+                cvCircle( img, center, radius, color, 3, 8, 0 );
+            }
+
+        }
+    }
+
+    //cvShowImage( "result", img );
+    cvReleaseImage( &gray );
+    cvReleaseImage( &small_img );
+if(((*pRightEye).y!=0) && ((*pRightEye).x!=0) && ((*pLeftEye).y!=0) && ((*pLeftEye).x!=0))
+return 1;
+else
+return -1;
+
+
+/*
     cvSetErrMode( CV_ErrModeSilent );
     dtdLeftEye=0;
     dtdRightEye=0;
@@ -947,6 +1042,7 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
         eyeMid.x=((p1LeftEye.x+p1RightEye.x)/2);
         eyeMid.y=((p1LeftEye.y+p1RightEye.y)/2);
         cvFillConvexPoly(img, pts,3,CV_RGB(0,255,0),CV_AA,0 );
+        */
         /*
                 if ((p1LeftEye.x+p1RightEye.x)/2 >nosePosition.x)
                 {
@@ -964,7 +1060,8 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                 }
         */
 
-        int colorNo=8;
+        //int colorNo=8;
+
         /*
                 if (dtdLeftEye==1 && dtdRightEye==1)
                 {
@@ -985,7 +1082,7 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                     cvCircle(img, p1RightEye, 7, CV_RGB(255,255,255), 3, LINE_TYPE, 0 );
                 }
                 */
-        cvReleaseImage( &eyeFull );
+       /* cvReleaseImage( &eyeFull );
         cvReleaseImage( &eyeRightPImage );
         cvReleaseImage( &eyeLeftPImage );
         cvReleaseImage( &noseSearchArea );
@@ -1059,5 +1156,5 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
     {
         return 0;
     }
-
+*/
 }

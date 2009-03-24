@@ -474,12 +474,12 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     }
     computedDistance=sqrt(computedDistance);
 
-  // printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
+//  printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
     double thresholdEmpericalDistance=40.0;
     if(distanceThreshold<thresholdEmpericalDistance);
     distanceThreshold=thresholdEmpericalDistance;
 
-    if(computedDistance>((1.25)*distanceThreshold))
+    if(computedDistance>((1.28)*distanceThreshold))
     return 'n';
 
     for (i=0;i<Ny;i++)

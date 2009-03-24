@@ -366,6 +366,7 @@ ui_DATA = \
 gtk-faceauthenticate.xml \
 gtk-facemanagerU.xml \
 haarcascade_eye.xml \
+haarcascade_eye_tree_eyeglasses.xml \
 haarcascade_nose.xml \
 haarcascade.xml
 
