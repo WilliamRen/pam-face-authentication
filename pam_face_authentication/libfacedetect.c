@@ -743,6 +743,10 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                     CvScalar color = colors[4];
         cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 4, color, 1, 8, 0 );
         cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 4, color, 1, 8, 0 );
+        cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 2, color, 1, 8, 0 );
+        cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 2, color, 1, 8, 0 );
+        cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 3, color, 1, 8, 0 );
+        cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 3, color, 1, 8, 0 );
 
         if (bothEyesDetectedApprox!=1)
         {
