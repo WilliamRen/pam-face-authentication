@@ -474,12 +474,12 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     }
     computedDistance=sqrt(computedDistance);
 
-//  printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
+//printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
     double thresholdEmpericalDistance=40.0;
     if(distanceThreshold<thresholdEmpericalDistance);
     distanceThreshold=thresholdEmpericalDistance;
 
-    if(computedDistance>((1.28)*distanceThreshold))
+    if(computedDistance>((1.24)*distanceThreshold))
     return 'n';
 
     for (i=0;i<Ny;i++)
@@ -520,35 +520,41 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     int ansMatch=-1;
     int login=1;
     double percentage1;
-    parseSvmPrediction(&ans,&percentage1);
+    int num=parseSvmPrediction(&ans,&percentage1);
+    double cutoff=cvRound(1/(num+1));
+    cutoff=cutoff+(double)(cutoff*0.4);
+    //printf("%e %d Cutoff \n",cutoff,(num+1));
+
+
+
     ansMatch=ans;
     if (ans!=currentUserId)
         return 'n';
     sum+=percentage1;
-   // printf("Answer %d \n",ans);
-   // printf("DCT Percent %e \n",percentage1);
-    if (percentage1<.78)
+//printf("Answer %d \n",ans);
+//printf("DCT Percent %e \n",percentage1);
+    if (percentage1<cutoff)
         login=-1;
 
-    //printf("Login %d \n",login);
-    // printf("Answer %d Percentage %e DCT \n",ans,percentage1);
+//printf("Login %d \n",login);
+//printf("Answer %d Percentage %e DCT \n",ans,percentage1);
     system(BINDIR "/svm-predict -b 1 /etc/pam-face-authentication/testFeaturesLBP.scale /etc/pam-face-authentication/featuresLBP.scale.model /etc/pam-face-authentication/prediction");
     parseSvmPrediction(&ans,&percentage1);
- //   printf("Answer %d \n",ans);
-  //  printf("LBP Percent %e \n",percentage1);
+//printf("Answer %d \n",ans);
+//printf("LBP Percent %e \n",percentage1);
     if (ansMatch==ans)
     {
         sum+=percentage1;
         *userid=ans;
     }
-   // printf("SUM Percent %e \n",sum);
+//printf("SUM Percent %e \n",sum);
     if (login!=-1)
     {
-        if (percentage1<.78)
+        if (percentage1<cutoff)
             login=-1;
     }
-    //printf("Login %d \n",login);
-    if (sum<1.65)
+//printf("Login %d \n",login);
+    if (sum<(2*cutoff))
     {
         login=-1;
     }
