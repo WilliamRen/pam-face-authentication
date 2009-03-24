@@ -108,6 +108,7 @@ readFilesAndLoadGtkIconView()
 
     GtkListStore *list_store;
     GdkPixbuf *p1;
+
     GtkTreeIter iter;
     GError *err = NULL;
     struct dirent *de=NULL;
@@ -310,8 +311,12 @@ on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
     char *license_trans;
 
     license_trans = g_strconcat (license[0], "\n", license[1], "\n", license[2], "\n", NULL);
+    GdkPixbuf *logo;
 
+        GError *err = NULL;
+    logo =  gdk_pixbuf_new_from_file_at_size  (PKGDATADIR "/logo.png",182,182,&err);
     gtk_show_about_dialog (GTK_WINDOW (window),
+                            "name" , "PAM-Face-Authentication",
                            "version", VERSION,
                            "comments", "Pluggable Face Authentication module for your favorite distro.",
                            "authors", authors,
@@ -320,7 +325,7 @@ on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
                            "documenters", documenters,
                            "website", "http://code.google.com/p/pam-face-authentication/",
                            "website-label", "pam-face-authentication",
-                           "logo-icon-name", "pam-face-authentication",
+                           "logo", logo,
                            "wrap-license", TRUE,
                            "license", license_trans,
                            NULL);

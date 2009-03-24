@@ -91,6 +91,7 @@ extra2_DATA = featuresAverage featuresDistance featuresDCT featuresLBP
 uidir=$(pkgdatadir)
 ui_DATA = \
 gtk-faceauthenticate.xml \
+logo.png \
 gtk-facemanagerU.xml \
 haarcascade_eye.xml \
 haarcascade_eye_tree_eyeglasses.xml \
