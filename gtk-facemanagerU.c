@@ -50,13 +50,32 @@ on_gtkfacemanager_destroy  (GtkObject       *object,
 {
     exit(0);
 }
+void     setGtkWebcamImageWhite(GtkWidget *imgCapturedFace)
+{
+    unsigned char *gdataUserFace;
+    GdkPixbuf *pixbufUserFace= NULL;
+    pixbufUserFace = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE,8,320,240);
+    gdataUserFace = gdk_pixbuf_get_pixels(pixbufUserFace);
+    int m,n;
+    for (n=0;n<240;n++)
+    {
+        for (m= 0;m<320;m++)
+        {
+            gdataUserFace[n*320*3 + m*3 +0]=255;
+            gdataUserFace[n*320*3 + m*3 +1]=255;
+            gdataUserFace[n*320*3 + m*3 +2]=255;
+        }
+    }
+
+    gtk_image_set_from_pixbuf((GtkImage*)imgCapturedFace, pixbufUserFace);
+    g_object_unref (pixbufUserFace);
+}
 
 
 void loadCVPIXBUF(GtkWidget *imgCapturedFace,IplImage* image)
 {
     unsigned char *gdataUserFace;
     GdkPixbuf *pixbufUserFace= NULL;
-
     pixbufUserFace = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE,8,image->width,image->height);
     gdataUserFace = gdk_pixbuf_get_pixels(pixbufUserFace);
 
@@ -228,6 +247,8 @@ static gboolean time_handler(GtkWidget *widget)
         sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.pgm", passwd->pw_dir,buffer,numberOfFaces+1);
         // printf("%s \n",imagepath);
         cvSaveImage(imagepath,face);
+        setGtkWebcamImageWhite(gtkWebcamImage);
+        cvWaitKey(1000);
         intializeGtkIconView();
 
     }
@@ -558,6 +579,7 @@ main (int argc, char *argv[])
     intializeGtkIconView();
     gtk_label_set_label (GTK_LABEL(gtkWelcome),welcomeMessage);
     g_timeout_add(40, (GSourceFunc) time_handler, (gpointer) window);
+    setGtkWebcamImageWhite(gtkWebcamImage);
     gtk_builder_connect_signals (builder, NULL);
     gtk_widget_show (window);
     gtk_main ();
