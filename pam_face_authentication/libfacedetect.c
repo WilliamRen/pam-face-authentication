@@ -600,6 +600,11 @@ int CheckImageROI(IplImage* img,double x, double y,double width,double height,do
 int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
 {
     int bothEyesDetectedApprox=0;
+         (*pLeftEye).x=0;
+            (*pLeftEye).y=0;
+            (*pRightEye).x=0;
+            (*pRightEye).y=0;
+
     IplImage *gray, *small_img;
     int i, j;
     int width;
@@ -635,7 +640,7 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
             center.x = cvRound((r->x + r->width*0.5)*scale);
             center.y = cvRound((r->y + r->height*0.5)*scale);
             radius = cvRound((r->width + r->height)*0.25*scale);
-            cvCircle( img, center, radius, color, 3, 8, 0 );
+            //cvCircle( img, center, radius, color, 3, 8, 0 );
             cvGetSubRect( small_img, &small_img_roi, *r );
             nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
                                                   1.1, 2, 0
@@ -645,10 +650,6 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                                                   //|CV_HAAR_SCALE_IMAGE
                                                   ,
                                                   cvSize(0, 0) );
-            (*pLeftEye).x=0;
-            (*pLeftEye).y=0;
-            (*pRightEye).x=0;
-            (*pRightEye).y=0;
 
 
             for ( j = 0; j < (nested_objects ? nested_objects->total : 0); j++ )
@@ -656,51 +657,58 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                 CvRect* nr = (CvRect*)cvGetSeqElem( nested_objects, j );
                 center.x = cvRound((r->x + nr->x + nr->width*0.5)*scale);
                 center.y = cvRound((r->y + nr->y + nr->height*0.5)*scale);
-                cvSetImageROI(gray,cvRect(center.x-4,center.y-4,8,8));
-                IplImage* eyeDetect = cvCreateImage(cvSize(8,8),8,1);
-                cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
-                cvResetImageROI(gray);
-                double xCordinate=(center.x-4+CenterofMass(eyeDetect,0))*scale;
-                double yCordinate=(center.y-4+CenterofMass(eyeDetect,1))*scale;
-                cvReleaseImage( &eyeDetect );
-                if (center.x<cvRound((r->x + r->width*0.5)*scale))
+                if ((center.x-4)>0 && (center.x-4)<312 && (center.y-4)>0  && (center.y-4)<232)
                 {
+                    cvSetImageROI(gray,cvRect(center.x-4,center.y-4,8,8));
+                    IplImage* eyeDetect = cvCreateImage(cvSize(8,8),8,1);
+                    cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
+                    cvResetImageROI(gray);
+                    double xCordinate=(center.x-4+CenterofMass(eyeDetect,0))*scale;
+                    double yCordinate=(center.y-4+CenterofMass(eyeDetect,1))*scale;
+                    cvReleaseImage( &eyeDetect );
+                    if (center.x<cvRound((r->x + r->width*0.5)*scale))
+                    {
 
 
-                    (*pLeftEye).x=xCordinate;
-                    (*pLeftEye).y=yCordinate;
+                        (*pLeftEye).x=xCordinate;
+                        (*pLeftEye).y=yCordinate;
+
+                    }
+                    else
+                    {
+                        (*pRightEye).x=xCordinate;
+                        (*pRightEye).y=yCordinate;
+
+                    }
 
                 }
-                else
-                {
-                    (*pRightEye).x=xCordinate;
-                    (*pRightEye).y=yCordinate;
-
-                }
-           //     radius = 4;
-             //   cvCircle( img, cvPoint(xCordinate,yCordinate), radius, color, 1, 8, 0 );
+                //     radius = 4;
+                //   cvCircle( img, cvPoint(xCordinate,yCordinate), radius, color, 1, 8, 0 );
             }
             if (((*pRightEye).y!=0) && ((*pRightEye).x!=0) && ((*pLeftEye).y==0) && ((*pLeftEye).x==0))
             {
 
-              //  printf("Target Aquired \n");
+                //  printf("Target Aquired \n");
                 bothEyesDetectedApprox=1;
                 if (widthEye!=0 && widthFace!=0)
                     (*pLeftEye).x=(*pRightEye).x-cvRound((width*widthEye)/widthFace);
-              //  printf("Target Aquired  %d %d %d\n",(*pLeftEye).x,(*pRightEye).x,cvRound((width*widthEye)/widthFace));
+                //  printf("Target Aquired  %d %d %d\n",(*pLeftEye).x,(*pRightEye).x,cvRound((width*widthEye)/widthFace));
                 if ((*pLeftEye).x>0)
                 {
                     (*pLeftEye).y=(*pRightEye).y;
+                    if (((*pLeftEye).x-8)>0 && ((*pLeftEye).x-8)<312 && ((*pLeftEye).y-8)>0  && ((*pLeftEye).x-8)<232)
+                    {
 
-                    cvSetImageROI(gray,cvRect((*pLeftEye).x-8,(*pLeftEye).y-4,16,8));
-                    IplImage* eyeDetect = cvCreateImage(cvSize(16,8),8,1);
-                    cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
-                    cvResetImageROI(gray);
-                    double xCordinate=((*pLeftEye).x-8+CenterofMass(eyeDetect,0))*scale;
-                    double yCordinate=((*pLeftEye).y-4+CenterofMass(eyeDetect,1))*scale;
-                    (*pLeftEye).x=xCordinate;
-                    (*pLeftEye).y=yCordinate;
-                    cvReleaseImage( &eyeDetect );
+                        cvSetImageROI(gray,cvRect((*pLeftEye).x-8,(*pLeftEye).y-4,16,8));
+                        IplImage* eyeDetect = cvCreateImage(cvSize(16,8),8,1);
+                        cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
+                        cvResetImageROI(gray);
+                        double xCordinate=((*pLeftEye).x-8+CenterofMass(eyeDetect,0))*scale;
+                        double yCordinate=((*pLeftEye).y-4+CenterofMass(eyeDetect,1))*scale;
+                        (*pLeftEye).x=xCordinate;
+                        (*pLeftEye).y=yCordinate;
+                        cvReleaseImage( &eyeDetect );
+                    }
                 }
 
 
@@ -712,22 +720,23 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                 bothEyesDetectedApprox=1;
                 if (widthEye!=0 && widthFace!=0)
                     (*pRightEye).x=(*pLeftEye).x+cvRound((width*widthEye)/widthFace);
-             //   printf("Target Aquired IIIIII %d\n",(*pRightEye).x);
+                //   printf("Target Aquired IIIIII %d\n",(*pRightEye).x);
 
                 if ((*pRightEye).x>0)
                 {
                     (*pRightEye).y=(*pLeftEye).y;
-                    cvSetImageROI(gray,cvRect((*pRightEye).x-8,(*pRightEye).y-4,16,8));
-                    IplImage* eyeDetect = cvCreateImage(cvSize(16,8),8,1);
-                    cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
-                    cvResetImageROI(gray);
-                    double xCordinate=((*pRightEye).x-8+CenterofMass(eyeDetect,0))*scale;
-                    double yCordinate=((*pRightEye).y-4+CenterofMass(eyeDetect,1))*scale;
-                    (*pRightEye).x=xCordinate;
-                    (*pRightEye).y=yCordinate;
-                    cvReleaseImage( &eyeDetect );
-
-
+                    if (((*pRightEye).x-8)>0 && ((*pRightEye).x-8)<312 && ((*pRightEye).y-8)>0  && ((*pRightEye).x-8)<232)
+                    {
+                        cvSetImageROI(gray,cvRect((*pRightEye).x-8,(*pRightEye).y-4,16,8));
+                        IplImage* eyeDetect = cvCreateImage(cvSize(16,8),8,1);
+                        cvResize( gray,eyeDetect, CV_INTER_LINEAR ) ;
+                        cvResetImageROI(gray);
+                        double xCordinate=((*pRightEye).x-8+CenterofMass(eyeDetect,0))*scale;
+                        double yCordinate=((*pRightEye).y-4+CenterofMass(eyeDetect,1))*scale;
+                        (*pRightEye).x=xCordinate;
+                        (*pRightEye).y=yCordinate;
+                        cvReleaseImage( &eyeDetect );
+                    }
                 }
             }
 
@@ -740,13 +749,11 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
     cvReleaseImage( &small_img );
     if (((*pRightEye).y!=0) && ((*pRightEye).x!=0) && ((*pLeftEye).y!=0) && ((*pLeftEye).x!=0))
     {
-                    CvScalar color = colors[4];
+        CvScalar color = colors[4];
         cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 4, color, 1, 8, 0 );
         cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 4, color, 1, 8, 0 );
         cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 2, color, 1, 8, 0 );
         cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 2, color, 1, 8, 0 );
-        cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 3, color, 1, 8, 0 );
-        cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 3, color, 1, 8, 0 );
 
         if (bothEyesDetectedApprox!=1)
         {
