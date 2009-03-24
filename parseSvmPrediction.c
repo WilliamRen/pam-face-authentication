@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-void parseSvmPrediction(int *ans,double *percent)
+int parseSvmPrediction(int *ans,double *percent)
 {
     char line[1000];
     int userid[200];
@@ -23,6 +23,7 @@ while(word1!=NULL)
   i++;
   word1=strtok(NULL,"  \n");
 }
+
 
 fgets(line, 1000,f);
 //printf("%s \n",line);
@@ -47,6 +48,8 @@ word1=strtok(NULL,"  \n");
 percentage=(double)atof(word1);
 *ans=answer;
 *percent=percentage;
+return i;
+
 //printf("answer %d percentage %e \n",answer,percentage);
 
 }
