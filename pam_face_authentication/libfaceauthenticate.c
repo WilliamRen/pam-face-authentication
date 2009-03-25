@@ -479,7 +479,7 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     if(distanceThreshold<thresholdEmpericalDistance);
     distanceThreshold=thresholdEmpericalDistance;
 
-    if(computedDistance>((1.29)*distanceThreshold))
+    if(computedDistance>((1.43)*distanceThreshold))
     return 'n';
 
     for (i=0;i<Ny;i++)
