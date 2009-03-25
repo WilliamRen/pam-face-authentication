@@ -31,9 +31,9 @@
 #include <time.h>
 #include <ctype.h>
 #include "pam_face_defines.h"
-#include <gsl/gsl_sort.h>
-#include <gsl/gsl_wavelet.h>
-#include <gsl/gsl_wavelet2d.h>
+//#include <gsl/gsl_sort.h>
+//#include <gsl/gsl_wavelet.h>
+//#include <gsl/gsl_wavelet2d.h>
 
 
 
@@ -295,7 +295,7 @@ void rotate(double angle, float centreX, float centreY,IplImage * img,IplImage *
     cvReleaseMat(&translate);
 }
 
-
+/*
 void preprocessIlluminationWT(IplImage * img)
 {
     int m,n;
@@ -409,6 +409,8 @@ void preprocessIlluminationWT(IplImage * img)
     cvResize( waveletImage, img, CV_INTER_LINEAR );
 
 }
+*/
+/*
 void preprocessIllumination(IplImage * img)
 {
     int m,n;
@@ -456,7 +458,7 @@ void preprocessIllumination(IplImage * img)
     cvResize( dftImg8, img, CV_INTER_LINEAR );
 }
 
-
+*/
 
 void rotatePoint(CvPoint* srcP,CvPoint* dstP,float angle)
 {
@@ -621,28 +623,16 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
     {
         CvSeq* faces = cvHaarDetectObjects( small_img, cascade, storage,
                                             1.1, 2, 0
-                                            //|CV_HAAR_FIND_BIGGEST_OBJECT
-                                          //  |CV_HAAR_DO_ROUGH_SEARCH
+                                              |CV_HAAR_FIND_BIGGEST_OBJECT
+                                              |CV_HAAR_DO_ROUGH_SEARCH
                                             //|CV_HAAR_DO_CANNY_PRUNING
                                             //|CV_HAAR_SCALE_IMAGE
                                             ,
                                             cvSize(90, 90) );
 
-int max=0;
-int maxI=-1;
-        for ( i = 0; i < (faces ? faces->total : 0); i++ )
+for ( i = 0; i < (faces ? faces->total : 0); i++ )
         {  CvRect* r = (CvRect*)cvGetSeqElem( faces, i );
 
-            if(max<(r->width*r->height))
-            { max=(r->width*r->height);
-            maxI=i;
-            }
-
-          }
-          if(maxI!=-1)
-          {
-
-            CvRect* r = (CvRect*)cvGetSeqElem( faces, i );
             CvMat small_img_roi;
             CvSeq* nested_objects;
             CvPoint center;
@@ -652,7 +642,7 @@ int maxI=-1;
             center.x = cvRound((r->x + r->width*0.5)*scale);
             center.y = cvRound((r->y + r->height*0.5)*scale);
             radius = cvRound((r->width + r->height)*0.25*scale);
-            cvCircle( img, center, radius, color, 3, 8, 0 );
+            //cvCircle( img, center, radius, color, 3, 8, 0 );
             cvGetSubRect( small_img, &small_img_roi, *r );
             nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
                                                   1.1, 2, 0

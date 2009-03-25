@@ -1,3 +1,4 @@
+AM_CFLAGS  = 
 DEBUG = -g
 INCLUDES = \
 	-DVERSION=\".3\" \
@@ -5,7 +6,6 @@ INCLUDES = \
 	-DBINDIR=\"$(bindir)\" \
 	$(GTK_CFLAGS) \
 	$(X11_CFLAGS) \
-	$(GSL_CFLAGS) \
 	$(OPENCV_CFLAGS)
 
 bin_PROGRAMS = gtk-facemanager \
@@ -41,7 +41,6 @@ install-exec-hook:
 
 gtk_facemanager_LDADD = \
 	$(GTK_LIBS) \
-	$(GSL_LIBS) \
 	$(OPENCV_LIBS) \
 	libfacedetect.la
 
@@ -49,7 +48,6 @@ gtk_facemanager_LDFLAGS = -export-dynamic
 gtk_facetracker_SOURCES = gtk-faceauthenticate.c
 gtk_facetracker_LDADD = \
 			$(GTK_LIBS) \
-			$(GSL_LIBS) \
 			$(OPENCV_LIBS) \
 			libfacedetect.la
 
@@ -79,7 +77,6 @@ pam_face_authenticate_so_CFLAGS = -L/usr/X11R6/lib -lX11 -fPIC -lpthread
 pam_face_authenticate_so_LDFLAGS = -shared 
 pam_face_authenticate_so_LDADD = \
                         $(PAM_LIBS) \
-                        $(GSL_LIBS) \
                         $(OPENCV_LIBS) \
 		           $(X11_LIBS) \
 			libfacedetect.la \
