@@ -372,7 +372,7 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     */
 
     char userFile[300];
-    sprintf(userFile,"/etc/pam-face-authentication/%s.pgm",username);
+    sprintf(userFile,SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
 
     IplImage * img = cvLoadImage(userFile,0);
     //  printf("%s \n",userFile);
@@ -431,8 +431,8 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
         word1=strtok(NULL,"  \n");
     }
 
-    FILE *f1 =fopen("/etc/pam-face-authentication/testFeaturesDCT","w");
-    FILE *f2 =fopen("/etc/pam-face-authentication/testFeaturesLBP","w");
+    FILE *f1 =fopen(SYSCONFDIR "/pam-face-authentication/testFeaturesDCT","w");
+    FILE *f2 =fopen(SYSCONFDIR "/pam-face-authentication/testFeaturesLBP","w");
 
     int Nx = floor((img->width - 4)/4);
     int Ny= floor((img->height - 4)/4);
@@ -503,18 +503,18 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     fclose(f1);
     fclose(f2);
     //printf(" \n 1testing");
-    char* argv1[4]={"svm-scale","-r","/etc/pam-face-authentication/featuresDCT.range","/etc/pam-face-authentication/testFeaturesDCT"};
-    FILE *fp5=fopen("/etc/pam-face-authentication/testFeaturesDCT.scale","w");
+    char* argv1[4]={"svm-scale","-r",SYSCONFDIR "/pam-face-authentication/featuresDCT.range",SYSCONFDIR "/pam-face-authentication/testFeaturesDCT"};
+    FILE *fp5=fopen(SYSCONFDIR "/pam-face-authentication/testFeaturesDCT.scale","w");
 //    printf(" \n 2testing");
 
     svmScale(4,argv1,fp5);
 
-    char* argv2[4]={"svm-scale","-r","/etc/pam-face-authentication/featuresLBP.range","/etc/pam-face-authentication/testFeaturesLBP"};
-    FILE *fp6=fopen("/etc/pam-face-authentication/testFeaturesLBP.scale","w");
+    char* argv2[4]={"svm-scale","-r",SYSCONFDIR "/pam-face-authentication/featuresLBP.range",SYSCONFDIR "/pam-face-authentication/testFeaturesLBP"};
+    FILE *fp6=fopen(SYSCONFDIR "/pam-face-authentication/testFeaturesLBP.scale","w");
     svmScale(4,argv2,fp6);
     //printf("testing");
 
-    system(BINDIR "/svm-predict -b 1 /etc/pam-face-authentication/testFeaturesDCT.scale /etc/pam-face-authentication/featuresDCT.scale.model /etc/pam-face-authentication/prediction");
+    system(BINDIR "/svm-predict -b 1 "SYSCONFDIR"/pam-face-authentication/testFeaturesDCT.scale /etc/pam-face-authentication/featuresDCT.scale.model /etc/pam-face-authentication/prediction");
     int ans;
     double sum=0;
     int ansMatch=-1;
@@ -680,7 +680,7 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
 int findIndex(char* username)
 {
     FILE *fileKey;
-    if ( !(fileKey = fopen("/etc/pam-face-authentication/facemanager/face.key", "r+")) )
+    if ( !(fileKey = fopen(SYSCONFDIR "/pam-face-authentication/facemanager/face.key", "r+")) )
     {
         fprintf(stderr, "Error Occurred Accessing Key File\n");
         return 0;
@@ -708,7 +708,7 @@ char* findUserName(int index)
 {
 
     FILE *fileKey;
-    if ( !(fileKey = fopen("/etc/pam-face-authentication/facemanager/face.key", "r")) )
+    if ( !(fileKey = fopen(SYSCONFDIR "/pam-face-authentication/facemanager/face.key", "r")) )
     {
         fprintf(stderr, "Error Occurred Accessing Key File\n");
         return 0;
@@ -768,7 +768,7 @@ int loadTrainingData()
     int i;
 
     // create a file-storage interface
-    fileStorage = cvOpenFileStorage( "/etc/pam-face-authentication/facedata.xml", 0, CV_STORAGE_READ );
+    fileStorage = cvOpenFileStorage( SYSCONFDIR "/pam-face-authentication/facedata.xml", 0, CV_STORAGE_READ );
     if ( !fileStorage )
     {
         fprintf(stderr, "Can't open facedata.xml\n");

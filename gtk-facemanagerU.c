@@ -509,7 +509,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     fclose(fd);
 
     /*
-    Append feature directory to /etc/pam-face-authentication/db.lst
+    Append feature directory to SYSCONFDIR "/pam-face-authentication/db.lst
     */
 
     FILE *fileKey;
@@ -517,7 +517,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     int ifExist=0;
     sprintf(dirpath,"%s/.pam-face-authentication/features", passwd->pw_dir);
 
-    if ( !(fileKey = fopen("/etc/pam-face-authentication/db.lst", "r")) )
+    if ( !(fileKey = fopen(SYSCONFDIR "/pam-face-authentication/db.lst", "r")) )
     {
         fprintf(stderr, "Error 1 Occurred Accessing db.lst\n");
         exit(0);

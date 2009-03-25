@@ -3,6 +3,7 @@ INCLUDES = \
 	-DVERSION=\".3\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DBINDIR=\"$(bindir)\" \
+	-DSYSCONFDIR=\"/etc\" \
 	$(GTK_CFLAGS) \
 	$(X11_CFLAGS) \
 	$(GSL_CFLAGS) \
@@ -85,8 +86,8 @@ pam_face_authenticate_so_LDADD = \
 			libfacedetect.la \
                         libfaceauthenticate.la
 
-extra1dir=/etc/pam-face-authentication/
-extra2dir=/etc/pam-face-authentication/dummy/
+extra1dir=$(sysconfdir)/pam-face-authentication/
+extra2dir=$(sysconfdir)/pam-face-authentication/dummy/
 extra1_DATA = xauth.key display.key prediction db.lst
 extra2_DATA = featuresAverage featuresDistance featuresDCT featuresLBP
 uidir=$(pkgdatadir)

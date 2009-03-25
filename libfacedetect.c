@@ -62,9 +62,9 @@ char *path;
 char *imgPath;
 char *imgExt=".pgm";
 char *GTK_FACE_AUTHENTICATE=BINDIR "/gtk-facetracker &";
-char *XAUTH_EXTRACT_FILE="/etc/pam-face-authentication/xauth.key";
-char *XAUTHDISPLAY_EXTRACT_FILE="/etc/pam-face-authentication/display.key";
-char *GTK_FACE_MANAGER_KEY="/etc/pam-face-authentication/facemanager/face.key";
+char *XAUTH_EXTRACT_FILE=SYSCONFDIR "/pam-face-authentication/xauth.key";
+char *XAUTHDISPLAY_EXTRACT_FILE=SYSCONFDIR "/pam-face-authentication/display.key";
+char *GTK_FACE_MANAGER_KEY=SYSCONFDIR "/pam-face-authentication/facemanager/face.key";
 char *XML_GTK_BUILDER_FACE_MANAGER=PKGDATADIR "/gtk-facemanager.xml";
 char *XML_GTK_BUILDER_FACE_AUTHENTICATE=PKGDATADIR "/gtk-faceauthenticate.xml";
 
@@ -137,7 +137,7 @@ void intialize()
 
 void intializePaths(char * username)
 {
-    char * constChar= "/etc/pam-face-authentication/";
+    char * constChar= SYSCONFDIR "/pam-face-authentication/";
     char * constChar1= "/facemanager/";
     imgPath=(char *)calloc(  strlen(constChar) + strlen(constChar1) +1,sizeof(char));
     strcat(imgPath,constChar);
@@ -652,7 +652,7 @@ int maxI=-1;
             center.x = cvRound((r->x + r->width*0.5)*scale);
             center.y = cvRound((r->y + r->height*0.5)*scale);
             radius = cvRound((r->width + r->height)*0.25*scale);
-            //cvCircle( img, center, radius, color, 3, 8, 0 );
+            cvCircle( img, center, radius, color, 3, 8, 0 );
             cvGetSubRect( small_img, &small_img_roi, *r );
             nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
                                                   1.1, 2, 0
