@@ -3,7 +3,6 @@ INCLUDES = \
 	-DVERSION=\".3\" \
 	-DPKGDATADIR=\"$(pkgdatadir)\" \
 	-DBINDIR=\"$(bindir)\" \
-	-DSYSCONFDIR=\"/etc\" \
 	$(GTK_CFLAGS) \
 	$(X11_CFLAGS) \
 	$(GSL_CFLAGS) \

@@ -10,7 +10,7 @@ main (int argc, char *argv[])
     if(argv[1]!=NULL)
     {
 FILE *fileKey;
-    if ( !(fileKey = fopen(SYSCONFDIR "/pam-face-authentication/db.lst", "a")) )
+    if ( !(fileKey = fopen("/etc/pam-face-authentication/db.lst", "a")) )
     {
         fprintf(stderr, "Error 2 Occurred Accessing db.lst\n");
         exit(0);
@@ -21,14 +21,14 @@ FILE *fileKey;
     }
 
     FILE *fp1,*fp2,*fp3,*fp4,*fp0;
-    if ( !(fp0 = fopen(SYSCONFDIR "/pam-face-authentication/db.lst", "r")) )
+    if ( !(fp0 = fopen("/etc/pam-face-authentication/db.lst", "r")) )
     {
         fprintf(stderr, "Error 1 Occurred Accessing db.lst\n");
         return 0;
     }
 
-    fp3=fopen(SYSCONFDIR "/pam-face-authentication/featuresDCT","wb");
-    fp4=fopen(SYSCONFDIR "/pam-face-authentication/featuresLBP","wb");
+    fp3=fopen("/etc/pam-face-authentication/featuresDCT","wb");
+    fp4=fopen("/etc/pam-face-authentication/featuresLBP","wb");
     char path[300];
     float ch;
     char LBPpath[300];
@@ -88,17 +88,17 @@ fclose(fp4);
 /*
 
 */
-char* argv1[4]={"svm-scale","-s",SYSCONFDIR "/pam-face-authentication/featuresDCT.range",SYSCONFDIR "/pam-face-authentication/featuresDCT"};
-FILE *fp5=fopen(SYSCONFDIR "/pam-face-authentication/featuresDCT.scale","w");
+char* argv1[4]={"svm-scale","-s","/etc/pam-face-authentication/featuresDCT.range","/etc/pam-face-authentication/featuresDCT"};
+FILE *fp5=fopen("/etc/pam-face-authentication/featuresDCT.scale","w");
 svmScale(4,argv1,fp5);
 
-char* argv2[4]={"svm-scale","-s",SYSCONFDIR "/pam-face-authentication/featuresLBP.range",SYSCONFDIR "/pam-face-authentication/featuresLBP"};
-FILE *fp6=fopen(SYSCONFDIR "/pam-face-authentication/featuresLBP.scale","w");
+char* argv2[4]={"svm-scale","-s","/etc/pam-face-authentication/featuresLBP.range","/etc/pam-face-authentication/featuresLBP"};
+FILE *fp6=fopen("/etc/pam-face-authentication/featuresLBP.scale","w");
 svmScale(4,argv2,fp6);
 
-char* argv3[11]={"svm-train","-t","2","-c","8","-g","0.0001220703125","-b","1",SYSCONFDIR "/pam-face-authentication/featuresDCT.scale",SYSCONFDIR "/pam-face-authentication/featuresDCT.scale.model"};
+char* argv3[11]={"svm-train","-t","2","-c","8","-g","0.0001220703125","-b","1","/etc/pam-face-authentication/featuresDCT.scale","/etc/pam-face-authentication/featuresDCT.scale.model"};
 svmTrain(11,argv3);
 
-char* argv4[11]={"svm-train","-t","2","-c","8","-g","0.0001220703125","-b","1",SYSCONFDIR "/pam-face-authentication/featuresLBP.scale",SYSCONFDIR "/pam-face-authentication/featuresLBP.scale.model"};
+char* argv4[11]={"svm-train","-t","2","-c","8","-g","0.0001220703125","-b","1","/etc/pam-face-authentication/featuresLBP.scale","/etc/pam-face-authentication/featuresLBP.scale.model"};
 svmTrain(11,argv4);
 }
