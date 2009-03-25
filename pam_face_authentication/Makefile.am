@@ -30,7 +30,8 @@ svm_train_SOURCES = 	./libsvm/svm-train.c \
 
 gtk_facemanager_SOURCES = gtk-facemanagerU.c \
 			featureDctMod2.c \
-			featureLBPHist.c
+			featureLBPHist.c \
+			libfacedetect.la
 
 install-exec-hook:
 		   chown root $(bindir)/pfatrainer

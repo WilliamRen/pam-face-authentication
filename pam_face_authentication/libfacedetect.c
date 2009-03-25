@@ -622,7 +622,7 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
         CvSeq* faces = cvHaarDetectObjects( small_img, cascade, storage,
                                             1.1, 2, 0
                                             //|CV_HAAR_FIND_BIGGEST_OBJECT
-                                            |CV_HAAR_DO_ROUGH_SEARCH
+                                          //  |CV_HAAR_DO_ROUGH_SEARCH
                                             //|CV_HAAR_DO_CANNY_PRUNING
                                             //|CV_HAAR_SCALE_IMAGE
                                             ,
