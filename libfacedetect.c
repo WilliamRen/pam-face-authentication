@@ -656,7 +656,7 @@ for ( i = 0; i < (faces ? faces->total : 0); i++ )
             center.x = cvRound((r->x + r->width*0.5)*scale);
             center.y = cvRound((r->y + r->height*0.5)*scale);
             radius = cvRound((r->width + r->height)*0.25*scale);
-            //cvCircle( img, center, radius, color, 3, 8, 0 );
+            cvCircle( img, center, radius, color, 3, 8, 0 );
             cvGetSubRect( small_img, &small_img_roi, *r );
             nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
                                                   1.1, 2, 0
