@@ -40,7 +40,7 @@ enum
 GtkBuilder *builder;
 GtkWidget *window;
 GtkWidget *gtkWelcome;
-GtkWidget *gtkIconView;
+GtkIconView *gtkIconView;
 GtkWidget *gtkWebcamImage;
 GtkWidget *gtkCountFace;
 
