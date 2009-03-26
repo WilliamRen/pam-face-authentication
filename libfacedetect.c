@@ -629,7 +629,7 @@ int faceDetect( IplImage* img,CvPoint *pLeftEye,CvPoint *pRightEye)
                                             //|CV_HAAR_SCALE_IMAGE
                                             ,
                                             cvSize(90, 90) );
-
+printf("%d Number of Faces",faces->total);
 for ( i = 0; i < (faces ? faces->total : 0); i++ )
         {  CvRect* r = (CvRect*)cvGetSeqElem( faces, i );
 
@@ -653,7 +653,7 @@ for ( i = 0; i < (faces ? faces->total : 0); i++ )
                                                   ,
                                                   cvSize(0, 0) );
 
-
+printf("%d Number of Eyes",nested_objects->total);
             for ( j = 0; j < (nested_objects ? nested_objects->total : 0); j++ )
             {
                 CvRect* nr = (CvRect*)cvGetSeqElem( nested_objects, j );
