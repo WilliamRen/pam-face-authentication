@@ -176,12 +176,12 @@ view_popup_menu (GtkWidget *iconview,GdkEventButton *event, char * filename)
 gboolean
 view_onButtonPressed (GtkWidget *iconview, GdkEventButton *event, gpointer userdata)
 {
-    gtk_icon_view_unselect_all ((GtkIconView*)iconview);
+    gtk_icon_view_unselect_all (iconview);
     GtkTreePath *path;
     GtkTreePath *cell;
-    if (gtk_icon_view_get_item_at_pos((GtkIconView*)iconview,(gint) event->x,event->y,(GtkTreePath**)&path,(GtkCellRenderer**)&cell))
+    if (gtk_icon_view_get_item_at_pos(iconview,(gint) event->x,event->y,&path,&cell))
     {
-        gtk_icon_view_set_cursor((GtkIconView*)iconview,(GtkTreePath*)path,(GtkCellRenderer*)cell,FALSE);
+        gtk_icon_view_set_cursor(iconview,path,cell,FALSE);
 
         GtkTreeModel *model;
         GtkTreeIter   iter;
@@ -578,7 +578,7 @@ main (int argc, char *argv[])
     gtk_builder_add_from_file (builder, PKGDATADIR "/gtk-facemanagerU.xml", NULL);
     window = GTK_WIDGET (gtk_builder_get_object (builder, "gtk-facemanager"));
     gtkWelcome= (GTK_WIDGET (gtk_builder_get_object (builder, "gtkWelcome")));
-    gtkIconView=(GTK_WIDGET (gtk_builder_get_object (builder, "gtkIconView")));
+    gtkIconView=GTK_ICON_VIEW(GTK_WIDGET (gtk_builder_get_object (builder, "gtkIconView")));
     gtkWebcamImage = GTK_WIDGET (gtk_builder_get_object (builder, "gtkWebcamImage"));
     gtkCountFace = (GTK_WIDGET (gtk_builder_get_object (builder, "gtkCountFace")));
     intializeGtkIconView();
