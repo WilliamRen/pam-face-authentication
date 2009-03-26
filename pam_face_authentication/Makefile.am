@@ -1,9 +1,9 @@
 AM_CFLAGS  = 
 DEBUG = -g
 INCLUDES = \
-	-DVERSION=\".3\" \
-	-DPKGDATADIR=\"$(pkgdatadir)\" \
-	-DBINDIR=\"$(bindir)\" \
+	-DVERSION=\""$(bindir)"\"  \
+	-DPKGDATADIR=\""$(pkgdatadir)"\"  \
+	-DBINDIR=\""$(bindir)"\"  	\
 	$(GTK_CFLAGS) \
 	$(X11_CFLAGS) \
 	$(OPENCV_CFLAGS)
