@@ -34,10 +34,10 @@ gtk_facemanager_SOURCES = gtk-facemanagerU.c \
 			libfacedetect.la
 
 install-exec-hook:
-		   chown root $(bindir)/pfatrainer
-		   chmod u+s $(bindir)/pfatrainer
-		   chown root $(bindir)/svm-predict
-		   chmod u+s $(bindir)/svm-predict
+		   chown root $(DESTDIR)/$(bindir)/pfatrainer
+		   chmod u+s $(DESTDIR)/$(bindir)/pfatrainer
+		   chown root $(DESTDIR)/$(bindir)/svm-predict
+		   chmod u+s $(DESTDIR)/$(bindir)/svm-predict
 
 gtk_facemanager_LDADD = \
 	$(GTK_LIBS) \
