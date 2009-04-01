@@ -207,8 +207,6 @@ static gboolean time_handler(GtkWidget *widget)
 {
 
     if (widget->window == NULL) return FALSE;
-    if ( !cvGrabFrame( capture ))
-        return FALSE;
     orginalFrame = cvQueryFrame( capture );
     frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
     cvResize(orginalFrame,frame, CV_INTER_LINEAR);
