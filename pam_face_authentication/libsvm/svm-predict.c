@@ -153,7 +153,7 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
-	output = fopen("/etc/pam-face-authentication/prediction","w");
+	output = fopen( SYSCONFDIR "/pam-face-authentication/prediction","w");
 	if(output == NULL)
 	{
 		fprintf(stderr,"can't open output file %s\n",argv[i+2]);

@@ -507,35 +507,15 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     fclose(fd);
 
     /*
-    Append feature directory to "/etc/pam-face-authentication/db.lst
+    Append feature directory to  SYSCONFDIR "/pam-face-authentication/db.lst
     */
 
-    FILE *fileKey;
-    char path[250];
-    int ifExist=0;
     sprintf(dirpath,"%s/.pam-face-authentication/features", passwd->pw_dir);
 
-    if ( !(fileKey = fopen("/etc/pam-face-authentication/db.lst", "r")) )
-    {
-        fprintf(stderr, "Error 1 Occurred Accessing db.lst\n");
-        exit(0);
-    }
-    while (fscanf(fileKey,"%s", path)!=EOF )
-    {
-        if (strcmp(path,dirpath)==0)
-        {
-            ifExist=1;
-        }
-    }
-    fclose(fileKey);
-    if (ifExist==0)
-    {
-        char temptrainer[300];
-        sprintf(temptrainer,"%s/pfatrainer %s",BINDIR,dirpath);
-        system(temptrainer);
-    }
-    else
-        system(BINDIR "/pfatrainer");
+     char temptrainer[300];
+     sprintf(temptrainer,"%s/pfatrainer %s",BINDIR,dirpath);
+     system(temptrainer);
+
     /* NEED PROGRESS BAR */
 
     dialog = gtk_message_dialog_new(window,
@@ -563,10 +543,9 @@ gtkCaptureFace_clicked_cb  (GtkButton *button,gpointer user_data)
 int
 main (int argc, char *argv[])
 {
+
     intialize();
-
     capture = cvCaptureFromCAM(0);
-
     //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
     //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
     char welcomeMessage[100];
