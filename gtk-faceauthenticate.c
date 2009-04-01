@@ -30,8 +30,8 @@
 
 /*
 char *XAUTH_EXTRACT_COMMAND="xauth -f /var/lib/gdm/";
-char *XAUTH_EXTRACT_COMMAND1=".Xauth -b list>/etc/pam-face-authentication/xauth.key";
-char* XAUTH_DISPLAY_EXTRACT_COMMAND="echo $DISPLAY >/etc/pam-face-authentication/display.key";
+char *XAUTH_EXTRACT_COMMAND1=".Xauth -b list>/" SYSCONFDIR "/pam-face-authentication/xauth.key";
+char* XAUTH_DISPLAY_EXTRACT_COMMAND="echo $DISPLAY >/" SYSCONFDIR "/pam-face-authentication/display.key";
 */
 void resetFlags();
 void ipcStart();

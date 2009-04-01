@@ -8,7 +8,7 @@ int parseSvmPrediction(int *ans,double *percent)
     double percentage;
  FILE *f;
  int i=0;
- f=fopen("/etc/pam-face-authentication/prediction","r");
+ f=fopen( SYSCONFDIR "/pam-face-authentication/prediction","r");
  fgets(line, 1000,f);
  //printf("%s \n",line);
 

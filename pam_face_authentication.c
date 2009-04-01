@@ -180,7 +180,7 @@ char startTracker(int *answer,char* username,int currentUserId)
     CvFont myFont;
     cvInitFont(&myFont,CV_FONT_HERSHEY_DUPLEX, .5f,.5f,0,1,CV_AA);
     char fullPath[300];
-    sprintf(fullPath,"/etc/pam-face-authentication/%s.pgm",username);
+    sprintf(fullPath, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
 
     /*
         char * fullPath;
