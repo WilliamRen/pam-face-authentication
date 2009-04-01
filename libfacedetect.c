@@ -770,7 +770,7 @@ for ( i = 0; i < (faces ? faces->total : 0); i++ )
         cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 4, color, 1, 8, 0 );
         cvCircle( img, cvPoint((*pLeftEye).x,(*pLeftEye).y), 2, color, 1, 8, 0 );
         cvCircle( img, cvPoint((*pRightEye).x,(*pRightEye).y), 2, color, 1, 8, 0 );
-printf("%d %d %d %d\n",(*pLeftEye).x,(*pLeftEye).y,(*pRightEye).x,(*pRightEye).y);
+//printf("%d %d %d %d\n",(*pLeftEye).x,(*pLeftEye).y,(*pRightEye).x,(*pRightEye).y);
 
         if (bothEyesDetectedApprox!=1)
         {

@@ -139,11 +139,38 @@ on_btnAuthenticate_clicked  (GtkButton *button,gpointer user_data)
     }
 
 }
+
+void loadCVPIXBUF(GtkWidget *imgCapturedFace,IplImage* image)
+{
+    unsigned char *gdataUserFace;
+    GdkPixbuf *pixbufUserFace= NULL;
+    pixbufUserFace = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE,8,image->width,image->height);
+    gdataUserFace = gdk_pixbuf_get_pixels(pixbufUserFace);
+
+    int m,n;
+
+    for (n=0;n<image->height;n++)
+    {
+        for (m= 0;m<image->width;m++)
+        {
+            CvScalar s;
+            s=cvGet2D(image,n,m);
+            gdataUserFace[n*image->width*3 + m*3 +0]=(uchar)s.val[2];
+            gdataUserFace[n*image->width*3 + m*3 +1]=(uchar)s.val[1];
+            gdataUserFace[n*image->width*3 + m*3 +2]=(uchar)s.val[0];
+        }
+    }
+
+    gtk_image_set_from_pixbuf((GtkImage*)imgCapturedFace, pixbufUserFace);
+    g_object_unref (pixbufUserFace);
+}
 int
 main (int argc, char *argv[])
 {
 
     GtkWidget               *window;
+    GtkWidget *imgWebcam;
+
     FILE *file;
 
     if (gtk_init_check(&argc, &argv)==FALSE)
@@ -159,7 +186,13 @@ main (int argc, char *argv[])
     builder = gtk_builder_new ();
     gtk_builder_add_from_file (builder, XML_GTK_BUILDER_FACE_AUTHENTICATE, NULL);
     window = GTK_WIDGET (gtk_builder_get_object (builder, "gtk-faceauthenticate"));
+    imgWebcam = GTK_WIDGET (gtk_builder_get_object (builder, "imgWebcam"));
+   /* IplImage *zeroFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
+    cvZero(zeroFrame);
+    loadCVPIXBUF(imgWebcam,zeroFrame);
+    */
     gtk_builder_connect_signals (builder, NULL);
+
     g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
     gtk_widget_show (window);
     gtk_main ();

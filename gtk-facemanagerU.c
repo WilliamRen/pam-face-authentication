@@ -25,7 +25,7 @@ extern void intialize();
 extern int faceDetect(IplImage*,CvPoint *,CvPoint *);
 extern int  preprocess(IplImage*,CvPoint ,CvPoint ,IplImage*);
 void on_gtkSave_clicked  (GtkButton *button,gpointer user_data);
-IplImage *frame,*frameNew, *frame_copy = 0;
+IplImage *frame,*orginalFrame,*frameNew, *frame_copy = 0;
 CvPoint pLeftEye;
 CvPoint pRightEye;
 CvCapture* capture;
@@ -205,15 +205,15 @@ void intializeGtkIconView()
 
 static gboolean time_handler(GtkWidget *widget)
 {
-    ;
+
     if (widget->window == NULL) return FALSE;
     if ( !cvGrabFrame( capture ))
         return FALSE;
-
-    // printf("aaa \n");
-    frame = cvRetrieveFrame( capture );
+    orginalFrame = cvQueryFrame( capture );
+    frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
+    cvResize(orginalFrame,frame, CV_INTER_LINEAR);
     if ( !frame )
-        return FALSE;
+     return FALSE;
     if ( !frame_copy )
     {
         frame_copy = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
@@ -249,7 +249,7 @@ static gboolean time_handler(GtkWidget *widget)
         // printf("%s \n",imagepath);
         cvSaveImage(imagepath,face);
         setGtkWebcamImageWhite(gtkWebcamImage);
-        cvWaitKey(1000);
+        cvWaitKey(100);
         intializeGtkIconView();
 
     }
@@ -566,9 +566,11 @@ int
 main (int argc, char *argv[])
 {
     intialize();
+
     capture = cvCaptureFromCAM(0);
-    cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
-    cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
+
+    //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
+    //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
     char welcomeMessage[100];
     struct passwd *passwd;
     passwd = getpwuid ( getuid());
