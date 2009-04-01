@@ -190,17 +190,18 @@ char startTracker(int *answer,char* username,int currentUserId)
         strcat(fullPath,imgExt);
     */
     CvCapture* capture = 0;
-    IplImage *frame,*frameNew,*frame_copy = 0;
+    IplImage *frame,*orginalFrame,*frameNew,*frame_copy = 0;
     capture = cvCaptureFromCAM(0);
     if ( capture )
     {
-        cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
-        cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
+       // cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
+        //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
         for (;;)
         {
-            if ( !cvGrabFrame( capture ))
-                break;
-            frame = cvRetrieveFrame( capture );
+          orginalFrame = cvQueryFrame( capture );
+  		 frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
+   		 cvResize(orginalFrame,frame, CV_INTER_LINEAR);
+
             if ( !frame )
                 break;
             if ( !frame_copy )
@@ -240,31 +241,17 @@ char startTracker(int *answer,char* username,int currentUserId)
                             //removeFile(username);
                             AuthenticateButtonClicked=0;
                             *commAuth=EXIT_GUI;
-                            cvZero(frame_copy);
-                            writeImageToMemory(frame_copy,shared);
-                            cvReleaseImage( &frameNew );
-                            cvReleaseImage( &frame_copy );
                             cvReleaseCapture( &capture );
                             return 'y';;
                         }
 
-
-
-
-                        /*
-                                if (recognize(answer,username,&percentage,currentUserId)=='y')
-                                {
-
-                                }
-                        */
-                        //    printf("percent %d \n",percentage);
                     }
                     cvReleaseImage( &face );
 
 
                 }
-                cvFillConvexPoly(frame_copy, pts,4,CV_RGB(0,0,0),CV_AA,0 );
-                cvPutText(frame_copy,"AUTHENTICATING....", cvPoint(70,15),&myFont, CV_RGB(255,255,255));
+                cvFillConvexPoly(frame_copy, pts,4,CV_RGB(0,140,0),CV_AA,0 );
+                cvPutText(frame_copy,"AUTHENTICATING", cvPoint(83,15),&myFont, CV_RGB(255,255,255));
 
             }
             if (CancelButtonClicked==1)
@@ -282,8 +269,7 @@ char startTracker(int *answer,char* username,int currentUserId)
             cvReleaseImage( &frame_copy );
 
         }
-        cvReleaseImage( &frameNew );
-        cvReleaseImage( &frame_copy );
+
         cvReleaseCapture( &capture );
     }
     else
@@ -429,6 +415,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     struct passwd *userpasswd;
     userpasswd = getpwnam(userName);
     currentUserIdRecognition=userpasswd->pw_uid;
+    IplImage *zeroFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
+    cvZero(zeroFrame);
 
 
     if (startTracker(&answer,userName,currentUserIdRecognition)=='y')
@@ -444,6 +432,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         {
 
             // fprintf(t,"AAAA\n");
+                writeImageToMemory(zeroFrame,shared);
 
             return PAM_SUCCESS;
 
@@ -451,9 +440,11 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     }
     else
-    {
+    {    writeImageToMemory(zeroFrame,shared);
+
         return PAM_AUTH_ERR;
     }
+    writeImageToMemory(zeroFrame,shared);
 
 }
 
