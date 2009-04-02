@@ -26,10 +26,8 @@
 #include <security/pam_modules.h>
 #include <security/_pam_macros.h>
 #include <security/_pam_types.h>
-
 #include <X11/Xlib.h>
 #include <pwd.h> /* getpwdid */
-
 #include "cv.h"
 #include "highgui.h"
 #include <sys/types.h>
@@ -48,8 +46,6 @@
 #include <ctype.h>
 #include <malloc.h>
 #include <pthread.h>
-
-
 #include "pam_face_defines.h"
 #include "pam_face.h"
 CvPoint pLeftEye,pRightEye;
@@ -62,7 +58,6 @@ int currentUserIdRecognition;
 int numberofNo=0;
 int numberofYes=0;
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
-
 void *funcRecognition(void )
 {
     pthread_mutex_lock( &mutex1 );
