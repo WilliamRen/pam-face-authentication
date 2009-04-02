@@ -57,7 +57,7 @@ static CvScalar colors[] =
 
 char *HAAR_CASCADE_FACE=PKGDATADIR "/haarcascade.xml";
 char *HAAR_CASCADE_EYE=PKGDATADIR "/haarcascade_eye_tree_eyeglasses.xml";
-char *HAAR_CASCADE_NOSE=PKGDATADIR "/haarcascade_nose.xml";
+char *HAAR_CASCADE_EYE_2=PKGDATADIR "/haarcascade_eye.xml";
 char *path;
 char *imgPath;
 char *imgExt=".pgm";
@@ -78,6 +78,8 @@ int init=0;
 static CvMemStorage* storage = 0;
 static CvHaarClassifierCascade* cascade = 0;
 static CvHaarClassifierCascade* nested_cascade = 0;
+static CvHaarClassifierCascade* nested_cascade_2 = 0;
+
 double scale = 1;
 int widthEye=0;
 int widthFace=0;
@@ -119,8 +121,8 @@ void intialize()
 {
     cascade = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_FACE, 0, 0, 0 );
     nested_cascade = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_EYE, 0, 0, 0 );
-    storage = cvCreateMemStorage(0);
-
+    nested_cascade_2    = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_EYE_2, 0, 0, 0 );
+storage = cvCreateMemStorage(0);
     /*
 
     cascadeFace       = (CvHaarClassifierCascade*)cvLoad( HAAR_CASCADE_FACE, 0, 0, 0 );
@@ -658,7 +660,7 @@ for ( i = 0; i < (faces ? faces->total : 0); i++ )
             radius = cvRound((r->width + r->height)*0.25*scale);
             cvCircle( img, center, radius, color, 3, 8, 0 );
             cvGetSubRect( small_img, &small_img_roi, *r );
-            nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
+             nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade, storage,
                                                   1.1, 2, 0
                                                   //|CV_HAAR_FIND_BIGGEST_OBJECT
                                                   //|CV_HAAR_DO_ROUGH_SEARCH
@@ -666,8 +668,19 @@ for ( i = 0; i < (faces ? faces->total : 0); i++ )
                                                   //|CV_HAAR_SCALE_IMAGE
                                                   ,
                                                   cvSize(0, 0) );
+int count=nested_objects ? nested_objects->total : 0;
+if(count==0)
+{
 
-
+    nested_objects = cvHaarDetectObjects( &small_img_roi, nested_cascade_2, storage,
+                                                  1.1, 2, 0
+                                                  //|CV_HAAR_FIND_BIGGEST_OBJECT
+                                                  //|CV_HAAR_DO_ROUGH_SEARCH
+                                                  //|CV_HAAR_DO_CANNY_PRUNING
+                                                  //|CV_HAAR_SCALE_IMAGE
+                                                  ,
+                                                  cvSize(0, 0) );
+}
             for ( j = 0; j < (nested_objects ? nested_objects->total : 0); j++ )
             {
                 CvRect* nr = (CvRect*)cvGetSeqElem( nested_objects, j );
