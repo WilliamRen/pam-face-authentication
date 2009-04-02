@@ -338,7 +338,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
                                     GTK_DIALOG_DESTROY_WITH_PARENT,
                                     GTK_MESSAGE_INFO,
                                     GTK_BUTTONS_OK,
-                                    "Training will take ~ (1 - 5) mins", "title");
+                                    "Training will take ~ (0 - 5) min's \n Press OK to Train", "title");
     gtk_window_set_title(GTK_WINDOW(dialog), "Face Training Alert");
     gtk_dialog_run(GTK_DIALOG(dialog));
     gtk_widget_destroy(dialog);

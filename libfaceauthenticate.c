@@ -396,15 +396,18 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     struct passwd *userpasswd;
     userpasswd = getpwnam(username);
 
-
     sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresDistance", userpasswd->pw_dir);
-    FILE *fileFeaturesDistance =fopen(featuresConfig,"r");
+FILE *fileFeaturesDistance,*fileFeaturesAverage;
+    if(!(fileFeaturesDistance =fopen(featuresConfig,"r")))
+    return 'n';
     fscanf (fileFeaturesDistance, "%s",sDistanceThreshold);
     distanceThreshold=atof(sDistanceThreshold);
     fclose(fileFeaturesDistance);
 
     sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresAverage", userpasswd->pw_dir);
-    FILE *fileFeaturesAverage =fopen(featuresConfig,"r");
+    if(!(fileFeaturesAverage =fopen(featuresConfig,"r")))
+    return 'n';
+
     char *buffer;
     unsigned long fileLen;
     fseek(fileFeaturesAverage, 0, SEEK_END);
@@ -514,7 +517,7 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
     svmScale(4,argv2,fp6);
     //printf("testing");
 
-    system(BINDIR "/svm-predict -b 1 /" SYSCONFDIR "/pam-face-authentication/testFeaturesDCT.scale /" SYSCONFDIR "/pam-face-authentication/featuresDCT.scale.model /" SYSCONFDIR "/pam-face-authentication/prediction");
+    system(BINDIR "/svm-predict -b 1 " SYSCONFDIR "/pam-face-authentication/testFeaturesDCT.scale " SYSCONFDIR "/pam-face-authentication/featuresDCT.scale.model " SYSCONFDIR "/pam-face-authentication/prediction");
     int ans;
     double sum=0;
     int ansMatch=-1;
@@ -538,7 +541,7 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
 
 //printf("Login %d \n",login);
 //printf("Answer %d Percentage %e DCT \n",ans,percentage1);
-    system(BINDIR "/svm-predict -b 1 /" SYSCONFDIR "/pam-face-authentication/testFeaturesLBP.scale /" SYSCONFDIR "/pam-face-authentication/featuresLBP.scale.model /" SYSCONFDIR "/pam-face-authentication/prediction");
+    system(BINDIR "/svm-predict -b 1 " SYSCONFDIR "/pam-face-authentication/testFeaturesLBP.scale " SYSCONFDIR "/pam-face-authentication/featuresLBP.scale.model " SYSCONFDIR "/pam-face-authentication/prediction");
     parseSvmPrediction(&ans,&percentage1);
 //printf("Answer %d \n",ans);
 //printf("LBP Percent %e \n",percentage1);

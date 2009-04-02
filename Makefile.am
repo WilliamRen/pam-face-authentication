@@ -1,7 +1,7 @@
 AM_CFLAGS  = 
 DEBUG = -g
 INCLUDES = \
-	-DVERSION=\""$(bindir)"\"  \
+	-DVERSION=\"".3"\"  \
 	-DPKGDATADIR=\""$(pkgdatadir)"\"  \
 	-DBINDIR=\""$(bindir)"\"  	\
 	-DSYSCONFDIR=\""$(sysconfdir)"\"   \
