@@ -373,8 +373,8 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
 
     char userFile[300];
     sprintf(userFile, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
-
-    IplImage * img = cvLoadImage(userFile,0);
+   IplImage * img = cvLoadImage(userFile,0);
+    //IplImage * img = cvLoadImage("/home/darksid3hack0r/root.pgm",0);
     //  printf("%s \n",userFile);
 
     char temp[200];
@@ -524,10 +524,9 @@ FILE *fileFeaturesDistance,*fileFeaturesAverage;
     int login=1;
     double percentage1;
     int num=parseSvmPrediction(&ans,&percentage1);
-    double cutoff=cvRound(1/(num+1));
-    cutoff=cutoff+(double)(cutoff*0.4);
-    //printf("%e %d Cutoff \n",cutoff,(num+1));
-
+    double cutoff=(100.0/(num));
+    cutoff=cutoff+(double)(cutoff*0.6);
+    cutoff/=100;
 
 
     ansMatch=ans;
