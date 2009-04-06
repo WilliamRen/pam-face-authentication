@@ -1,12 +1,10 @@
-AM_CFLAGS  = 
-DEBUG = -g
+DEBUG = -g -O0
 INCLUDES = \
 	-DVERSION=\"".3"\"  \
 	-DPKGDATADIR=\""$(pkgdatadir)"\"  \
 	-DBINDIR=\""$(bindir)"\"  	\
 	-DSYSCONFDIR=\""$(sysconfdir)"\"   \
 	$(GTK_CFLAGS) \
-	$(X11_CFLAGS) \
 	$(OPENCV_CFLAGS)
 
 bin_PROGRAMS = gtk-facemanager \
@@ -74,12 +72,11 @@ pam_face_authenticate_so_SOURCES = \
 	./libsvm/svm-scale.c \
 	pam_face_defines.h
 
-pam_face_authenticate_so_CFLAGS = -L/usr/X11R6/lib -lX11 -fPIC -lpthread
+pam_face_authenticate_so_CFLAGS = -fPIC -lpthread
 pam_face_authenticate_so_LDFLAGS = -Xcompiler -shared 
 pam_face_authenticate_so_LDADD = \
                         $(PAM_LIBS) \
                         $(OPENCV_LIBS) \
-		           $(X11_LIBS) \
 			libfacedetect.la \
                         libfaceauthenticate.la
 
