@@ -26,7 +26,6 @@
 #include <security/pam_modules.h>
 #include <security/_pam_macros.h>
 #include <security/_pam_types.h>
-#include <X11/Xlib.h>
 #include <pwd.h> /* getpwdid */
 #include "cv.h"
 #include "highgui.h"
@@ -67,6 +66,7 @@ void *funcRecognition(void )
     {
         authYes=1;
         authNo=0;
+
         numberofYes++;
         //if ((numberofYes>=numberofNo))
             authenticateThreadReturn=1;
@@ -159,7 +159,10 @@ void writeImageToMemory(IplImage* img,char *shared)
             {
 
             if((k)%2==0)
+            {if(n>20)
                 *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=255;
+
+            }
                 else
                 *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
 
@@ -169,7 +172,8 @@ void writeImageToMemory(IplImage* img,char *shared)
             {
                 *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
                   if((k)%2==1)
-                *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=255;
+                {  if(n>20)
+                    *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=255; }
                 else
                 *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
 
@@ -427,6 +431,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             setenv("XAUTHORITY",xauthpath,-1);
         }
     }
+
 
 
 
