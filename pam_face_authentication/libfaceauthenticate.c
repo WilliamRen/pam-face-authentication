@@ -592,7 +592,7 @@ cvReleaseImage( &img);
     double percentage1;
     int num=parseSvmPrediction(&ans,&percentage1);
     double cutoff=0;
-    cutoff=80+(double)(10/(num-1));
+    cutoff=70 + (double)(20/(num));
     cutoff/=100;
     //printf("%e \n",cutoff);
 
