@@ -652,7 +652,7 @@ for ( i = 0; i < (faces ? faces->total : 0); i++ )
             CvMat small_img_roi;
             CvSeq* nested_objects;
             CvPoint center;
-            CvScalar color = colors[i%8];
+            CvScalar color = colors[4];
             int radius;
             width=r->width*scale;
             center.x = cvRound((r->x + r->width*0.5)*scale);

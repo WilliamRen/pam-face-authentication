@@ -57,20 +57,26 @@ int percentageRecognition;
 int currentUserIdRecognition;
 int numberofNo=0;
 int numberofYes=0;
+int authNo=0;
+int authYes=0;
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
 void *funcRecognition(void )
 {
     pthread_mutex_lock( &mutex1 );
     if (recognize(&answer,userName,&percentageRecognition,currentUserIdRecognition)=='y')
     {
+        authYes=1;
+        authNo=0;
         numberofYes++;
         if ((numberofYes>=numberofNo))
             authenticateThreadReturn=1;
         else
-          numberofYes=numberofNo-1;
+            numberofYes=numberofNo-1;
     }
     else
     {
+        authYes=0;
+        authNo=1;
         authenticateThreadReturn=0;
         numberofNo++;
     }
@@ -146,12 +152,38 @@ void writeImageToMemory(IplImage* img,char *shared)
         {
             CvScalar s;
             s=cvGet2D(img,n,m);
+                int k=cvRound(m/10);
+            if (authNo==1& authYes==0)
+            {
+
+            if((k)%2==0)
+                *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=255;
+                else
+                *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
+
+                *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[1];
+            }
+            if (authNo==0& authYes==1)
+            {
+                *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
+                  if((k)%2==1)
+                *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=255;
+                else
+                *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
+
+
+            }
+            if (authNo==0& authYes==0)
+            {
+                *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
+                *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[1];
+            }
             *(shared + m*3 + 0+ n*IMAGE_WIDTH*3)=(uchar)s.val[0];
-            *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[1];
-            *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
-        }
-    }
-}
+
+                                             }
+                                         }
+   }
+
 
 void removeFile(char* userTemp)
 {
@@ -189,13 +221,13 @@ char startTracker(int *answer,char* username,int currentUserId)
     capture = cvCaptureFromCAM(0);
     if ( capture )
     {
-       // cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
+        // cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
         //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
         for (;;)
         {
-          orginalFrame = cvQueryFrame( capture );
-  		 frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
-   		 cvResize(orginalFrame,frame, CV_INTER_LINEAR);
+            orginalFrame = cvQueryFrame( capture );
+            frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
+            cvResize(orginalFrame,frame, CV_INTER_LINEAR);
 
             if ( !frame )
                 break;
@@ -226,8 +258,8 @@ char startTracker(int *answer,char* username,int currentUserId)
                         if ((threadNumber==0) && (authenticateThreadReturn!=1))
                         {
                             threadNumber=1;
-                          //printf("%d %d \n",face->width,face->height);
-                         cvSaveImage(fullPath,face);
+                            //printf("%d %d \n",face->width,face->height);
+                            cvSaveImage(fullPath,face);
                             pthread_t thread1;
                             pthread_create( &thread1, NULL, &funcRecognition,NULL );
 
@@ -248,6 +280,12 @@ char startTracker(int *answer,char* username,int currentUserId)
                 }
                 cvFillConvexPoly(frame_copy, pts,4,CV_RGB(0,140,0),CV_AA,0 );
                 cvPutText(frame_copy,"AUTHENTICATING", cvPoint(83,15),&myFont, CV_RGB(255,255,255));
+
+            }
+            else
+            {
+                authNo=0;
+                authYes=0;
 
             }
             if (CancelButtonClicked==1)
@@ -324,10 +362,10 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             }
         }
     }
- //printf("%s Xauth\n",xauthpath);
+//printf("%s Xauth\n",xauthpath);
     if (xauthpath==NULL)
     {
-   //     printf("No Xauth\n",xauthpath);
+        //     printf("No Xauth\n",xauthpath);
         // We need to extract the Path where Xauth is stored
         // Following Code Sets Xauthority cookie
 
@@ -428,7 +466,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         {
 
             // fprintf(t,"AAAA\n");
-                writeImageToMemory(zeroFrame,shared);
+            writeImageToMemory(zeroFrame,shared);
 
             return PAM_SUCCESS;
 
@@ -436,7 +474,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     }
     else
-    {    writeImageToMemory(zeroFrame,shared);
+    {
+        writeImageToMemory(zeroFrame,shared);
 
         return PAM_AUTH_ERR;
     }
