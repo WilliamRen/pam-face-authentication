@@ -226,7 +226,8 @@ char startTracker(int *answer,char* username,int currentUserId)
                         if ((threadNumber==0) && (authenticateThreadReturn!=1))
                         {
                             threadNumber=1;
-                            cvSaveImage(fullPath,face);
+                          //printf("%d %d \n",face->width,face->height);
+                         cvSaveImage(fullPath,face);
                             pthread_t thread1;
                             pthread_create( &thread1, NULL, &funcRecognition,NULL );
 

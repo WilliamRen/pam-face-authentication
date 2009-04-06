@@ -130,10 +130,10 @@ readFilesAndLoadGtkIconView()
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
             // printf("%s",fullimagepath);
             GError *err = NULL;
-          //  printf("%s \n",fullimagepath);
+            //  printf("%s \n",fullimagepath);
             p1 =  gdk_pixbuf_new_from_file_at_size  (fullimagepath,73,100,&err);
-            if(err!=NULL)
-            printf("%s \n",(char *)err->message);
+            if (err!=NULL)
+                printf("%s \n",(char *)err->message);
             gtk_list_store_append(list_store, &iter);
             gtk_list_store_set(list_store, &iter, COL_DISPLAY_NAME,de->d_name, COL_PIXBUF, p1, -1);
         }
@@ -212,7 +212,7 @@ static gboolean time_handler(GtkWidget *widget)
     frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
     cvResize(orginalFrame,frame, CV_INTER_LINEAR);
     if ( !frame )
-     return FALSE;
+        return FALSE;
     if ( !frame_copy )
     {
         frame_copy = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
@@ -312,10 +312,10 @@ on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
     license_trans = g_strconcat (license[0], "\n", license[1], "\n", license[2], "\n", NULL);
     GdkPixbuf *logo;
 
-        GError *err = NULL;
+    GError *err = NULL;
     logo =  gdk_pixbuf_new_from_file_at_size  (PKGDATADIR "/logo.png",182,182,&err);
     gtk_show_about_dialog (GTK_WINDOW (window),
-                            "name" , "PAM-Face-Authentication",
+                           "name" , "PAM-Face-Authentication",
                            "version", VERSION,
                            "comments", "Pluggable Face Authentication module for your favorite distro.",
                            "authors", authors,
@@ -345,8 +345,14 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     gtk_widget_destroy(dialog);
 
     int i,j,k=0;
-    float* featuresLBPAverage = (float*)calloc(  7*4 * 59 , sizeof(float) );
-    float numberOfImages=0;
+    float* featuresLBPAverage1 = (float*)calloc(  7*4 * 59 , sizeof(float) );
+    float* featuresLBPAverage2 = (float*)calloc(  7*4 * 59 , sizeof(float) );
+    float* featuresLBPAverage3 = (float*)calloc(  7*4 * 59 , sizeof(float) );
+
+    float numberOfImages1=0;
+    float numberOfImages2=0;
+    float numberOfImages3=0;
+
     struct dirent *de=NULL;
     DIR *d=NULL;
     char dirpath[120];
@@ -367,13 +373,87 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     FILE *f2 =fopen(featuresLBPpath,"w");
     sprintf(dirpath,"%s/.pam-face-authentication/train/", passwd->pw_dir);
     d=opendir(dirpath);
+    int fileCount=0;
     while (de = readdir(d))
     {
         if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
         {
-            numberOfImages++;
+            fileCount++;
+        }
+    }
+
+    int loopIndex=-1;
+   // printf("%d \n",fileCount);
+    double* featuresTotal = (double*)calloc(  fileCount , sizeof(double) );
+    char** featuresTotalFilePath = (char**)calloc(  fileCount , sizeof(char *) );
+    d=opendir(dirpath);
+    while (de = readdir(d))
+    {
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        {
+            loopIndex++;
+            featuresTotal[loopIndex]=0;
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
             IplImage * img = cvLoadImage(fullimagepath,0);
+            featureLBPSum(img,&featuresTotal[loopIndex]);
+//printf("%e \n",featuresTotal[loopIndex]);
+            featuresTotalFilePath[loopIndex]=(char*)calloc(strlen(fullimagepath), sizeof(char));
+
+
+        }
+    }
+    double min=0;
+    int minIndex=0;
+    double max=0;
+    int maxIndex=-1;
+    if (fileCount>0)
+        min=featuresTotal[0];
+    for (i=0;i<fileCount;i++)
+    {
+        if (featuresTotal[i]>=max)
+        {
+            max=featuresTotal[i];
+            //  printf("%e  \n",featuresTotal[i]);
+// printf("%e  \n",max);
+
+            maxIndex=i;
+        }
+        if (featuresTotal[i]<=min)
+        {
+            min=featuresTotal[i];
+            //      printf("%e  \n",featuresTotal[i]);
+// printf("%e  \n",min);
+
+            minIndex=i;
+        }
+    }
+   // printf("%e %e \n",min,max);
+    double div1=min + (max-min)/3;
+    double div2=min + (2*(max-min))/3;
+
+     //   printf("%e %e \n",div1,div2);
+
+    d=opendir(dirpath);
+    double tempTotal=0;
+    while (de = readdir(d))
+    {
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        {
+
+
+            sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
+            IplImage * img = cvLoadImage(fullimagepath,0);
+            featureLBPSum(img,&tempTotal);
+            if (tempTotal<=div1)
+                numberOfImages1++;
+
+            if (tempTotal>div1 && tempTotal<=div2)
+                numberOfImages2++;
+            if (tempTotal>div2)
+                numberOfImages3++;
+            // printf("%e %d loopIndex\n",featuresTotal[loopIndex],loopIndex);
+            // printf("%s \n",fullimagepath);
+
             int Nx = floor((img->width - 4)/4);
             int Ny= floor((img->height - 4)/4);
             float* features = (float*)malloc(  Nx*Ny * 18 * sizeof(float) );
@@ -389,6 +469,8 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
             fputs(" ",f1);
             fputs(temp,f2);
             fputs(" ",f2);
+            //  printf("%e %d \n",featuresTotal[loopIndex],loopIndex);
+
             for (i=0;i<Ny1;i++)
             {
                 for (j=0;j<Nx1;j++)
@@ -399,12 +481,22 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
                         fputs(temp,f2);
                         fputs(":",f2);
                         sprintf(temp,"%f",featuresLBP[i*59*Nx1 + j*59 +k]);
-                        featuresLBPAverage[i*59*Nx1 + j*59 +k]+=featuresLBP[i*59*Nx1 + j*59 +k];
+                        if (tempTotal<=div1)
+                            featuresLBPAverage1[i*59*Nx1 + j*59 +k]+=featuresLBP[i*59*Nx1 + j*59 +k];
+
+                        if (tempTotal>div1 && tempTotal<=div2)
+                            featuresLBPAverage2[i*59*Nx1 + j*59 +k]+=featuresLBP[i*59*Nx1 + j*59 +k];
+
+                        if (tempTotal>div2)
+                            featuresLBPAverage3[i*59*Nx1 + j*59 +k]+=featuresLBP[i*59*Nx1 + j*59 +k];
+
                         fputs(temp,f2);
                         fputs(" ",f2);
                     }
                 }
             }
+//printf("%e %e %e \n",numberOfImages1,numberOfImages2,numberOfImages3);
+
 
             for (i=0;i<Ny;i++)
             {
@@ -425,6 +517,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
             fputs("\n",f1);
             fputs("\n",f2);
         }
+
     }
 
     fclose(f1);
@@ -436,11 +529,18 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
         {
             for (k=0;k<59;k++)
             {
-                featuresLBPAverage[i*59*4 + j*59 +k]=   featuresLBPAverage[i*59*4 + j*59 +k]/numberOfImages;
+                if (numberOfImages1>0)
+                    featuresLBPAverage1[i*59*4 + j*59 +k]=   featuresLBPAverage1[i*59*4 + j*59 +k]/numberOfImages1;
+                if (numberOfImages2>0)
+                    featuresLBPAverage2[i*59*4 + j*59 +k]=   featuresLBPAverage2[i*59*4 + j*59 +k]/numberOfImages2;
+                if (numberOfImages3>0)
+                    featuresLBPAverage3[i*59*4 + j*59 +k]=   featuresLBPAverage3[i*59*4 + j*59 +k]/numberOfImages3;
             }
         }
     }
-    double MaxDistance=0;
+    double MaxDistance1=-1;
+    double MaxDistance2=-1;
+    double MaxDistance3=-1;
     d=opendir(dirpath);
     while (de = readdir(d))
     {
@@ -449,44 +549,71 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
 
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
             IplImage * img = cvLoadImage(fullimagepath,0);
+            featureLBPSum(img,&tempTotal);
+
             int Nx1 = floor((img->width)/30);
             int Ny1= floor((img->height)/20);
             float* featuresLBP = (float*)malloc(  Nx1*Ny1 * 59 * sizeof(float) );
             featureLBPHist(img,featuresLBP);
             double weights[7][4]  =
             {
-                {.2,   .2,  .2, .2},
-                { 1,  1.5, 1.5,  1},
-                { 1,  2  ,   2,  1},
-                {.5,  1.2, 1.2, .5},
-                {.3,  1.2, 1.2, .3},
-                {.3,  1.1, 1.1, .3},
-                {.1,  .5,   .5, .1}
+        {.2,   1.75,  1.75, .2},
+        { 1,  1.5, 1.5,  1},
+        { 1,  2  ,   2,  1},
+        {.5,  1.2, 1.2, .5},
+        {.3,  1.2, 1.2, .3},
+        {.3,  1.1, 1.1, .3},
+        {.1,  .5,   .5, .1}
             };
-            double distance=0;
+            double distance1=0;
+            double distance2=0;
+            double distance3=0;
+
             for (i=0;i<7;i++)
+
             {
                 for (j=0;j<4;j++)
                 {
                     for (k=0;k<59;k++)
                     {
-                        distance+=(weights[i][j]*pow((featuresLBPAverage[i*59*4 + j*59 +k]-featuresLBP[i*59*4 + j*59 +k]),2))/((featuresLBPAverage[i*59*4 + j*59 +k]+featuresLBP[i*59*4 + j*59 +k])+1);
+                        if (tempTotal<=div1)
+                        {
+                               distance1+=(weights[i][j]*pow((featuresLBPAverage1[i*59*4 + j*59 +k]-featuresLBP[i*59*4 + j*59 +k]),2))/((featuresLBPAverage1[i*59*4 + j*59 +k]+featuresLBP[i*59*4 + j*59 +k])+1);
+                        }
+                        if (tempTotal>div1 && tempTotal<=div2)
+                        {
+                                distance2+=(weights[i][j]*pow((featuresLBPAverage2[i*59*4 + j*59 +k]-featuresLBP[i*59*4 + j*59 +k]),2))/((featuresLBPAverage2[i*59*4 + j*59 +k]+featuresLBP[i*59*4 + j*59 +k])+1);
+                        }
+                        if (tempTotal>div2)
+                        {
+                              distance3+=(weights[i][j]*pow((featuresLBPAverage3[i*59*4 + j*59 +k]-featuresLBP[i*59*4 + j*59 +k]),2))/((featuresLBPAverage3[i*59*4 + j*59 +k]+featuresLBP[i*59*4 + j*59 +k])+1);
+                        }
 
                     }
                 }
             }
-            (sqrt(distance)>MaxDistance);
-            MaxDistance=sqrt(distance);
-            //   printf("%e \n",distance);
+         //   printf("%e DIST \n",distance1);
 
+            if (sqrt(distance1)>MaxDistance1)
+            {
+                //printf("TRUE \n");
 
+                MaxDistance1=sqrt(distance1);
+            }
+
+            if (sqrt(distance2)>MaxDistance2)
+            MaxDistance2=sqrt(distance2);
+
+            if (sqrt(distance3)>MaxDistance3)
+            MaxDistance3=sqrt(distance3);
+//   printf("%e %e %e\n",MaxDistance1,MaxDistance2,MaxDistance3);
 
         }
     }
 
     sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresDistance", passwd->pw_dir);
     FILE *fd=fopen(featuresConfig,"w");
-    sprintf(temp,"%e\n",MaxDistance);
+     sprintf(temp,"%e %e %e\n",MaxDistance1,MaxDistance2,MaxDistance3);
     fputs(temp,fd);
     fclose(fd);
 
@@ -498,7 +625,33 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
         {
             for (k=0;k<59;k++)
             {
-                sprintf(temp,"%f",featuresLBPAverage[i*59*4 + j*59 +k]);
+                sprintf(temp,"%f",featuresLBPAverage1[i*59*4 + j*59 +k]);
+                fputs(temp,fd);
+                fputs(" ",fd);
+            }
+        }
+    }
+    fputs("\n",fd);
+      for (i=0;i<7;i++)
+    {
+        for (j=0;j<4;j++)
+        {
+            for (k=0;k<59;k++)
+            {
+                sprintf(temp,"%f",featuresLBPAverage2[i*59*4 + j*59 +k]);
+                fputs(temp,fd);
+                fputs(" ",fd);
+            }
+        }
+    }
+    fputs("\n",fd);
+      for (i=0;i<7;i++)
+    {
+        for (j=0;j<4;j++)
+        {
+            for (k=0;k<59;k++)
+            {
+                sprintf(temp,"%f",featuresLBPAverage3[i*59*4 + j*59 +k]);
                 fputs(temp,fd);
                 fputs(" ",fd);
             }
@@ -513,9 +666,9 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
 
     sprintf(dirpath,"%s/.pam-face-authentication/features", passwd->pw_dir);
 
-     char temptrainer[300];
-     sprintf(temptrainer,"%s/pfatrainer %s",BINDIR,dirpath);
-     system(temptrainer);
+         char temptrainer[300];
+         sprintf(temptrainer,"%s/pfatrainer %s",BINDIR,dirpath);
+         system(temptrainer);
 
     /* NEED PROGRESS BAR */
 

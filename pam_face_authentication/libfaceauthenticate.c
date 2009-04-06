@@ -373,18 +373,26 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
 
     char userFile[300];
     sprintf(userFile, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
-   IplImage * img = cvLoadImage(userFile,0);
-    //IplImage * img = cvLoadImage("/home/darksid3hack0r/root.pgm",0);
+  IplImage * img = cvLoadImage(userFile,0);
+   //IplImage * img = cvLoadImage("/home/darksid3hack0r/Desktop/root.pgm",0);
     //  printf("%s \n",userFile);
 
     char temp[200];
     char featuresConfig[300];
-    char* sDistanceThreshold[100];
-    double distanceThreshold=0;
-    double computedDistance=0;
+
+    char* sDistanceThreshold;
+
+    double distanceThreshold1=0;
+    double computedDistance1=0;
+    double distanceThreshold2=0;
+    double computedDistance2=0;
+    double distanceThreshold3=0;
+    double computedDistance3=0;
+
+
     double weights[7][4]  =
     {
-        {.2,   .2,  .2, .2},
+        {.2,   1.75,  1.75, .2},
         { 1,  1.5, 1.5,  1},
         { 1,  2  ,   2,  1},
         {.5,  1.2, 1.2, .5},
@@ -392,35 +400,52 @@ char recognize(int *userid,char* username,int* percentage,int currentUserId)
         {.3,  1.1, 1.1, .3},
         {.1,  .5,   .5, .1}
     };
-
+    char *buffer;
+    unsigned long fileLen;
     struct passwd *userpasswd;
     userpasswd = getpwnam(username);
 
     sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresDistance", userpasswd->pw_dir);
-FILE *fileFeaturesDistance,*fileFeaturesAverage;
-    if(!(fileFeaturesDistance =fopen(featuresConfig,"r")))
-    return 'n';
-    fscanf (fileFeaturesDistance, "%s",sDistanceThreshold);
-    distanceThreshold=atof(sDistanceThreshold);
+    FILE *fileFeaturesDistance,*fileFeaturesAverage;
+    if (!(fileFeaturesDistance =fopen(featuresConfig,"r")))
+        return 'n';
+   // printf("%s \n",featuresConfig);
+
+    fseek(fileFeaturesDistance, 0, SEEK_END);
+    fileLen=ftell(fileFeaturesDistance);
+    fseek(fileFeaturesDistance, 0, SEEK_SET);
+    buffer=(char *)calloc((fileLen+1),sizeof(char));
+
+    fread(buffer,1,fileLen,fileFeaturesDistance);
+    sDistanceThreshold=strtok(buffer,"  \n");
+    distanceThreshold1=(double)atof(sDistanceThreshold);
+    sDistanceThreshold=strtok(NULL,"  \n");
+    distanceThreshold2=(double)atof(sDistanceThreshold);
+    sDistanceThreshold=strtok(NULL,"  \n");
+    distanceThreshold3=(double)atof(sDistanceThreshold);
+//printf("%e %e %e\n",distanceThreshold1,distanceThreshold2,distanceThreshold3);
+
+//    distanceThreshold=atof(sDistanceThreshold);
     fclose(fileFeaturesDistance);
-
+free(buffer);
     sprintf(featuresConfig,"%s/.pam-face-authentication/features/featuresAverage", userpasswd->pw_dir);
-    if(!(fileFeaturesAverage =fopen(featuresConfig,"r")))
-    return 'n';
+    if (!(fileFeaturesAverage =fopen(featuresConfig,"r")))
+        return 'n';
 
-    char *buffer;
-    unsigned long fileLen;
+
     fseek(fileFeaturesAverage, 0, SEEK_END);
     fileLen=ftell(fileFeaturesAverage);
     fseek(fileFeaturesAverage, 0, SEEK_SET);
     buffer=(char *)calloc((fileLen+1),sizeof(char));
-    float* featuresAverage = (float*)calloc(4*7 * 59 ,sizeof(float) );
+    float* featuresAverage1 = (float*)calloc(4*7 * 59 ,sizeof(float) );
+    float* featuresAverage2 = (float*)calloc(4*7 * 59 ,sizeof(float) );
+    float* featuresAverage3 = (float*)calloc(4*7 * 59 ,sizeof(float) );
 
     if (!buffer)
     {
         fprintf(stderr, "Memory error!");
         fclose(fileFeaturesAverage);
-        return -1;
+        return 'n';
     }
     fread(buffer,1,fileLen,fileFeaturesAverage);
     char *word1;
@@ -429,13 +454,19 @@ FILE *fileFeaturesDistance,*fileFeaturesAverage;
     while (word1!=NULL)
     {
         //printf("%e BUFFER\n",atof(word1));
-        featuresAverage[index]=(float)atof(word1);
+        if (index<1652)
+            featuresAverage1[index]=(float)atof(word1);
+        if (index>=1652 && index<3304)
+            featuresAverage2[index-1652]=(float)atof(word1);
+        if (index>=3304)
+            featuresAverage3[index-3304]=(float)atof(word1);
         index++;
         word1=strtok(NULL,"  \n");
     }
+    free(buffer);
+   fclose(fileFeaturesAverage);
 
-    FILE *f1 =fopen( SYSCONFDIR "/pam-face-authentication/testFeaturesDCT","w");
-    FILE *f2 =fopen( SYSCONFDIR "/pam-face-authentication/testFeaturesLBP","w");
+   // printf("%d INDEX\n",index);
 
     int Nx = floor((img->width - 4)/4);
     int Ny= floor((img->height - 4)/4);
@@ -451,6 +482,8 @@ FILE *fileFeaturesDistance,*fileFeaturesAverage;
 
     int i,j,k=0;
     sprintf(temp,"%d",getuid()); //uid doesnt matter over here
+    FILE *f1 =fopen( SYSCONFDIR "/pam-face-authentication/testFeaturesDCT","w");
+    FILE *f2 =fopen( SYSCONFDIR "/pam-face-authentication/testFeaturesLBP","w");
 
     fputs(temp,f1);
     fputs(" ",f1);
@@ -465,25 +498,24 @@ FILE *fileFeaturesDistance,*fileFeaturesAverage;
                 sprintf(temp,"%d", (i*59*Nx1 + j*59 +k));
                 fputs(temp,f2);
                 fputs(":",f2);
-                double sumHist=(featuresLBP[i*59*4 + j*59 +k]+featuresAverage[i*59*4 + j*59 +k])+1;
-              //  printf("%e \n",sumHist);
-                computedDistance+=(weights[i][j]*pow((featuresLBP[i*59*4 + j*59 +k]-featuresAverage[i*59*4 + j*59 +k]),2))/sumHist;
-               // printf("%e \n",computedDistance);
+                double sumHist;
+                sumHist=(featuresLBP[i*59*4 + j*59 +k]+featuresAverage1[i*59*4 + j*59 +k])+1;
+                computedDistance1+=(weights[i][j]*pow((featuresLBP[i*59*4 + j*59 +k]-featuresAverage1[i*59*4 + j*59 +k]),2))/sumHist;
+
+                sumHist=(featuresLBP[i*59*4 + j*59 +k]+featuresAverage2[i*59*4 + j*59 +k])+1;
+                computedDistance2+=(weights[i][j]*pow((featuresLBP[i*59*4 + j*59 +k]-featuresAverage2[i*59*4 + j*59 +k]),2))/sumHist;
+
+
+                sumHist=(featuresLBP[i*59*4 + j*59 +k]+featuresAverage3[i*59*4 + j*59 +k])+1;
+                computedDistance3+=(weights[i][j]*pow((featuresLBP[i*59*4 + j*59 +k]-featuresAverage3[i*59*4 + j*59 +k]),2))/sumHist;
+
                 sprintf(temp,"%f",featuresLBP[i*59*Nx1 + j*59 +k]);
                 fputs(temp,f2);
                 fputs(" ",f2);
             }
         }
     }
-    computedDistance=sqrt(computedDistance);
 
-//printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
-    double thresholdEmpericalDistance=40.0;
-    if(distanceThreshold<thresholdEmpericalDistance);
-    distanceThreshold=thresholdEmpericalDistance;
-
-    if(computedDistance>((1.43)*distanceThreshold))
-    return 'n';
 
     for (i=0;i<Ny;i++)
     {
@@ -505,6 +537,41 @@ FILE *fileFeaturesDistance,*fileFeaturesAverage;
     fputs("\n",f2);
     fclose(f1);
     fclose(f2);
+//printf("%e %e %e %e %e %e\n",featuresAverage1[0],featuresAverage1[1651],featuresAverage2[0],featuresAverage2[1651],featuresAverage3[0],featuresAverage3[1651]);
+
+    computedDistance1=sqrt(computedDistance1);
+    computedDistance2=sqrt(computedDistance2);
+    computedDistance3=sqrt(computedDistance3);
+   // printf("%e %e %e\n",computedDistance1,computedDistance2,computedDistance3);
+
+//   return 'n';
+
+//   computedDistance=sqrt(computedDistance);
+
+//   printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
+    double thresholdEmpericalDistance=51.0;
+    if (distanceThreshold1<thresholdEmpericalDistance && distanceThreshold1!=0);
+    distanceThreshold1=thresholdEmpericalDistance;
+    if (distanceThreshold2<thresholdEmpericalDistance && distanceThreshold2!=0);
+    distanceThreshold1=thresholdEmpericalDistance;
+    if (distanceThreshold3<thresholdEmpericalDistance && distanceThreshold3!=0);
+    distanceThreshold1=thresholdEmpericalDistance;
+    int flag=1;
+    if (computedDistance1<(distanceThreshold1) && distanceThreshold1!=0)
+        flag=-1;
+
+    if (computedDistance2<(distanceThreshold2) && distanceThreshold2!=0)
+        flag=-1;
+    if (computedDistance3<(distanceThreshold3) && distanceThreshold3!=0)
+        flag=-1;
+free(featuresAverage1);
+free(featuresAverage2);
+ free(featuresAverage3);
+cvReleaseImage( &img);
+    if (flag==1)
+
+        return 'n';
+
     //printf(" \n 1testing");
     char* argv1[4]={"svm-scale","-r", SYSCONFDIR "/pam-face-authentication/featuresDCT.range", SYSCONFDIR "/pam-face-authentication/testFeaturesDCT"};
     FILE *fp5=fopen( SYSCONFDIR "/pam-face-authentication/testFeaturesDCT.scale","w");
@@ -525,21 +592,21 @@ FILE *fileFeaturesDistance,*fileFeaturesAverage;
     double percentage1;
     int num=parseSvmPrediction(&ans,&percentage1);
     double cutoff=(100.0/(num));
-    cutoff=cutoff+(double)(cutoff*0.6);
+    cutoff=cutoff+(double)(cutoff*0.8);
     cutoff/=100;
-
+    //printf("%e \n",cutoff);
 
     ansMatch=ans;
     if (ans!=currentUserId)
         return 'n';
     sum+=percentage1;
 //printf("Answer %d \n",ans);
-//printf("DCT Percent %e \n",percentage1);
+//    printf("DCT Percent %e \n",percentage1);
     if (percentage1<cutoff)
         login=-1;
 
 //printf("Login %d \n",login);
-//printf("Answer %d Percentage %e DCT \n",ans,percentage1);
+  //  printf("Answer %d Percentage %e DCT \n",ans,percentage1);
     system(BINDIR "/svm-predict -b 1 " SYSCONFDIR "/pam-face-authentication/testFeaturesLBP.scale " SYSCONFDIR "/pam-face-authentication/featuresLBP.scale.model " SYSCONFDIR "/pam-face-authentication/prediction");
     parseSvmPrediction(&ans,&percentage1);
 //printf("Answer %d \n",ans);
