@@ -68,10 +68,10 @@ void *funcRecognition(void )
         authYes=1;
         authNo=0;
         numberofYes++;
-        if ((numberofYes>=numberofNo))
+        //if ((numberofYes>=numberofNo))
             authenticateThreadReturn=1;
-        else
-            numberofYes=numberofNo-1;
+        //else
+          //  numberofYes=numberofNo-1;
     }
     else
     {
@@ -152,7 +152,9 @@ void writeImageToMemory(IplImage* img,char *shared)
         {
             CvScalar s;
             s=cvGet2D(img,n,m);
-                int k=cvRound(m/10);
+                int k=cvRound(m/4);
+
+
             if (authNo==1& authYes==0)
             {
 
