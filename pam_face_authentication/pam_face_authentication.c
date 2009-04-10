@@ -152,7 +152,7 @@ void writeImageToMemory(IplImage* img,char *shared)
         {
             CvScalar s;
             s=cvGet2D(img,n,m);
-                int k=cvRound(m/4);
+                int k=cvRound(m/20);
 
 
             if (authNo==1& authYes==0)
@@ -232,6 +232,8 @@ char startTracker(int *answer,char* username,int currentUserId)
         for (;;)
         {
             orginalFrame = cvQueryFrame( capture );
+                if(orginalFrame==NULL) return 'n';
+
             frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
             cvResize(orginalFrame,frame, CV_INTER_LINEAR);
 
