@@ -548,16 +548,21 @@ free(buffer);
 
 //   computedDistance=sqrt(computedDistance);
 
+  //  printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
 
 //   printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
     double thresholdEmpericalDistance=51.0;
-    if (distanceThreshold1<thresholdEmpericalDistance && distanceThreshold1!=0);
+    if (distanceThreshold1<thresholdEmpericalDistance && distanceThreshold1!=0)
     distanceThreshold1=thresholdEmpericalDistance;
-    if (distanceThreshold2<thresholdEmpericalDistance && distanceThreshold2!=0);
+
+    if (distanceThreshold2<thresholdEmpericalDistance && distanceThreshold2!=0)
     distanceThreshold2=thresholdEmpericalDistance;
-    if (distanceThreshold3<thresholdEmpericalDistance && distanceThreshold3!=0);
+
+    if (distanceThreshold3<thresholdEmpericalDistance && distanceThreshold3!=0)
     distanceThreshold3=thresholdEmpericalDistance;
+
     int flag=1;
+
     if (computedDistance1<(distanceThreshold1) && distanceThreshold1!=0)
         flag=-1;
 
@@ -566,7 +571,7 @@ free(buffer);
     if (computedDistance3<(distanceThreshold3) && distanceThreshold3!=0)
         flag=-1;
 
-        //printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
+   //     printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
 
 free(featuresAverage1);
 free(featuresAverage2);
