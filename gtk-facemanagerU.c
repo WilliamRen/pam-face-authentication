@@ -15,7 +15,6 @@
 #include <sys/time.h>
 #include <time.h>
 #include <gst/gst.h>
-#include <gst/interfaces/xoverlay.h>
 #include <gdk/gdk.h>
 #include <gdk/gdkx.h>
 #include <gtk-facemanagerU.h>

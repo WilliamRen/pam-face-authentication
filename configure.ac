@@ -36,22 +36,14 @@ AC_CHECK_LIB([pam], [main],,AC_MSG_ERROR(libpam-devel >.99.8 Not Found))
 AC_CHECK_HEADER([security/pam_modules.h], ,[AC_MSG_ERROR([PAM headers missing])])
 
 
-
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.10)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GTK_LIBS)
 
+
 PKG_CHECK_MODULES(GST, gstreamer-0.10 >= 0.10)
 AC_SUBST(GST_CFLAGS)
 AC_SUBST(GST_LIBS)
-
-PKG_CHECK_MODULES(GSTP, gstreamer-plugins-base-0.10 >= 0.10)
-AC_SUBST(GSTP_CFLAGS)
-AC_SUBST(GSTP_LIBS)
-
-PKG_CHECK_MODULES(GSTI, gstreamer-interfaces-0.10 >= 0.10)
-AC_SUBST(GSTI_CFLAGS)
-AC_SUBST(GSTI_LIBS)
 
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.10)
 AC_SUBST(GTK_CFLAGS)
