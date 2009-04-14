@@ -44,7 +44,7 @@ int *commAuth;
 key_t ipckeyCommAuth;
 int shmidCommAuth;
 GtkBuilder *builder;
-
+char *XML_GTK_BUILDER_FACE_AUTHENTICATE=PKGDATADIR "/gtk-faceauthenticate.xml";
 static gboolean
 time_handler(GtkWidget *widget)
 {

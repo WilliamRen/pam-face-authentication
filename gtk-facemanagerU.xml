@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!--Generated with glade3 3.4.3 on Thu Mar 26 06:02:28 2009 -->
+<!--*- mode: xml -*-->
 <interface>
   <object class="GtkAdjustment" id="adjustment1">
     <property name="upper">20</property>
@@ -11,48 +11,70 @@
   </object>
   <object class="GtkWindow" id="gtk-facemanager">
     <property name="title" translatable="yes">Face Manager</property>
-    <property name="resizable">False</property>
+    <property name="type">GTK_WINDOW_TOPLEVEL</property>
     <property name="window_position">GTK_WIN_POS_CENTER_ALWAYS</property>
+    <property name="modal">False</property>
+    <property name="resizable">False</property>
+    <property name="destroy_with_parent">False</property>
+    <property name="decorated">True</property>
+    <property name="skip_taskbar_hint">False</property>
+    <property name="skip_pager_hint">False</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+    <property name="gravity">GDK_GRAVITY_NORTH_WEST</property>
+    <property name="focus_on_map">True</property>
+    <property name="urgency_hint">False</property>
     <signal handler="on_gtkfacemanager_destroy" name="destroy"/>
     <child>
       <object class="GtkHBox" id="hbox1">
         <property name="visible">True</property>
+        <property name="homogeneous">False</property>
+        <property name="spacing">0</property>
         <child>
           <object class="GtkVBox" id="vbox2">
             <property name="visible">True</property>
+            <property name="homogeneous">False</property>
+            <property name="spacing">0</property>
             <child>
               <object class="GtkScrolledWindow" id="gtkScroll">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
+                <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
+                <property name="shadow_type">GTK_SHADOW_NONE</property>
+                <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
                 <child>
                   <object class="GtkIconView" id="gtkIconView">
                     <property name="width_request">250</property>
                     <property name="height_request">250</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="spacing">2</property>
+                    <property name="selection_mode">GTK_SELECTION_SINGLE</property>
+                    <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
+                    <property name="reorderable">False</property>
                     <signal handler="view_onButtonPressed" name="button_press_event"/>
                   </object>
                 </child>
               </object>
               <packing>
                 <property name="padding">6</property>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
               </packing>
             </child>
             <child>
               <object class="GtkHButtonBox" id="hbuttonbox2">
                 <property name="visible">True</property>
-                <property name="extension_events">GDK_EXTENSION_EVENTS_CURSOR</property>
                 <property name="layout_style">GTK_BUTTONBOX_SPREAD</property>
+                <property name="spacing">0</property>
                 <child>
                   <object class="GtkButton" id="gtkAbout">
                     <property name="width_request">125</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">gtk-about</property>
+                    <property name="label">gtk-about</property>
                     <property name="use_stock">True</property>
+                    <property name="relief">GTK_RELIEF_NORMAL</property>
+                    <property name="focus_on_click">True</property>
                     <signal handler="on_gtkAbout_clicked" name="clicked"/>
                   </object>
                 </child>
@@ -61,54 +83,71 @@
                     <property name="width_request">125</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
-                    <property name="label" translatable="yes">gtk-save</property>
+                    <property name="label">gtk-save</property>
                     <property name="use_stock">True</property>
+                    <property name="relief">GTK_RELIEF_NORMAL</property>
+                    <property name="focus_on_click">True</property>
                     <signal handler="on_gtkSave_clicked" name="clicked"/>
                   </object>
-                  <packing>
-                    <property name="position">1</property>
-                  </packing>
                 </child>
               </object>
               <packing>
+                <property name="padding">0</property>
                 <property name="expand">False</property>
-                <property name="position">1</property>
+                <property name="fill">True</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="padding">6</property>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
           </packing>
         </child>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
+            <property name="homogeneous">False</property>
+            <property name="spacing">0</property>
             <child>
-              <object class="GtkImage" id="gtkWebcamImage">
+              <object class="GtkDrawingArea" id="gtkWebcamImage">
                 <property name="width_request">320</property>
                 <property name="height_request">240</property>
                 <property name="visible">True</property>
-                <property name="stock">gtk-missing-image</property>
-                <signal handler="view_onButtonPressed" name="button_press_event"/>
               </object>
               <packing>
+                <property name="padding">7</property>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="padding">7</property>
               </packing>
             </child>
             <child>
               <object class="GtkHBox" id="hbox2">
                 <property name="visible">True</property>
+                <property name="homogeneous">False</property>
+                <property name="spacing">0</property>
                 <child>
                   <object class="GtkLabel" id="gtkWelcome">
                     <property name="visible">True</property>
+                    <property name="label" translatable="yes"/>
+                    <property name="use_underline">False</property>
+                    <property name="use_markup">False</property>
                     <property name="justify">GTK_JUSTIFY_CENTER</property>
+                    <property name="wrap">False</property>
+                    <property name="selectable">False</property>
+                    <property name="xalign">0.5</property>
+                    <property name="yalign">0.5</property>
+                    <property name="xpad">0</property>
+                    <property name="ypad">0</property>
+                    <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
+                    <property name="width_chars">-1</property>
+                    <property name="single_line_mode">False</property>
+                    <property name="angle">0</property>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
                     <property name="padding">12</property>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
                   </packing>
                 </child>
                 <child>
@@ -117,10 +156,18 @@
                     <property name="height_request">26</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="climb_rate">1</property>
+                    <property name="digits">0</property>
+                    <property name="numeric">False</property>
+                    <property name="update_policy">GTK_UPDATE_ALWAYS</property>
+                    <property name="snap_to_ticks">False</property>
+                    <property name="wrap">False</property>
                     <property name="adjustment">adjustment1</property>
                   </object>
                   <packing>
-                    <property name="position">1</property>
+                    <property name="padding">0</property>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                   </packing>
                 </child>
                 <child>
@@ -129,26 +176,30 @@
                     <property name="height_request">26</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="receives_default">True</property>
                     <property name="label" translatable="yes">Capture</property>
+                    <property name="use_underline">True</property>
+                    <property name="relief">GTK_RELIEF_NORMAL</property>
+                    <property name="focus_on_click">True</property>
                     <signal handler="gtkCaptureFace_clicked_cb" name="clicked"/>
                   </object>
                   <packing>
+                    <property name="padding">0</property>
                     <property name="expand">False</property>
-                    <property name="position">2</property>
+                    <property name="fill">True</property>
                   </packing>
                 </child>
               </object>
               <packing>
-                <property name="position">1</property>
+                <property name="padding">0</property>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="padding">6</property>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="padding">6</property>
-            <property name="position">1</property>
           </packing>
         </child>
       </object>

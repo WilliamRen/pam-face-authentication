@@ -5,7 +5,10 @@ INCLUDES = \
 	-DBINDIR=\""$(bindir)"\"  	\
 	-DSYSCONFDIR=\""$(sysconfdir)"\"   \
 	$(GTK_CFLAGS) \
-	$(OPENCV_CFLAGS)
+	$(OPENCV_CFLAGS) \
+	$(GST_CFLAGS) \
+	$(GSTP_CFLAGS) \
+	$(GSTI_CFLAGS)
 
 bin_PROGRAMS = gtk-facemanager \
 	       gtk-facetracker \
@@ -41,6 +44,8 @@ install-exec-hook:
 gtk_facemanager_LDADD = \
 	$(GTK_LIBS) \
 	$(OPENCV_LIBS) \
+	$(GST_LIBS) \
+	$(GSTI_LIBS) \
 	libfacedetect.la
 
 gtk_facemanager_LDFLAGS = -export-dynamic
@@ -77,9 +82,10 @@ pam_face_authenticate_so_LDFLAGS = -Xcompiler -shared
 pam_face_authenticate_so_LDADD = \
                         $(PAM_LIBS) \
                         $(OPENCV_LIBS) \
+			$(GST_LIBS) \
 			libfacedetect.la \
                         libfaceauthenticate.la
-
+			
 extra1dir=$(sysconfdir)/pam-face-authentication/
 extra2dir=$(sysconfdir)/pam-face-authentication/dummy/
 extra1_DATA = xauth.key display.key prediction db.lst
