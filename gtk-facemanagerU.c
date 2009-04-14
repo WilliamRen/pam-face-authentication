@@ -385,7 +385,6 @@ static gboolean time_handler(GtkWidget *widget)
     if (showWhiteEffect==1)
     {
         setGtkWebcamImageWhite(gtkWebcamImage);
-        cvWaitKey(100);
         showWhiteEffect=0;
         intializeGtkIconView();
     }

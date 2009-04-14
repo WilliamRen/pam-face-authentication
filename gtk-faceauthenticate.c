@@ -168,6 +168,7 @@ int
 main (int argc, char *argv[])
 {
 
+    setuid(getuid());
     GtkWidget               *window;
     GtkWidget *imgWebcam;
 

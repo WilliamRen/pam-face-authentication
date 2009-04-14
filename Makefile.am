@@ -32,6 +32,7 @@ svm_train_SOURCES = 	./libsvm/svm-train.c \
 gtk_facemanager_SOURCES = gtk-facemanagerU.c \
 			featureDctMod2.c \
 			featureLBPHist.c \
+			gtk-facemanagerU.h \
 			libfacedetect.la
 
 install-exec-hook:
@@ -59,10 +60,13 @@ lib_LTLIBRARIES = libfaceauthenticate.la
 extra_LTLIBRARIES = libfacedetect.la 
 libfaceauthenticate_la_SOURCES=libfaceauthenticate.c \
 				featureDctMod2.c \
+				libfaceauthenticate.h \
 				featureLBPHist.c \
 				parseSvmPrediction.c
 libfaceauthenticate_la_CFLAGS = $(AM_CFLAGS)
-
+libfacedetect_la_SOURCES=libfacedetect.c \
+			 libfacedetect.h
+libfacedetect_la_CFLAGS = $(AM_CFLAGS)
 pammod_PROGRAMS = pam_face_authenticate.so
 pammoddir=/lib/security
 
