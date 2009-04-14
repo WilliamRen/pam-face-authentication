@@ -139,9 +139,9 @@ char recognize(char* username,int currentUserId)
 
 
     char userFile[300];
-    sprintf(userFile, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
+    sprintf(userFile, SYSCONFDIR "/pam-face-authentication/%s.jpg",username);
   IplImage * img = cvLoadImage(userFile,0);
-   //IplImage * img = cvLoadImage("/home/darksid3hack0r/Desktop/root.pgm",0);
+   //IplImage * img = cvLoadImage("/home/darksid3hack0r/Desktop/root.jpg",0);
     //  printf("%s \n",userFile);
 
     char temp[200];

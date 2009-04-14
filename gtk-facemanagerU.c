@@ -61,7 +61,7 @@ GdkColormap *cmap =gdk_rgb_get_cmap();
 
         }
     }
-        cvSaveImage("/home/darksid3hack0r/abc.pgm",currentFrame);
+        cvSaveImage("/home/darksid3hack0r/abc.jpg",currentFrame);
 
     cvCopy( currentFrame, frameNew, 0 );
  allocateMemory();
@@ -83,7 +83,7 @@ GdkColormap *cmap =gdk_rgb_get_cmap();
         char imagepath[150];
         struct passwd *passwd;
         passwd = getpwuid (getuid());
-        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.pgm", passwd->pw_dir,buffer,numberOfFaces+1);
+        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.jpg", passwd->pw_dir,buffer,numberOfFaces+1);
         // printf("%s \n",imagepath);
         cvSaveImage(imagepath,face);
         setGtkWebcamImageWhite(gtkWebcamImage);
@@ -177,7 +177,7 @@ readFilesAndLoadGtkIconView()
     int fileCount=0;
     while (de = readdir(d))
     {
-        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "jpg")==0)
         {
             fileCount++;
 
@@ -191,7 +191,7 @@ readFilesAndLoadGtkIconView()
         double *fileNamesD=( double *)calloc(fileCount,sizeof( double));
         while (de = readdir(d))
         {
-            if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+            if (strcmp(de->d_name+strlen(de->d_name)-3, "jpg")==0)
             {
                 char *a=(char *)calloc(strlen(de->d_name)-4,sizeof(char));
 
@@ -223,7 +223,7 @@ readFilesAndLoadGtkIconView()
 
         {
             char aa[30];
-            sprintf(aa,"%.0f.pgm",fileNamesD[i]);
+            sprintf(aa,"%.0f.jpg",fileNamesD[i]);
             //  printf("%s Meow\n",aa);
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,aa);
 
@@ -236,7 +236,7 @@ readFilesAndLoadGtkIconView()
 
                 err=NULL;
 
-                sprintf(aa,"0%.0f.pgm",fileNamesD[i]);
+                sprintf(aa,"0%.0f.jpg",fileNamesD[i]);
                 sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,aa);
                 p1 =  gdk_pixbuf_new_from_file_at_size  (fullimagepath,73,100,&err);
             }
@@ -363,7 +363,7 @@ cb_have_data(GstElement *element, GstBuffer * buffer, GstPad* pad, gpointer user
         char imagepath[150];
         struct passwd *passwd;
         passwd = getpwuid (getuid());
-        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.pgm", passwd->pw_dir,buffer,numberOfFaces+1);
+        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.jpg", passwd->pw_dir,buffer,numberOfFaces+1);
         // printf("%s \n",imagepath);
         cvSaveImage(imagepath,face);
 
@@ -439,7 +439,7 @@ static gboolean time_handler(GtkWidget *widget)
         char imagepath[150];
         struct passwd *passwd;
         passwd = getpwuid (getuid());
-        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.pgm", passwd->pw_dir,buffer,numberOfFaces+1);
+        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.jpg", passwd->pw_dir,buffer,numberOfFaces+1);
         // printf("%s \n",imagepath);
         cvSaveImage(imagepath,face);
         setGtkWebcamImageWhite(gtkWebcamImage);
@@ -511,9 +511,9 @@ on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
     GError *err = NULL;
     logo =  gdk_pixbuf_new_from_file_at_size  (PKGDATADIR "/logo.png",182,182,&err);
     gtk_show_about_dialog (GTK_WINDOW (window),
-                           "name" , "PAM-Face-Authentication",
-                           "version", VERSION,
-                           "comments", "Pluggable Face Authentication module for your favorite distro.",
+                          "version", VERSION,
+                           "name" , "Face Authentication \n",
+                           "comments", "A Pluggable Face Authentication Module",
                            "authors", authors,
                            "translator-credits", translators,
                            "artists", artists,
@@ -572,7 +572,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     int fileCount=0;
     while (de = readdir(d))
     {
-        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "jpg")==0)
         {
             fileCount++;
         }
@@ -585,7 +585,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     d=opendir(dirpath);
     while (de = readdir(d))
     {
-        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "jpg")==0)
         {
             loopIndex++;
             featuresTotal[loopIndex]=0;
@@ -633,7 +633,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     double tempTotal=0;
     while (de = readdir(d))
     {
-        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "jpg")==0)
         {
 
 
@@ -740,7 +740,7 @@ on_gtkSave_clicked  (GtkButton *button,gpointer user_data)
     d=opendir(dirpath);
     while (de = readdir(d))
     {
-        if (strcmp(de->d_name+strlen(de->d_name)-3, "pgm")==0)
+        if (strcmp(de->d_name+strlen(de->d_name)-3, "jpg")==0)
         {
 
             sprintf(fullimagepath,"%s/.pam-face-authentication/train/%s", passwd->pw_dir,de->d_name);
