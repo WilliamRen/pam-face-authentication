@@ -6,9 +6,8 @@ INCLUDES = \
 	-DSYSCONFDIR=\""$(sysconfdir)"\"   \
 	$(GTK_CFLAGS) \
 	$(OPENCV_CFLAGS) \
-	$(GST_CFLAGS) \
-	$(GSTP_CFLAGS) \
-	$(GSTI_CFLAGS)
+	$(GST_CFLAGS) 
+
 
 bin_PROGRAMS = gtk-facemanager \
 	       gtk-facetracker \
@@ -45,7 +44,6 @@ gtk_facemanager_LDADD = \
 	$(GTK_LIBS) \
 	$(OPENCV_LIBS) \
 	$(GST_LIBS) \
-	$(GSTI_LIBS) \
 	libfacedetect.la
 
 gtk_facemanager_LDFLAGS = -export-dynamic
