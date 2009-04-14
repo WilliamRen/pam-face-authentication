@@ -46,43 +46,120 @@
 #include <malloc.h>
 #include <pthread.h>
 #include "pam_face_defines.h"
+#include <gst/gst.h>
 #include "pam_face.h"
-CvPoint pLeftEye,pRightEye;
-int authenticateThreadReturn=0;
-int threadNumber=0;
-int answer=-1;
-char *userName;
-int percentageRecognition;
-int currentUserIdRecognition;
-int numberofNo=0;
-int numberofYes=0;
-int authNo=0;
-int authYes=0;
-pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;
-void *funcRecognition(void )
-{
-    pthread_mutex_lock( &mutex1 );
-    if (recognize(&answer,userName,&percentageRecognition,currentUserIdRecognition)=='y')
-    {
-        authYes=1;
-        authNo=0;
 
-        numberofYes++;
-        //if ((numberofYes>=numberofNo))
-            authenticateThreadReturn=1;
-        //else
-          //  numberofYes=numberofNo-1;
+static gboolean
+cb_have_data(GstElement *element, GstBuffer * buffer, GstPad* pad, gpointer user_data)
+{
+
+
+    unsigned char *data_photo = (unsigned char *) GST_BUFFER_DATA(buffer);
+    IplImage *currentFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
+    IplImage *frameNew=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
+
+
+
+    int m,n;
+    for (n=0;n<IMAGE_HEIGHT;n++)
+    {
+        for (m= 0;m<IMAGE_WIDTH;m++)
+        {
+
+            CvScalar s;
+            s.val[2]=data_photo[m*3 + 0+ n*IMAGE_WIDTH*3];
+            s.val[1]=data_photo[m*3 + 1+ n*IMAGE_WIDTH*3];
+
+            s.val[0]=data_photo[m*3 + 2+ n*IMAGE_WIDTH*3];
+            cvSet2D(currentFrame,n,m,s);
+
+        }
+    }
+    cvCopy( currentFrame, frameNew, 0 );
+
+    int k= faceDetect(currentFrame,&pLeftEye,&pRightEye);
+    setFlags();
+    if (authenticateThreadReturn==1)
+    {
+        //removeFile(username);
+        AuthenticateButtonClicked=0;
+        *commAuth=EXIT_GUI;
+        g_main_loop_quit(loop);
+    }
+    if (AuthenticateButtonClicked==1)
+    {
+
+        if (k==1)
+        {
+            IplImage *face;
+            face = cvCreateImage( cvSize(120,140),8,1);
+            int j=0;
+            if (pLeftEye.x>0 && pLeftEye.y>0  && pLeftEye.x<IMAGE_WIDTH && pLeftEye.y<IMAGE_HEIGHT && pRightEye.x>0 && pRightEye.y>0&& pRightEye.x<IMAGE_WIDTH && pRightEye.y<IMAGE_HEIGHT)
+                j=preprocess(frameNew,pLeftEye,pRightEye,face);
+            if (j==1)
+            {
+                if ((threadNumber==0) && (authenticateThreadReturn!=1))
+                {
+                    threadNumber=1;
+                    cvSaveImage(fullPath,face);
+                    pthread_t thread1;
+                    pthread_create( &thread1, NULL, &funcRecognition,NULL );
+
+                }
+
+            }
+            cvReleaseImage( &face );
+
+
+        }
+        cvFillConvexPoly(currentFrame, pts,4,CV_RGB(0,140,0),CV_AA,0 );
+        cvPutText(currentFrame,"AUTHENTICATING", cvPoint(83,15),&myFont, CV_RGB(255,255,255));
+
     }
     else
     {
+        authNo=0;
         authYes=0;
-        authNo=1;
-        authenticateThreadReturn=0;
-        numberofNo++;
+
     }
-    //printf("Thread Complete \n");
-    threadNumber=0;
-    pthread_mutex_unlock( &mutex1 );
+    if (CancelButtonClicked==1)
+    {
+        CancelButtonClicked=0;
+        *commAuth=0;
+        g_main_loop_quit(loop);
+    }
+    writeImageToMemory(currentFrame,shared);
+    cvReleaseImage( &frameNew );
+    cvReleaseImage( &currentFrame );
+
+
+//   cvReleaseCapture( &currentFrame );
+
+}
+
+void *funcRecognition(void )
+{
+    if (threadNumber!=0)
+    {
+        if (recognize(username,UserIdRecognition)=='y')
+        {
+            authYes=1;
+            authNo=0;
+
+            //if ((numberofYes>=numberofNo))
+            authenticateThreadReturn=1;
+            //else
+            //  numberofYes=numberofNo-1;
+        }
+        else
+        {
+            authYes=0;
+            authNo=1;
+            authenticateThreadReturn=0;
+        }
+        //printf("Thread Complete \n");
+        threadNumber=0;
+    }
 }
 
 int file_exists(const char* filename)
@@ -107,8 +184,7 @@ void setFlags()
     if ((*commAuth)==CANCEL)
     {
         CancelButtonClicked=1;
-        numberofNo=0;
-        numberofYes=0;
+
     }
     if ((*commAuth)==AUTHENTICATE)
     {
@@ -152,30 +228,33 @@ void writeImageToMemory(IplImage* img,char *shared)
         {
             CvScalar s;
             s=cvGet2D(img,n,m);
-                int k=cvRound(m/20);
+            int k=cvRound(m/20);
 
 
             if (authNo==1& authYes==0)
             {
 
-            if((k)%2==0)
-            {if(n>20)
-                *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=255;
+                if ((k)%2==0)
+                {
+                    if (n>20)
+                        *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2] + (255 -(uchar)s.val[2])/4;
 
-            }
+                }
                 else
-                *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
+                    *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
 
                 *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[1];
             }
             if (authNo==0& authYes==1)
             {
                 *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
-                  if((k)%2==1)
-                {  if(n>20)
-                    *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=255; }
+                if ((k)%2==1)
+                {
+                    if (n>20)
+                        *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[1] + (255 -(uchar)s.val[1])/4;
+                }
                 else
-                *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
+                    *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
 
 
             }
@@ -186,150 +265,23 @@ void writeImageToMemory(IplImage* img,char *shared)
             }
             *(shared + m*3 + 0+ n*IMAGE_WIDTH*3)=(uchar)s.val[0];
 
-                                             }
-                                         }
-   }
-
-
-void removeFile(char* userTemp)
-{
-    char* userFile;
-    userFile=(char *)calloc(strlen(userTemp) +strlen(path)+strlen(imgExt)+1,sizeof(char));
-    strcat(userFile,path);;
-    strcat(userFile,userTemp);
-    strcat(userFile,imgExt);
-    remove(userFile);
-}
-
-char startTracker(int *answer,char* username,int currentUserId)
-{
-    intialize();
-    CvPoint pts[4];
-    pts[0]=cvPoint(0,0);
-    pts[1]=cvPoint(IMAGE_WIDTH,0);
-    pts[2]=cvPoint(IMAGE_WIDTH,20);
-    pts[3]=cvPoint(0,20);
-
-    CvFont myFont;
-    cvInitFont(&myFont,CV_FONT_HERSHEY_DUPLEX, .5f,.5f,0,1,CV_AA);
-    char fullPath[300];
-    sprintf(fullPath, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
-
-    /*
-        char * fullPath;
-        fullPath=(char *)calloc(  strlen(path) + strlen(username)+strlen(imgExt)+1,sizeof(char));
-        strcat(fullPath,path);;
-        strcat(fullPath,username);
-        strcat(fullPath,imgExt);
-    */
-    CvCapture* capture = 0;
-    IplImage *frame,*orginalFrame,*frameNew,*frame_copy = 0;
-    capture = cvCaptureFromCAM(0);
-    if ( capture )
-    {
-        // cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_WIDTH,IMAGE_WIDTH);
-        //cvSetCaptureProperty(capture, CV_CAP_PROP_FRAME_HEIGHT,IMAGE_HEIGHT);
-        for (;;)
-        {
-            orginalFrame = cvQueryFrame( capture );
-                if(orginalFrame==NULL) return 'n';
-
-            frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
-            cvResize(orginalFrame,frame, CV_INTER_LINEAR);
-
-            if ( !frame )
-                break;
-            if ( !frame_copy )
-                frame_copy = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
-
-            if ( frame->origin == IPL_ORIGIN_TL )
-                cvCopy( frame, frame_copy, 0 );
-            else
-                cvFlip( frame, frame_copy, 0 );
-            frameNew = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
-            cvCopy(frame_copy, frameNew, 0);
-            allocateMemory();
-            int k= faceDetect(frame_copy,&pLeftEye,&pRightEye);
-            setFlags();
-            if (AuthenticateButtonClicked==1)
-            {
-
-                if (k==1)
-                {
-                    IplImage *face;
-                    face = cvCreateImage( cvSize(120,140),8,1);
-                    int j=0;
-                    if (pLeftEye.x>0 && pLeftEye.y>0  && pLeftEye.x<320 && pLeftEye.y<240 && pRightEye.x>0 && pRightEye.y>0&& pRightEye.x<320 && pRightEye.y<240)
-                        j=preprocess(frameNew,pLeftEye,pRightEye,face);
-                    if (j==1)
-                    {
-                        if ((threadNumber==0) && (authenticateThreadReturn!=1))
-                        {
-                            threadNumber=1;
-                            //printf("%d %d \n",face->width,face->height);
-                            cvSaveImage(fullPath,face);
-                            pthread_t thread1;
-                            pthread_create( &thread1, NULL, &funcRecognition,NULL );
-
-                        }
-                        if (authenticateThreadReturn==1)
-                        {
-                            //removeFile(username);
-                            AuthenticateButtonClicked=0;
-                            *commAuth=EXIT_GUI;
-                            cvReleaseCapture( &capture );
-                            return 'y';;
-                        }
-
-                    }
-                    cvReleaseImage( &face );
-
-
-                }
-                cvFillConvexPoly(frame_copy, pts,4,CV_RGB(0,140,0),CV_AA,0 );
-                cvPutText(frame_copy,"AUTHENTICATING", cvPoint(83,15),&myFont, CV_RGB(255,255,255));
-
-            }
-            else
-            {
-                authNo=0;
-                authYes=0;
-
-            }
-            if (CancelButtonClicked==1)
-            {
-                CancelButtonClicked=0;
-                *commAuth=0;
-                cvZero(frame_copy);
-                writeImageToMemory(frame_copy,shared);
-                cvReleaseImage( &frame_copy );
-                cvReleaseCapture( &capture );
-                return 'n';
-            }
-            writeImageToMemory(frame_copy,shared);
-            cvReleaseImage( &frameNew );
-            cvReleaseImage( &frame_copy );
-
         }
-
-        cvReleaseCapture( &capture );
     }
-    else
-    {
-        *commAuth==EXIT_GUI;
-    }
-    return 'n';
 }
-
 
 PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         ,const char **argv)
 {
+    GstStateChangeReturn ret;
+    GstElement *pipeline,*filter, *src,*csp,*queue1,*fakesink;
+    gboolean link_ok;
+    gst_init (&argc, &argv);
+
+
     int retval;
     const char *user=NULL;
     const char *error;
-
 
     // From fingerprint GUI project
     // We need the Xauth to fork the GUI
@@ -439,56 +391,75 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     ipcStart();
     resetFlags();
-    intializePaths(user);
-    userName=(char *)calloc(strlen(user)+1,sizeof(char));
-    strcpy(userName,user);
-    removeFile(userName);
 
-
-    /*
-    if (findIndex(userName)==-1)
-        return PAM_AUTH_ERR;
-
-    */
+    username=(char *)calloc(strlen(user)+1,sizeof(char));
+    strcpy(username,user);
 
     system(GTK_FACE_AUTHENTICATE);
 
 
 
     struct passwd *userpasswd;
-    userpasswd = getpwnam(userName);
-    currentUserIdRecognition=userpasswd->pw_uid;
+    userpasswd = getpwnam(username);
+    UserIdRecognition=userpasswd->pw_uid;
     IplImage *zeroFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
     cvZero(zeroFrame);
+    writeImageToMemory(zeroFrame,shared);
 
+    intialize();
+    allocateMemory();
+    sprintf(fullPath, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
+    remove(fullPath);
 
-    if (startTracker(&answer,userName,currentUserIdRecognition)=='y')
+    pts[0]=cvPoint(0,0);
+    pts[1]=cvPoint(IMAGE_WIDTH,0);
+    pts[2]=cvPoint(IMAGE_WIDTH,20);
+    pts[3]=cvPoint(0,20);
+
+    cvInitFont(&myFont,CV_FONT_HERSHEY_DUPLEX, .5f,.5f,0,1,CV_AA);
+
+    loop = g_main_loop_new (NULL, FALSE);
+    pipeline = gst_pipeline_new ("my_pipeline");
+    src = gst_element_factory_make ("v4l2src", NULL);
+    if (!src)
+        src = gst_element_factory_make ("v4lsrc", NULL);
+    csp = gst_element_factory_make("ffmpegcolorspace", "csp");
+    queue1 = gst_element_factory_make("queue", "queue1");
+    fakesink = gst_element_factory_make("fakesink", "fakesink");
+    gst_bin_add_many (GST_BIN (pipeline), src,csp,fakesink, NULL);
+    filter = gst_caps_new_simple("video/x-raw-rgb",
+                                 "width", G_TYPE_INT, IMAGE_WIDTH,
+                                 "height", G_TYPE_INT, IMAGE_HEIGHT,NULL);
+    if (!gst_element_link(src, csp))
+        g_print ("Failed to link one or more elements!\n");
+    link_ok=gst_element_link_filtered(csp, fakesink, filter);
+    //if (!gst_element_link(queue1, fakesink))
+    //  g_print ("Failed to link one or more elements!\n");
+    g_object_set (G_OBJECT (fakesink), "signal-handoffs", TRUE, NULL);
+    g_signal_connect (fakesink, "handoff", G_CALLBACK (cb_have_data), NULL);
+    ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
+    if (ret == GST_STATE_CHANGE_FAILURE)
     {
-        struct passwd *passwd;
+        *commAuth=EXIT_GUI;
 
-        passwd = getpwuid (answer);
-
-        //printf("%s\n",userName);
-        //printf("%s\n",passwd->pw_gecos);
-
-        if (strcmp(passwd->pw_gecos,userName)==0)
-        {
-
-            // fprintf(t,"AAAA\n");
-            writeImageToMemory(zeroFrame,shared);
-
-            return PAM_SUCCESS;
-
-        }
-
+        g_print ("Failed to start up gstreamer pipeline!\n");
     }
     else
     {
-        writeImageToMemory(zeroFrame,shared);
 
-        return PAM_AUTH_ERR;
+        g_main_loop_run (loop);
     }
+    gst_element_set_state (pipeline, GST_STATE_NULL);
+    gst_object_unref (pipeline);
+
     writeImageToMemory(zeroFrame,shared);
+
+    if (authenticateThreadReturn==1)
+    {
+        return PAM_SUCCESS;
+
+    }
+    return PAM_AUTH_ERR;
 
 }
 

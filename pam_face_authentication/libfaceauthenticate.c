@@ -25,160 +25,10 @@
 #include "cvaux.h"
 #include "highgui.h"
 #include "pam_face_defines.h"
+#include "libfaceauthenticate.h"
 
 
-//// Global variables
 
-IplImage * testFace        = 0; // array of face images
-int numberOfTrainingFaces               = 0; // the number of training images
-int numberOfEigenVectors                   = 0; // the number of eigenvalues
-IplImage * averageTrainingImage       = 0; // the average image
-IplImage ** eigenVectArr      = 0; // eigenvectors
-CvMat * eigenValueMatrix           = 0; // eigenvalues
-CvMat * projectedTrainFaceMat = 0; // projected training faces
-
-
-//// Function prototypes
-
-char recognize(int *an,char* username,int *percentage,int currentUserId);
-int  loadTrainingData();
-int  findNearestNeighbor(float * projectedTestFace);
-
-double findDifference(float * ,int );
-int  loadFaceImgArray(char * filename);
-int findIndex(char* username);
-char* findUserName(int index);
-char tempUserName[512];
-char imgFilename[512];
-double threshold=3259;
-double threshold2=235000000;
-double hist1[256];
-double hist2[256];
-double currentVal;
-
-char * fileNameImage(char *ch,char *value)
-{
-    char *fullPath;
-    fullPath=(char *)calloc(  strlen(imgPath) + strlen(value)+strlen(imgExt)+1 +strlen(ch),sizeof(char));
-    strcat(fullPath,imgPath);
-    strcat(fullPath,value);
-    strcat(fullPath,ch);
-    strcat(fullPath,imgExt);
-    return fullPath;
-}
-double valFind( IplImage*first, IplImage*second)
-{
-    IplImage* resultMatch = cvCreateImage( cvSize(1,1), IPL_DEPTH_32F, 1 );
-    CvPoint    minloc, maxloc;
-    minloc=cvPoint(0,0);
-    maxloc=cvPoint(0,0);
-    double		minval, maxval;
-    cvMatchTemplate( first, second, resultMatch, CV_TM_SQDIFF );
-    cvMinMaxLoc( resultMatch, &minval, &maxval, &minloc, &maxloc, 0 );
-    cvReleaseImage( &resultMatch);
-    return minval;
-
-}
-double faceSplitReturnVal( IplImage*first, IplImage*second)
-{
-
-    IplImage* firstHalf1=cvCreateImage( cvSize(first->width/2,first->height), 8, first->nChannels );
-    cvSetImageROI(first,cvRect(0,0,first->width/2,first->height));
-    cvResize( first,firstHalf1, CV_INTER_LINEAR ) ;
-    cvResetImageROI(first);
-
-    IplImage* secondHalf1=cvCreateImage( cvSize(second->width/2,second->height), 8, first->nChannels );
-    cvSetImageROI(second,cvRect(0,0,second->width/2,second->height));
-    cvResize( second,secondHalf1, CV_INTER_LINEAR ) ;
-    cvResetImageROI(second);
-
-    IplImage* firstHalf2=cvCreateImage( cvSize(first->width/2,first->height), 8, first->nChannels );
-    cvSetImageROI(first,cvRect(first->width/2,0,first->width/2,first->height));
-    cvResize( first,firstHalf2, CV_INTER_LINEAR ) ;
-    cvResetImageROI(first);
-
-    IplImage* secondHalf2=cvCreateImage( cvSize(second->width/2,second->height), 8, first->nChannels );
-    cvSetImageROI(second,cvRect(second->width/2,0,second->width/2,second->height));
-    cvResize( second,secondHalf2, CV_INTER_LINEAR ) ;
-    cvResetImageROI(second);
-
-    double d1 =valFind(firstHalf1,secondHalf1);
-    double d2 =valFind(firstHalf2,secondHalf2);
-    double d=0;
-    if (d1<d2)
-        d=d1*2;
-    else
-        d=d2*2;
-//   double d =valFind(first,second);
-    cvReleaseImage( &firstHalf1);
-    cvReleaseImage( &firstHalf2);
-
-    cvReleaseImage( &secondHalf1);
-    cvReleaseImage( &secondHalf2);
-
-    IplImage* firstEye=cvCreateImage( cvSize(first->width,40), 8, first->nChannels );
-    cvSetImageROI(first,cvRect(0,25,first->width,65));
-    cvResize( first,firstEye, CV_INTER_LINEAR ) ;
-    cvResetImageROI(first);
-
-    IplImage* secondEye=cvCreateImage( cvSize(second->width,40), 8, first->nChannels );
-    cvSetImageROI(second,cvRect(0,25,second->width,65));
-    cvResize( second,secondEye, CV_INTER_LINEAR ) ;
-    cvResetImageROI(second);
-
-
-    d=d+(valFind(firstEye,secondEye)*2); // Eye area
-    cvReleaseImage( &firstEye);
-    cvReleaseImage( &secondEye);
-    return d;
-
-}
-/*
-double getBIT(IplImage* img,double px,double py,double threshold)
-{
-    if (px<0 || py<0 || px>=img->width || py>=img->height)
-        return 0;
-    else
-    {
-        CvScalar s;
-        s=cvGet2D(img,py,px);
-        if (s.val[0]>=threshold)
-            return 1;
-        else
-            return 0;
-    }
-}
-*/
-
-/*
-int checkBit(int i)
-{
-    int j=i;
-    int bit8=(i%2);
-    int bit7=((i/2)%2);
-    int bit6=((i/4)%2);
-    int bit5=((i/8)%2);
-    int bit4=((i/16)%2);
-    int bit3=((i/32)%2);
-    int bit2=((i/64)%2);
-    int bit1=((i/128)%2);
-    // printf("%d %d %d %d %d %d %d %d \n",bit1,bit2,bit3,bit4,bit5,bit6,bit7,bit8);
-    int bitVector[9]  =   {bit1,bit8,bit7, bit6, bit5,bit4, bit3,bit2,bit1};
-
-    int current=bitVector[0];
-    int count=0;
-    for (i=0;i<9;i++)
-    {
-        if (current!=bitVector[i])
-            count++;
-        current=bitVector[i];
-    }
-    if (count>2)
-        return -1;
-    else
-        return 0;
-}
-*/
 double histDifference(IplImage* img1,IplImage* img2)
 {
 
@@ -244,85 +94,10 @@ double histDifference(IplImage* img1,IplImage* img2)
     return chiSquare;
 
 }
-/*
-void createLBP(char * fullpath1,char * fullpath2)
-{
-    int i=0;
-    int j=0;
 
-    IplImage* image1=cvLoadImage(fullpath1, CV_LOAD_IMAGE_GRAYSCALE );
-    IplImage* image1T=cvCreateImage( cvSize(image1->width,image1->height), 8, image1->nChannels );
-    cvZero(image1T);
-    for (i=0;i<image1->height;i++)
-    {
-
-        for (j=0;j<image1->width;j++)
-        {
-            int p1x,p2x,p3x,p4x,p5x,p6x,p7x,p8x;
-            int p1y,p2y,p3y,p4y,p5y,p6y,p7y,p8y;
-
-            p1x=j-1;
-            p1y=i-1;
-
-            p2x=j;
-            p2y=i-1;
-
-            p3x=j+1;
-            p3y=i-1;
-
-            p4x=j+1;
-            p4y=i;
-
-            p5x=j+1;
-            p5y=i+1;
-
-            p6x=j;
-            p6y=i+1;
-
-            p7x=j-1;
-            p7y=i+1;
-
-
-            p8x=j-1;
-            p8y=i;
-
-            CvScalar s;
-            s=cvGet2D(image1,i,j);
-            double bit1=128*getBIT(image1,p1x,p1y,s.val[0]);
-            double bit2=64*getBIT(image1,p2x,p2y,s.val[0]);
-            double bit3=32*getBIT(image1,p3x,p3y,s.val[0]);
-            double bit4=16*getBIT(image1,p4x,p4y,s.val[0]);
-            double bit5=8*getBIT(image1,p5x,p5y,s.val[0]);
-            double bit6=4*getBIT(image1,p6x,p6y,s.val[0]);
-            double bit7=2*getBIT(image1,p7x,p7y,s.val[0]);
-            double bit8=1*getBIT(image1,p8x,p8y,s.val[0]);
-            CvScalar s1;
-            s1.val[0]=bit1+bit2+bit3+bit4+bit5+bit6+bit7+bit8;
-            s1.val[1]=0;
-            s1.val[2]=0;
-
-            cvSet2D(image1T,i,j,s1);
-        }
-    }
-    cvSaveImage(fullpath2,image1T);
-    cvReleaseImage( &image1);
-    cvReleaseImage( &image1T);
-}
-*/
 double LBPdiff(    IplImage* image1,    IplImage* image2)
 
 {
-    /* double weights[7][6]  =
-     {
-         {.2, .2, .2, .2, .2,.2},
-         { 1,  1.3, svn checkout https://pam-face-authentication.googlecode.com/svn/trunk/ pam-face-authentication --username rohan.anil
-    1.5,  1.5,  1.3, 1},
-         { 1,  2,  1.7, 1.7,  2, 1},
-         {.5,  1.1, 1.3,  1.3,  1.1,.5},
-         {.3,  1,  1.4,  1.4,  1,.3},
-         {.3,  1,  1.4, 1.4,  1, .3},
-         {0, .5, .5, .5, .5,0}
-     }; */
     double weights[7][4]  =
     {
         {.2, .2, .2, .2},
@@ -359,17 +134,9 @@ double LBPdiff(    IplImage* image1,    IplImage* image2)
 
 
 
-char recognize(int *userid,char* username,int* percentage,int currentUserId)
+char recognize(char* username,int currentUserId)
 {
-    //printf("started \n");
-    /*
-    char* userFile;
 
-    userFile=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+1,sizeof(char));
-    strcat(userFile,path);;
-    strcat(userFile,username);
-    strcat(userFile,imgExt);
-    */
 
     char userFile[300];
     sprintf(userFile, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
@@ -548,7 +315,7 @@ free(buffer);
 
 //   computedDistance=sqrt(computedDistance);
 
-  //  printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
+//    printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
 
 //   printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
     double thresholdEmpericalDistance=51.0;
@@ -615,7 +382,7 @@ cvReleaseImage( &img);
         login=-1;
 
 //printf("Login %d \n",login);
-  //  printf("Answer %d Percentage %e DCT \n",ans,percentage1);
+//printf("Answer %d Percentage %e DCT \n",ans,percentage1);
     system(BINDIR "/svm-predict -b 1 " SYSCONFDIR "/pam-face-authentication/testFeaturesLBP.scale " SYSCONFDIR "/pam-face-authentication/featuresLBP.scale.model " SYSCONFDIR "/pam-face-authentication/prediction");
     parseSvmPrediction(&ans,&percentage1);
 //printf("Answer %d \n",ans);
@@ -623,7 +390,6 @@ cvReleaseImage( &img);
     if (ansMatch==ans)
     {
         sum+=percentage1;
-        *userid=ans;
     }
 //printf("SUM Percent %e \n",sum);
     if (login!=-1)
@@ -636,9 +402,11 @@ cvReleaseImage( &img);
     {
         login=-1;
     }
+   // printf("Answer %d Percentage %e LBP \n",ans,percentage1);
+
+//printf("%e  RECOG RATE \n ",sum);
 
     //printf("Login %d \n",login);
-    // printf("Answer %d Percentage %e LBP \n",ans,percentage1);
 
     if (login==-1)
         return 'n';
@@ -650,222 +418,5 @@ cvReleaseImage( &img);
 
     }
 
-    /*
-        char* userFile;
-        userFile=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+1,sizeof(char));
-        char* userFileAKS;
-        userFileAKS=(char *)calloc(strlen(username) + strlen(path)+strlen(imgExt)+5,sizeof(char));
 
-        strcat(userFile,path);;
-        strcat(userFile,username);
-        strcat(userFile,imgExt);
-        strcat(userFileAKS,path);;
-        strcat(userFileAKS,username);
-        strcat(userFileAKS,"_AKS");
-        strcat(userFileAKS,imgExt);
-        int i;
-        createLBP(userFile,userFileAKS);
-        testFace = cvLoadImage(userFileAKS, CV_LOAD_IMAGE_GRAYSCALE);
-        int index, nearest;
-        char* userNameReturn;
-        if (findIndex(username)!=-1)
-        {
-            double val;
-
-            double averageValueThreshold=0;
-
-            createLBP(fileNameImage("1",username),fileNameImage("1_AKS",username));
-            createLBP(fileNameImage("2",username),fileNameImage("2_AKS",username));
-            createLBP(fileNameImage("3",username),fileNameImage("3_AKS",username));
-            createLBP(fileNameImage("4",username),fileNameImage("4_AKS",username));
-            createLBP(fileNameImage("5",username),fileNameImage("5_AKS",username));
-            createLBP(fileNameImage("6",username),fileNameImage("6_AKS",username));
-
-            IplImage* image1=cvLoadImage(fileNameImage("1_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-            IplImage* image2=cvLoadImage(fileNameImage("2_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-            IplImage* image3=cvLoadImage(fileNameImage("3_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-            IplImage* image4=cvLoadImage(fileNameImage("4_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-            IplImage* image5=cvLoadImage(fileNameImage("5_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-            IplImage* image6=cvLoadImage(fileNameImage("6_AKS",username), CV_LOAD_IMAGE_GRAYSCALE );
-
-            double valTestFace[6];
-            valTestFace[0]=LBPdiff(image1,testFace);
-            valTestFace[1]=LBPdiff(image2,testFace);
-            valTestFace[2]=LBPdiff(image3,testFace);
-            valTestFace[3]=LBPdiff(image4,testFace);
-            valTestFace[4]=LBPdiff(image5,testFace);
-            valTestFace[5]=LBPdiff(image6,testFace);
-            int m;
-            int k=-1;
-            int diff = 5000-threshold;
-            int max=diff*2;
-            int count=0;
-            for (m=0;m<6;m++)
-            {
-                if (valTestFace[m]<threshold)
-                    count++;
-            }
-            double min=1000000000;
-            for (m=0;m<6;m++)
-            {
-                if (valTestFace[m]<min)
-                    min=valTestFace[m];
-            }
-            double lowest=5000-min;
-            if (lowest<0)
-                lowest=0;
-            else if (lowest>max)
-            {
-                lowest=100;
-            }
-            else
-            {
-                lowest = (lowest*100)/max;
-            }
-            (*percentage)=lowest;
-            int counttemp=0;
-            double valTestFacetemp[6];
-            valTestFacetemp[0]=faceSplitReturnVal(image1,testFace);
-            valTestFacetemp[1]=faceSplitReturnVal(image2,testFace);
-            valTestFacetemp[2]=faceSplitReturnVal(image3,testFace);
-            valTestFacetemp[3]=faceSplitReturnVal(image4,testFace);
-            valTestFacetemp[4]=faceSplitReturnVal(image5,testFace);
-            valTestFacetemp[5]=faceSplitReturnVal(image6,testFace);
-
-            for (m=0;m<6;m++)
-            {
-                if (valTestFacetemp[m]<threshold2)
-                    counttemp++;
-
-            }
-
-            if (count>1 && counttemp>1)  // add
-                return 'y';
-            cvReleaseImage( &image1);
-            cvReleaseImage( &image2);
-            cvReleaseImage( &image3);
-            cvReleaseImage( &image4);
-            cvReleaseImage( &image5);
-            cvReleaseImage( &image6);
-            cvReleaseImage( &testFace);
-
-        }
-        else
-            return 'n';
-
-    */
-}
-int findIndex(char* username)
-{
-    FILE *fileKey;
-    if ( !(fileKey = fopen( SYSCONFDIR "/pam-face-authentication/facemanager/face.key", "r+")) )
-    {
-        fprintf(stderr, "Error Occurred Accessing Key File\n");
-        return 0;
-    }
-    int numberOfFaces=0;
-    while (fscanf(fileKey,"%s %s", tempUserName, imgFilename)!=EOF )
-    {
-        ++numberOfFaces;
-    }
-    rewind(fileKey);
-    int i;
-    for (i=0;i<numberOfFaces;i++)
-    {
-        fscanf(fileKey,"%s %s", tempUserName, imgFilename);
-        if (strcmp(tempUserName,username)==0)
-            return i;
-
-    }
-
-    fclose(fileKey);
-    return -1;
-}
-
-char* findUserName(int index)
-{
-
-    FILE *fileKey;
-    if ( !(fileKey = fopen( SYSCONFDIR "/pam-face-authentication/facemanager/face.key", "r")) )
-    {
-        fprintf(stderr, "Error Occurred Accessing Key File\n");
-        return 0;
-    }
-
-    int i;
-    for (i=0;i<=index;i++)
-        fscanf(fileKey,"%s %s", tempUserName, imgFilename);
-
-    fclose(fileKey);
-    return tempUserName;
-}
-
-int findNearestNeighbor(float * projectedTestFace)
-{
-
-    double leastDistSq = DBL_MAX;
-    int i,k, index;
-
-    for ( k=0; k<numberOfTrainingFaces; k++)
-    {
-        double distSq=0;
-        for (i=0; i<numberOfEigenVectors; i++)
-        {
-
-            float d_i =	projectedTestFace[i] -	projectedTrainFaceMat->data.fl[k*numberOfEigenVectors + i];
-            distSq += (d_i*d_i)/ eigenValueMatrix->data.fl[i];  // Mahalanobis
-        }
-        if (distSq < leastDistSq)
-        {
-            leastDistSq = distSq;
-            index = k;
-        }
-    }
-
-    return index;
-}
-
-
-
-double findDifference(float * projectedTestFace,int indexFace)
-{
-    int i,k, index;
-    k=indexFace;
-    double distSq=0;
-    for (i=0; i<numberOfEigenVectors; i++)
-    {
-        float d_i =	projectedTestFace[i] -	projectedTrainFaceMat->data.fl[k*numberOfEigenVectors + i];
-        distSq += (d_i*d_i)/ eigenValueMatrix->data.fl[i];
-    }
-    return distSq;
-}
-
-int loadTrainingData()
-{
-    CvFileStorage * fileStorage;
-    int i;
-
-    // create a file-storage interface
-    fileStorage = cvOpenFileStorage(  SYSCONFDIR "/pam-face-authentication/facedata.xml", 0, CV_STORAGE_READ );
-    if ( !fileStorage )
-    {
-        fprintf(stderr, "Can't open facedata.xml\n");
-        return 0;
-    }
-
-    numberOfEigenVectors = cvReadIntByName(fileStorage, 0, "numberOfEigenVectors", 0);
-    numberOfTrainingFaces = cvReadIntByName(fileStorage, 0, "numberOfTrainingFaces", 0);
-    eigenValueMatrix  = (CvMat *)cvReadByName(fileStorage, 0, "eigenValueMatrix", 0);
-    projectedTrainFaceMat = (CvMat *)cvReadByName(fileStorage, 0, "projectedTrainFaceMat", 0);
-    averageTrainingImage = (IplImage *)cvReadByName(fileStorage, 0, "avgTrainImg", 0);
-    eigenVectArr = (IplImage **)cvAlloc(numberOfTrainingFaces*sizeof(IplImage *));
-    for (i=0; i<numberOfEigenVectors; i++)
-    {
-        char varname[200];
-        sprintf( varname, "eigenVect_%d", i );
-        eigenVectArr[i] = (IplImage *)cvReadByName(fileStorage, 0, varname, 0);
-    }
-    cvReleaseFileStorage( &fileStorage );
-
-    return 1;
 }

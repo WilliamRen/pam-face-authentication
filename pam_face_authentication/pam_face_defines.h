@@ -29,15 +29,3 @@
 #define IMAGE_WIDTH 320
 #define IMAGE_HEIGHT 240
 
-extern char *HAAR_CASCADE_FACE;
-extern char *HAAR_CASCADE_EYE;
-extern char *HAAR_CASCADE_NOSE;
-extern char *path;
-extern char *imgPath;
-extern char *imgExt;
-extern char *GTK_FACE_AUTHENTICATE;
-extern char *XAUTH_EXTRACT_FILE;
-extern char *XAUTHDISPLAY_EXTRACT_FILE;
-extern char *XML_GTK_BUILDER_FACE_MANAGER;
-extern char *XML_GTK_BUILDER_FACE_AUTHENTICATE;
-extern char *GTK_FACE_MANAGER_KEY;
