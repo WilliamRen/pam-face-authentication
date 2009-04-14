@@ -408,7 +408,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     intialize();
     allocateMemory();
-    sprintf(fullPath, SYSCONFDIR "/pam-face-authentication/%s.pgm",username);
+    sprintf(fullPath, SYSCONFDIR "/pam-face-authentication/%s.jpg",username);
     remove(fullPath);
 
     pts[0]=cvPoint(0,0);
