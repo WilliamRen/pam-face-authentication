@@ -140,10 +140,11 @@ char recognize(char* username,int currentUserId)
 
     char userFile[300];
     sprintf(userFile, SYSCONFDIR "/pam-face-authentication/%s.jpg",username);
-  IplImage * img = cvLoadImage(userFile,0);
-   //IplImage * img = cvLoadImage("/home/darksid3hack0r/Desktop/root.jpg",0);
+ IplImage * img = cvLoadImage(userFile,0);
+  //IplImage * img = cvLoadImage("/home/darksid3hack0r/Desktop/root.pgm",0);
     //  printf("%s \n",userFile);
-
+if(img==NULL)
+return 'n';
     char temp[200];
     char featuresConfig[300];
 
@@ -315,10 +316,10 @@ free(buffer);
 
 //   computedDistance=sqrt(computedDistance);
 
-//    printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
+//   printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
 
 //   printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
-    double thresholdEmpericalDistance=51.0;
+    double thresholdEmpericalDistance=64.0;
     if (distanceThreshold1<thresholdEmpericalDistance && distanceThreshold1!=0)
     distanceThreshold1=thresholdEmpericalDistance;
 
@@ -345,7 +346,6 @@ free(featuresAverage2);
  free(featuresAverage3);
 cvReleaseImage( &img);
     if (flag==1)
-
         return 'n';
 
     //printf(" \n 1testing");
@@ -367,10 +367,13 @@ cvReleaseImage( &img);
     int login=1;
     double percentage1;
     int num=parseSvmPrediction(&ans,&percentage1);
-    double cutoff=0;
-    cutoff=70 + (double)(20/(num));
-    cutoff/=100;
-    //printf("%e \n",cutoff);
+    double cutoffLBP=0;
+    cutoffLBP=73 + (double)(20/(num));
+    cutoffLBP/=100;
+    double cutoffDCT=0;
+    cutoffDCT=60 + (double)(10/(num));
+    cutoffDCT/=100;
+    //printf("%e \n",cutoffLBP);
 
     ansMatch=ans;
     if (ans!=currentUserId)
@@ -378,7 +381,7 @@ cvReleaseImage( &img);
     sum+=percentage1;
 //printf("Answer %d \n",ans);
 //    printf("DCT Percent %e \n",percentage1);
-    if (percentage1<cutoff)
+    if (percentage1<cutoffDCT)
         login=-1;
 
 //printf("Login %d \n",login);
@@ -394,11 +397,11 @@ cvReleaseImage( &img);
 //printf("SUM Percent %e \n",sum);
     if (login!=-1)
     {
-        if (percentage1<cutoff)
+        if (percentage1<cutoffLBP)
             login=-1;
     }
 //printf("Login %d \n",login);
-    if (sum<(2*cutoff))
+    if (sum<(cutoffDCT+cutoffLBP))
     {
         login=-1;
     }
