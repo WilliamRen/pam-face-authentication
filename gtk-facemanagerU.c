@@ -5,6 +5,7 @@
 #include <dirent.h>
 #include <assert.h>
 #include "cv.h"
+#include "highgui.h"
 #include <math.h>
 #include <float.h>
 #include <limits.h>
@@ -25,79 +26,6 @@ extern void allocateMemory();
 extern void intialize();
 extern int faceDetect(IplImage*,CvPoint *,CvPoint *);
 extern int  preprocess(IplImage*,CvPoint ,CvPoint ,IplImage*);
-IplImage *currentFrame,*currentFrameDetected =0;
-int showWhiteEffect=0;
-/*
-static gboolean expose_cb(GtkWidget * widget, GdkEventExpose * event, gpointer data)
-{
-    // printf("BLAH BLAH \n");
-    gst_x_overlay_set_xwindow_id(GST_X_OVERLAY(data), GDK_WINDOW_XID(widget->window));
-
-    unsigned char *data_photo;
-
-    GdkPixbuf *pixbufUserFace= NULL;
-    pixbufUserFace = gdk_pixbuf_new(GDK_COLORSPACE_RGB, FALSE,8,IMAGE_WIDTH,IMAGE_HEIGHT);
-GdkColormap *cmap =gdk_rgb_get_cmap();
-    gdk_pixbuf_get_from_drawable(pixbufUserFace,gtkWebcamImage->window,NULL,0,0,0,0,IMAGE_WIDTH,IMAGE_HEIGHT);
-    data_photo = gdk_pixbuf_get_pixels(pixbufUserFace);
-    IplImage *currentFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
-    IplImage *frameNew=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
-
-
-
-    int m,n;
-    for (n=0;n<IMAGE_HEIGHT;n++)
-    {
-        for (m= 0;m<IMAGE_WIDTH;m++)
-        {
-
-            CvScalar s;
-         //   printf("%d \n",data_photo[m*3 + 0+ n*IMAGE_WIDTH*3]);
-            s.val[2]=data_photo[m*3 + 0+ n*IMAGE_WIDTH*3];
-            s.val[1]=data_photo[m*3 + 1+ n*IMAGE_WIDTH*3];
-
-            s.val[0]=data_photo[m*3 + 2+ n*IMAGE_WIDTH*3];
-            cvSet2D(currentFrame,n,m,s);
-
-        }
-    }
-        cvSaveImage("/home/darksid3hack0r/abc.jpg",currentFrame);
-
-    cvCopy( currentFrame, frameNew, 0 );
- allocateMemory();
-    int k= faceDetect(currentFrame,&pLeftEye,&pRightEye);
-    if (k==1 && numberOfFaces>0)
-    {
-        numberOfFaces--;
-        IplImage *face;
-        face = cvCreateImage( cvSize(120,140),8,1);
-        int j= preprocess(frameNew,pLeftEye,pRightEye,face);
-
-        char buffer[30];
-        struct timeval tv;
-        time_t curtime;
-        gettimeofday(&tv, NULL);
-        curtime=tv.tv_sec;
-        strftime(buffer,30,"%m%d%y%H%M%S",localtime(&curtime));
-
-        char imagepath[150];
-        struct passwd *passwd;
-        passwd = getpwuid (getuid());
-        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.jpg", passwd->pw_dir,buffer,numberOfFaces+1);
-        // printf("%s \n",imagepath);
-        cvSaveImage(imagepath,face);
-        setGtkWebcamImageWhite(gtkWebcamImage);
-        intializeGtkIconView();
-
-    }
-
-    loadCVPIXBUF(gtkWebcamImage,currentFrame);
-    cvReleaseImage( &frameNew );
-    cvReleaseImage( &currentFrame );
-
-    return TRUE;
-}
-*/
 void
 on_gtkfacemanager_destroy  (GtkObject       *object,
                             gpointer         user_data)
@@ -317,90 +245,8 @@ void intializeGtkIconView()
 
 
 
-static gboolean
-cb_have_data(GstElement *element, GstBuffer * buffer, GstPad* pad, gpointer user_data)
-{
-
-    unsigned char *data_photo = (unsigned char *) GST_BUFFER_DATA(buffer);
-    IplImage *frameNew=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
-
-
-
-    int m,n;
-    for (n=0;n<IMAGE_HEIGHT;n++)
-    {
-        for (m= 0;m<IMAGE_WIDTH;m++)
-        {
-
-            CvScalar s;
-            s.val[2]=data_photo[m*3 + 0+ n*IMAGE_WIDTH*3];
-            s.val[1]=data_photo[m*3 + 1+ n*IMAGE_WIDTH*3];
-
-            s.val[0]=data_photo[m*3 + 2+ n*IMAGE_WIDTH*3];
-            cvSet2D(currentFrame,n,m,s);
-
-        }
-    }
-    cvCopy( currentFrame, frameNew, 0 );
-    allocateMemory();
-    int k= faceDetect(currentFrame,&pLeftEye,&pRightEye);
-    cvCopy( currentFrame, currentFrameDetected, 0 );
-
-    if (k==1 && numberOfFaces>0)
-    {
-        numberOfFaces--;
-        IplImage *face;
-        face = cvCreateImage( cvSize(120,140),8,1);
-        int j= preprocess(frameNew,pLeftEye,pRightEye,face);
-
-        char buffer[30];
-        struct timeval tv;
-        time_t curtime;
-        gettimeofday(&tv, NULL);
-        curtime=tv.tv_sec;
-        strftime(buffer,30,"%m%d%y%H%M%S",localtime(&curtime));
-
-        char imagepath[150];
-        struct passwd *passwd;
-        passwd = getpwuid (getuid());
-        sprintf(imagepath,"%s/.pam-face-authentication/train/%s%d.jpg", passwd->pw_dir,buffer,numberOfFaces+1);
-        // printf("%s \n",imagepath);
-        cvSaveImage(imagepath,face);
-
-        showWhiteEffect=1;
-    }
-
-    //loadCVPIXBUF(gtkWebcamImage,currentFrame);
-    cvReleaseImage( &frameNew );
-//    cvReleaseImage( &currentFrame );
-    // printf("in the loop");
-    return TRUE;
-//   cvReleaseCapture( &currentFrame );
-
-}
-
 static gboolean time_handler(GtkWidget *widget)
 {
-    //printf("timer handler \n");
-    if (showWhiteEffect==1)
-    {
-        setGtkWebcamImageWhite(gtkWebcamImage);
-        showWhiteEffect=0;
-        intializeGtkIconView();
-    }
-    else
-    {
-        if (currentFrameDetected!=NULL)
-        {
-
-            loadCVPIXBUF(gtkWebcamImage,currentFrameDetected);
-
-        }
-    }
-    return TRUE;
-}
-
-/*
     if (widget->window == NULL) return FALSE;
     orginalFrame = cvQueryFrame( capture );
     if(orginalFrame==NULL) return FALSE;
@@ -456,7 +302,8 @@ static gboolean time_handler(GtkWidget *widget)
 
     return TRUE;
 }
-*/
+
+
 void
 on_gtkAbout_clicked  (GtkButton *button,gpointer user_data)
 {
@@ -895,15 +742,7 @@ main (int argc, char *argv[])
 {
 
     intialize();
-    currentFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
-    currentFrameDetected=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
-
-    GstStateChangeReturn ret;
-    GstElement *pipeline,*filter, *src,*csp,*queue1,*fakesink;
-    gboolean link_ok;
-    GMainLoop *loop;
-    gtk_init(&argc, &argv);
-    gst_init(&argc, &argv);
+    capture = cvCaptureFromCAM(0);
 
 
     char welcomeMessage[100];
@@ -920,39 +759,13 @@ main (int argc, char *argv[])
     gtkCountFace = (GTK_WIDGET (gtk_builder_get_object (builder, "gtkCountFace")));
     intializeGtkIconView();
     gtk_label_set_label (GTK_LABEL(gtkWelcome),welcomeMessage);
-    //setGtkWebcamImageWhite(gtkWebcamImage);
-    loop = g_main_loop_new (NULL, FALSE);
+        g_timeout_add(40, (GSourceFunc) time_handler, (gpointer) window);
 
-    pipeline = gst_pipeline_new ("my_pipeline");
-    src = gst_element_factory_make ("v4l2src", NULL);
-    if (!src)
-        src = gst_element_factory_make ("v4lsrc", NULL);
-    csp = gst_element_factory_make("ffmpegcolorspace", "csp");
-    queue1 = gst_element_factory_make("queue", "queue1");
-    fakesink = gst_element_factory_make("fakesink", "fakesink");
-    gst_bin_add_many (GST_BIN (pipeline), src,csp,fakesink, NULL);
-    filter = gst_caps_new_simple("video/x-raw-rgb",
-                                 "width", G_TYPE_INT, IMAGE_WIDTH,
-                                 "height", G_TYPE_INT, IMAGE_HEIGHT,NULL);
-    if (!gst_element_link(src, csp))
-        g_print ("Failed to link one or more elements!\n");
-    link_ok=gst_element_link_filtered(csp, fakesink, filter);
-    //if (!gst_element_link(queue1, fakesink))
-    //  g_print ("Failed to link one or more elements!\n");
-
-    g_timeout_add(40, (GSourceFunc) time_handler, (gpointer) window);
-
-    g_object_set (G_OBJECT (fakesink), "signal-handoffs", TRUE, NULL);
-    g_signal_connect (fakesink, "handoff", G_CALLBACK (cb_have_data), NULL);
-    //g_signal_connect(G_OBJECT(gtkWebcamImage), "expose-event", G_CALLBACK(expose_cb), fakesink);
-    //g_object_set(G_OBJECT(fakesink), "sync", FALSE, NULL);
     gtk_builder_connect_signals (builder, NULL);
     gtk_widget_show_all (window);
 
-    ret = gst_element_set_state (pipeline, GST_STATE_PLAYING);
+
     gtk_main ();
-    gst_element_set_state (pipeline, GST_STATE_NULL);
-    gst_object_unref (pipeline);
 
     g_object_unref (G_OBJECT (builder));
     return 0;

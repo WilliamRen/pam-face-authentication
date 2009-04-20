@@ -7,6 +7,8 @@ int numberOfFaces=0;
 IplImage *frame,*orginalFrame,*frameNew, *frame_copy = 0;
 CvPoint pLeftEye;
 CvPoint pRightEye;
+CvCapture* capture;
+
 char *XML_GTK_BUILDER_FACE_MANAGER=PKGDATADIR "/gtk-facemanagerU.xml";
 
 enum
