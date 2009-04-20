@@ -319,7 +319,7 @@ free(buffer);
 //   printf( " %e %e %e $ %e %e %e \n ",computedDistance1,computedDistance2,computedDistance3,distanceThreshold1,distanceThreshold2,distanceThreshold3);
 
 //   printf("%e computed distance %e threshold of the face from the actual face class\n",computedDistance,distanceThreshold);
-    double thresholdEmpericalDistance=64.0;
+    double thresholdEmpericalDistance=60.0;
     if (distanceThreshold1<thresholdEmpericalDistance && distanceThreshold1!=0)
     distanceThreshold1=thresholdEmpericalDistance;
 
@@ -368,10 +368,10 @@ cvReleaseImage( &img);
     double percentage1;
     int num=parseSvmPrediction(&ans,&percentage1);
     double cutoffLBP=0;
-    cutoffLBP=73 + (double)(20/(num));
+    cutoffLBP=75 + (double)(20/(num));
     cutoffLBP/=100;
     double cutoffDCT=0;
-    cutoffDCT=60 + (double)(10/(num));
+    cutoffDCT=65 + (double)(20/(num));
     cutoffDCT/=100;
     //printf("%e \n",cutoffLBP);
 
