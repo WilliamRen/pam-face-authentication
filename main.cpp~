@@ -1,0 +1,46 @@
+#include <QtGui>
+#include <QApplication>
+#include "faceTrainer.h"
+#include "faceTrainerAdvSettings.h"
+#include "opencvWebcam.h"
+
+faceTrainer::faceTrainer(QWidget *parent)
+    : QMainWindow(parent)
+    {
+        ui.setupUi(this);
+	      ui.stkWg->setCurrentIndex(0);
+        connect(ui.pb_next_t2,SIGNAL(clicked()), this, SLOT(showTab3()));
+        connect(ui.pb_next_t1,SIGNAL(clicked()), this, SLOT(showTab2()));
+	connect(ui.pb_back_t2,SIGNAL(clicked()), this, SLOT(showTab1()));
+
+
+    }
+
+void faceTrainer::showTab2()
+     {
+	opencvWebcam webcam;
+      ui.stkWg->setCurrentIndex(1);
+    }
+void faceTrainer::showTab1()
+     {
+      ui.stkWg->setCurrentIndex(0);
+    }
+void faceTrainer::showTab3()
+     {
+      ui.stkWg->setCurrentIndex(2);
+    }
+
+faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent)
+    : QDialog(parent)
+    {
+        ui.setupUi(this);
+    }
+
+int main(int argc, char *argv[])
+{
+   QApplication app(argc, argv);
+    faceTrainer tab1;
+    tab1.show();
+    return app.exec();
+}
+

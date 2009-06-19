@@ -1,0 +1,15 @@
+#include "cv.h"
+#include "highgui.h"
+ class opencvWebcam
+    {
+    public:
+        opencvWebcam(void);
+	IplImage *queryFrame();
+
+    private:
+	CvCapture* capture;
+	CvMemStorage* storage;
+	CvHaarClassifierCascade* cascade;
+	CvHaarClassifierCascade* nested_cascade;
+	CvHaarClassifierCascade* nested_cascade_2;
+    };

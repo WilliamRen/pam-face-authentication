@@ -1,0 +1,45 @@
+#include "cv.h"
+#include "highgui.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <assert.h>
+#include <math.h>
+#include <float.h>
+#include <limits.h>
+#include <time.h>
+#include <ctype.h>
+#include "opencvWebcam.h"
+#include "pam_face_defines.h"
+
+
+ opencvWebcam::opencvWebcam()
+{
+	    cascade = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_FACE, 0, 0, 0 );
+	    capture = cvCaptureFromCAM(0);
+	    nested_cascade = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE, 0, 0, 0 );
+	    nested_cascade_2    = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE_2, 0, 0, 0 );
+	    storage = cvCreateMemStorage(0);
+	    cvClearMemStorage( storage );
+}
+
+IplImage *opencvWebcam::queryFrame()
+ {
+
+    IplImage * orginalFrame = cvQueryFrame( capture );
+    if(orginalFrame==NULL) return 0;
+     IplImage *frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
+    cvResize(orginalFrame,frame, CV_INTER_LINEAR);
+    if ( !frame )
+        return 0;
+        IplImage *  frame_copy = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
+    if ( frame->origin == IPL_ORIGIN_TL )
+        cvCopy( frame, frame_copy, 0 );
+    else
+        cvFlip( frame, frame_copy, 0 );
+
+	cvReleaseImage( &orginalFrame );
+	cvReleaseImage( &frame );
+   return frame_copy;
+}
+
