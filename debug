@@ -1,0 +1,5 @@
+make  all-am
+make[1]: Entering directory `/home/darksid3hack0r/Gsoc Pardus/pardus'
+/bin/sh ./libtool --tag=CXX   --mode=link g++  -g -O2   -o qt-facemanager main.o  -lpam -lpam 
+libtool: link: g++ -g -O2 -o qt-facemanager main.o  -lpam
+make[1]: Leaving directory `/home/darksid3hack0r/Gsoc Pardus/pardus'
