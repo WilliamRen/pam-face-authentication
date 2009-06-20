@@ -96,6 +96,8 @@ int detector::runDetector(IplImage * input)
     static tracker fullTracker;
     static CvPoint leftEyeP,rightEyeP;
     static CvPoint leftEyeP1,rightEyeP1;
+    static CvPoint leftEyeP2,rightEyeP2;
+    static double inAngle;
 
 
     static int lengthEye,widthEyeWindow,heightEyeWindow;
@@ -131,6 +133,15 @@ int detector::runDetector(IplImage * input)
                 leftEyeP.y=eyesInformation.LE.y;
                 rightEyeP.x=eyesInformation.RE.x;
                 rightEyeP.y=eyesInformation.RE.y;
+                leftEyeP2.x=eyesInformation.LE.x;
+                leftEyeP2.y=eyesInformation.LE.y;
+                rightEyeP2.x=eyesInformation.RE.x;
+                rightEyeP2.y=eyesInformation.RE.y;
+                    double yvalue=rightEyeP2.y-leftEyeP2.y;
+                    double xvalue=rightEyeP2.x-leftEyeP2.x;
+                   inAngle= atan(yvalue/xvalue);
+
+
 
                 leftEyeP1.x=eyesInformation.LE.x-faceInformation.LT.x;
                 leftEyeP1.y=eyesInformation.LE.y-faceInformation.LT.y-(clipFaceImage->height)/8;
@@ -177,6 +188,7 @@ int detector::runDetector(IplImage * input)
 
     }
 
+
     int newWidth,newHeight;
     if (flag==1)
     {
@@ -185,6 +197,37 @@ int detector::runDetector(IplImage * input)
     }
     if (flag==1 && newWidth>0 && newHeight>0 && prevlengthEye>0)
     {
+
+        CvMat *rotateMatrix = cvCreateMat(2, 3, CV_32FC1);
+        double yvalue= rightEyeP.y- leftEyeP.y;
+        double xvalue= rightEyeP.x-leftEyeP.x;
+        double currentAngle = atan(yvalue/xvalue)*(180/CV_PI);
+
+       currentAngle-=inAngle;
+       if(isnan(currentAngle))
+       {
+          //         printf("%e  %e ANGLEEE\n",yvalue,xvalue);
+
+       }
+       // printf("%e ANGLEEE\n",currentAngle);
+    CvPoint2D32f centre;
+        centre.x = leftEyeP.x;
+        centre.y = leftEyeP.y;
+        cv2DRotationMatrix(centre, currentAngle, 1.0, rotateMatrix);
+        IplImage *dstimg = cvCreateImage( cvSize(input->width,input->height), 8, input->nChannels );
+        cvWarpAffine(input,dstimg,rotateMatrix,CV_WARP_FILL_OUTLIERS,cvScalarAll(0));
+//cvNamedWindow("src",1);
+CvPoint rotatedRightP;
+rotatedRightP.x= floor( rightEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 0, 0) +  rightEyeP .y*CV_MAT_ELEM(*rotateMatrix, float, 0, 1) +CV_MAT_ELEM(*rotateMatrix, float, 0, 2));
+rotatedRightP.y= floor(rightEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  rightEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
+//printf("%d %d  VAAAAAAAAA\n",rotatedRightP.x,rotatedRightP.y);
+rightEyeP.x=rotatedRightP.x;
+rightEyeP.y=rotatedRightP.y;
+cvCircle(dstimg, rotatedRightP, 4, CV_RGB(128,128,128), 1, 8, 0 );
+
+//cvShowImage("src",dstimg);
+
+//cvWaitKey(1);
 
         IplImage *grayIm1 = cvCreateImage( cvSize(newWidth,newHeight), 8, 1 );
         int ly=leftEyeP.y -int(floor(((leftEyeP1.y)*newWidth)/widthEyeWindow));
@@ -199,10 +242,9 @@ int detector::runDetector(IplImage * input)
             messageIndex=3;
             return 0;
         }
-        cvSetImageROI(input,cvRect(lx,ly,newWidth,newHeight));
-        cvCvtColor( input, grayIm1, CV_BGR2GRAY );
-        cvResetImageROI(input);
-
+        cvSetImageROI(dstimg,cvRect(lx,ly,newWidth,newHeight));
+        cvCvtColor( dstimg, grayIm1, CV_BGR2GRAY );
+        cvResetImageROI(dstimg);
         IplImage *grayIm2 = cvCreateImage( cvSize(newWidth,newHeight), 8, 1 );
         double rx=rightEyeP.x -int(floor(((rightEyeP1.x)*newWidth)/widthEyeWindow));
         double ry=rightEyeP.y -int(floor(((rightEyeP1.y)*newWidth)/widthEyeWindow));
@@ -218,9 +260,9 @@ int detector::runDetector(IplImage * input)
             messageIndex=3;
             return 0;
         }
-        cvSetImageROI(input,cvRect(rx,ry,newWidth,newHeight));
-        cvCvtColor( input, grayIm2, CV_BGR2GRAY );
-        cvResetImageROI(input);
+        cvSetImageROI(dstimg,cvRect(rx,ry,newWidth,newHeight));
+        cvCvtColor( dstimg, grayIm2, CV_BGR2GRAY );
+        cvResetImageROI(dstimg);
         leftEye.trackImage(grayIm1);
         rightEye.trackImage(grayIm2);
         CvPoint temp;
@@ -246,17 +288,26 @@ int detector::runDetector(IplImage * input)
         {
             if (!(ry<0 || rx<0 || (rx+newHeight)>240 || (rx+newWidth)>320))
             {
-                if (pow((angle2-angle),2)<300 && v1<140 && v2 <144)
+                if (pow((angle2-angle),2)<300 && v1<140 && v2 <144 && lengthTemp>10)
                 {
                     messageIndex=4;
                     leftEyeP=leftEyePTemp;
                     rightEyeP=rightEyePTemp;
+                    cv2DRotationMatrix(centre, -currentAngle, 1.0, rotateMatrix);
+                    CvPoint antiRotateR,antiRotateL;
+                    antiRotateR.x= floor( rightEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 0, 0) +  rightEyeP .y*CV_MAT_ELEM(*rotateMatrix, float, 0, 1) +CV_MAT_ELEM(*rotateMatrix, float, 0, 2));
+                    antiRotateR.y= floor(rightEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  rightEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
+                    antiRotateL.x= floor( leftEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 0, 0) +  leftEyeP .y*CV_MAT_ELEM(*rotateMatrix, float, 0, 1) +CV_MAT_ELEM(*rotateMatrix, float, 0, 2));
+                    antiRotateL.y= floor(leftEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  leftEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
+leftEyeP=antiRotateL;
+rightEyeP=antiRotateR;
+
                     eyesInformation.LE.x=leftEyeP.x;
                     eyesInformation.LE.y=leftEyeP.y;
                     eyesInformation.RE.x=rightEyeP.x;
                     eyesInformation.RE.y=rightEyeP.y;
                     eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
-                    cvLine(input, eyesInformation.LE, eyesInformation.RE, cvScalar(0,255,0), 1);
+                    cvLine(input, eyesInformation.LE, eyesInformation.RE, cvScalar(0,255,0), 4);
 
                     prevlengthEye=eyesInformation.Length;
                 }

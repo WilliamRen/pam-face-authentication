@@ -45,7 +45,7 @@ void tracker::trackImage(IplImage * input)
     lastDifference1=v1;
     lastDifference2=v2;
 //if(v1>10000 && v2>10000)
-    printf("%d %d V1 V2 \n",anchorPoint.x,anchorPoint.y);
+    //printf("%d %d V1 V2 \n",anchorPoint.x,anchorPoint.y);
 
 }
 
