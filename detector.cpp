@@ -341,6 +341,7 @@ int detector::runDetector(IplImage * input)
             antiRotateL.y= floor(leftEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  leftEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
             leftEyeP=antiRotateL;
             rightEyeP=antiRotateR;
+  /*
             CvPoint centerPoint;
             centerPoint=leftEyeP;
             IplImage* eyeDetect=0;
@@ -370,7 +371,7 @@ int detector::runDetector(IplImage * input)
             rightEyeP.y=yCordinate;
             cvReleaseImage(&eyeDetect);
             cvReleaseImage(&grayInput);
-
+*/
             eyesInformation.LE.x=leftEyeP.x;
             eyesInformation.LE.y=leftEyeP.y;
             eyesInformation.RE.x=rightEyeP.x;
