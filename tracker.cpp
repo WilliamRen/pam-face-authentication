@@ -17,8 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define NUMBER_OF_GRID_POINTS 9
-#define GRID_SIDE_SIZE 3
+#define NUMBER_OF_GRID_POINTS 25
+#define GRID_SIDE_SIZE 5
 #include "cv.h"
 #include <stdio.h>
 #include "tracker.h"

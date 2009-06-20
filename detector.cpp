@@ -26,6 +26,9 @@
 #define eyeSidePad 28
 #define eyeTopPad 45
 #define eyeBottomPad 110
+
+double CenterofMass(IplImage* src,int flagXY);
+
 void rotate(double angle, float centreX, float centreY,IplImage * img,IplImage * dstimg);
 void rotatePoint(CvPoint* srcP,CvPoint* dstP,double angle,float centreX, float centreY);
 
@@ -174,50 +177,17 @@ int detector::runDetector(IplImage * input)
             }
             else
             {
-                if (flag!=1)
-                {
-                    if ((widthEyeWindow*2)==0)
-                        messageIndex=2;
-                    else
-                    {
 
-
-                        //leftEyeP1.x=floor(leftEyeP1.x*(((clipFaceImage->width)/(widthEyeWindow*2))));
-                        //leftEyeP1.y=floor(leftEyeP1.y*(((clipFaceImage->height)/(heightEyeWindow*2))));
-                        //rightEyeP1.x=floor(rightEyeP1.x*(((clipFaceImage->width)/(widthEyeWindow*2))));
-                        //rightEyeP1.y=floor(rightEyeP1.y*(((clipFaceImage->height)/(heightEyeWindow*2))));
-
-                        //widthEyeWindow=clipFaceImage->width/2;
-                        //heightEyeWindow=clipFaceImage->height;
-                        leftEyeP.x=faceInformation.LT.x +floor(leftEyeP1.x*(((clipFaceImage->width)/(widthEyeWindow*2))));
-                        leftEyeP.y=((clipFaceImage->height)/8)+faceInformation.LT.y +floor(leftEyeP1.y*(((clipFaceImage->height)/(heightEyeWindow*2))));
-                        rightEyeP.x=faceInformation.LT.x +((clipFaceImage->height)/2)+floor(rightEyeP1.x*(((clipFaceImage->width)/(widthEyeWindow*2))));
-                        rightEyeP.y=((clipFaceImage->height)/8)+faceInformation.LT.y +floor(rightEyeP1.y*(((clipFaceImage->height)/(heightEyeWindow*2))));
-
-
-                        eyesInformation.LE.x=leftEyeP.x;
-                        eyesInformation.LE.y=leftEyeP.y;
-                        eyesInformation.RE.x=rightEyeP.x;
-                        eyesInformation.RE.y=rightEyeP.y;
-                        eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
-
-                        cvLine(input, leftEyeP, rightEyeP, cvScalar(0,255,0), 10);
-                        //    eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
-
-                        //printf("OMMMMMMMMMMMYYYYYYYYGOAAAAAAAAWD");
-                        flag=1;
-
-
-                    }
-
-                }
+                messageIndex=2;
 
             }
-cvReleaseImage(&clipFaceImage);
-
+            cvReleaseImage(&clipFaceImage);
 
         }
+
+
     }
+
     else
     {
         if (flag!=1)
@@ -232,7 +202,7 @@ cvReleaseImage(&clipFaceImage);
         newWidth=  floor((prevlengthEye*widthEyeWindow)/(lengthEye));
         newHeight=  floor((prevlengthEye*heightEyeWindow)/(lengthEye));
     }
-    //printf(" %d %d  JLK      DOSHDIUHSIUDSHIUDSSIUDHISDHSIUDH \n",newHeight,newWidth);
+//printf(" %d %d  JLK      DOSHDIUHSIUDSHIUDSSIUDHISDHSIUDH \n",newHeight,newWidth);
 
     if (flag==1 && newWidth>0 && newHeight>0 && prevlengthEye>0)
     {
@@ -301,8 +271,8 @@ cvReleaseImage(&clipFaceImage);
             newHeightL=240-ly;
         }
 
-        IplImage *grayIm1 = cvCreateImage( cvSize(newWidthL,newWidthL), 8, 1 );
-        cvSetImageROI(dstimg,cvRect(lx,ly,newWidthL,newWidthL));
+        IplImage *grayIm1 = cvCreateImage( cvSize(newWidthL,newHeightL), 8, 1 );
+        cvSetImageROI(dstimg,cvRect(lx,ly,newWidthL,newHeightL));
         cvCvtColor( dstimg, grayIm1, CV_BGR2GRAY );
         cvResetImageROI(dstimg);
         int rx=rightEyeP.x -int(floor(((rightEyeP1.x)*newWidth)/widthEyeWindow));
@@ -371,11 +341,41 @@ cvReleaseImage(&clipFaceImage);
             antiRotateL.y= floor(leftEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  leftEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
             leftEyeP=antiRotateL;
             rightEyeP=antiRotateR;
+            CvPoint centerPoint;
+            centerPoint=leftEyeP;
+            IplImage* eyeDetect=0;
+
+            IplImage *grayInput = cvCreateImage( cvSize(input->width,input->height), 8, 1 );
+            cvCvtColor( input, grayInput, CV_BGR2GRAY );
+
+            cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
+            eyeDetect = cvCreateImage(cvSize(16,16),8,1);
+            cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
+            cvResetImageROI(grayInput);
+             double xCordinate,yCordinate;
+            xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
+            yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
+
+            leftEyeP.x=xCordinate;
+            leftEyeP.y=yCordinate;
+
+            centerPoint=rightEyeP;
+
+            cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
+            cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
+            cvResetImageROI(grayInput);
+            xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
+            yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
+            rightEyeP.x=xCordinate;
+            rightEyeP.y=yCordinate;
+            cvReleaseImage(&eyeDetect);
+            cvReleaseImage(&grayInput);
 
             eyesInformation.LE.x=leftEyeP.x;
             eyesInformation.LE.y=leftEyeP.y;
             eyesInformation.RE.x=rightEyeP.x;
             eyesInformation.RE.y=rightEyeP.y;
+
             eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
 
             prevlengthEye=eyesInformation.Length;
