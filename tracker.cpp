@@ -17,6 +17,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define NUMBER_OF_GRID_POINTS 9
+#define GRID_SIDE_SIZE 3
 #include "cv.h"
 #include <stdio.h>
 #include "tracker.h"
@@ -109,8 +111,8 @@ double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
             else
                 s=cvGet2D(input,i,j);
 
+            integral[i]+=(255-s.val[0]);
 
-            integral[i]+=s.val[0];
 
 
         }
@@ -134,8 +136,7 @@ double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
                 s=cvGet2D(input,j,i);
             else
                 s=cvGet2D(input,i,j);
-
-            var[i]+=pow((s.val[0]-integral[i]),2);
+            var[i]+=pow(((255-s.val[0])-integral[i]),2);
 
 
 
@@ -177,37 +178,37 @@ double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
 double tracker::gridSearch(double  scaleFactor,double translateFactor,double * updatedScaleFactor,double * updatedTranslateFactor,double *feature,double *feature1,double* featureModel,double* featureModel1,int size,double scale,double translate,int anchor)
 {
     double val;
-    double diffVal1[9];
-    double diffVal2[9];
-    int diffValRanks1[9];
-    int diffValRanks2[9];
-    int diffValRanksRev1[9];
-    int diffValRanksRev2[9];
+    double diffVal1[NUMBER_OF_GRID_POINTS];
+    double diffVal2[NUMBER_OF_GRID_POINTS];
+    int diffValRanks1[NUMBER_OF_GRID_POINTS];
+    int diffValRanks2[NUMBER_OF_GRID_POINTS];
+    int diffValRanksRev1[NUMBER_OF_GRID_POINTS];
+    int diffValRanksRev2[NUMBER_OF_GRID_POINTS];
     double px,py;
     px=scaleFactor;
     py=translateFactor;
     *(updatedScaleFactor)=px;
     *(updatedTranslateFactor)=py;
     int i,j=0;
-    for (i=0;i<3;i++)
+    for (i=0;i<GRID_SIDE_SIZE;i++)
     {
-        for (j=0;j<3;j++)
+        for (j=0;j<GRID_SIDE_SIZE;j++)
         {
             px=scaleFactor - i*scale;
             py=translateFactor + j*translate;
-            diffVal1[3*i+j]=difference(feature,featureModel,size,px,py,anchor);
-            diffVal2[3*i+j]=difference(feature1,featureModel1,size,px,py,anchor);
+            diffVal1[GRID_SIDE_SIZE*i+j]=difference(feature,featureModel,size,px,py,anchor);
+            diffVal2[GRID_SIDE_SIZE*i+j]=difference(feature1,featureModel1,size,px,py,anchor);
 
         }
     }
-    for (i=0;i<9;i++)
+    for (i=0;i<NUMBER_OF_GRID_POINTS;i++)
     {
         diffValRanks1[i]=i;
         diffValRanks2[i]=i;
     }
-    for (i=0;i<9;i++)
+    for (i=0;i<NUMBER_OF_GRID_POINTS;i++)
     {
-        for (j=0;j<8;j++)
+        for (j=0;j<(NUMBER_OF_GRID_POINTS-1);j++)
         {
             if (diffVal1[diffValRanks1[j]]>diffVal1[diffValRanks1[j+1]])
             {
@@ -225,9 +226,9 @@ double tracker::gridSearch(double  scaleFactor,double translateFactor,double * u
     }
 
 
-   for (i=0;i<9;i++)
+   for (i=0;i<NUMBER_OF_GRID_POINTS;i++)
     {
-   for (j=0;j<9;j++)
+   for (j=0;j<NUMBER_OF_GRID_POINTS;j++)
     {
     if(diffValRanks1[j]==i)
     diffValRanksRev1[i]=j;
@@ -236,15 +237,15 @@ double tracker::gridSearch(double  scaleFactor,double translateFactor,double * u
 
     }
     }
-int sumRank[9];
-     for (i=0;i<9;i++)
+int sumRank[NUMBER_OF_GRID_POINTS];
+     for (i=0;i<NUMBER_OF_GRID_POINTS;i++)
     {
-        sumRank[i]=diffValRanksRev2[i]+diffValRanksRev1[i];
+        sumRank[i]=(diffValRanksRev2[i])+ (diffValRanksRev1[i]);
     }
 
-int min=11;
+int min=NUMBER_OF_GRID_POINTS+10;
 int ind=-1;
-        for (i=0;i<9;i++)
+        for (i=0;i<NUMBER_OF_GRID_POINTS;i++)
     {
 
             if(min>sumRank[i])
@@ -254,10 +255,25 @@ int ind=-1;
 
     }
 
+    /*sumRank[ind]=NUMBER_OF_GRID_POINTS+10;
+int nextIndex,newMin;
+    newMin=NUMBER_OF_GRID_POINTS+10;
 
+        for (i=0;i<NUMBER_OF_GRID_POINTS;i++)
+    {
 
-i=ind/3;
-j=(ind) - (i*3);
+            if(newMin>sumRank[i])
+        {    newMin=sumRank[i];
+            nextIndex=i;
+        }
+
+    }
+    */
+//if(newMin==min)
+//printf("AAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAA\nAAAAAAAAAAAAAAAAAAAA\n");
+
+i=ind/GRID_SIDE_SIZE;
+j=(ind) - (i*GRID_SIDE_SIZE);
 //printf("%d %d aaaaaaaaaaaa \n",i,j);
             px=scaleFactor - i*scale;
             py=translateFactor + j*translate;
@@ -293,11 +309,11 @@ double tracker::runGridSearch(IplImage *gray,int size,int flag,double *d,double*
     feature=calculateFeature(grayNew,flag,0);
     feature1=calculateFeature(grayNew,flag,1);
 
-    double slLimitUp =1.2;
-    double tlLimidUp=-10;
-    double slLimitLw =.8;
-    double tlLimidLw=10;
-    double num=2;
+    double slLimitUp =1.1;
+    double tlLimidUp=-4;
+    double slLimitLw =.9;
+    double tlLimidLw=4;
+    double num=(GRID_SIDE_SIZE-1);
 
     double  scaleFactor=slLimitUp;
     double  translateFactor=tlLimidUp;
@@ -305,7 +321,7 @@ double tracker::runGridSearch(IplImage *gray,int size,int flag,double *d,double*
     double scale=(slLimitUp-slLimitLw)/num;
     double translate=(tlLimidLw-tlLimidUp)/num;
     int l=0;
-    for (l=0;l<10;l++)
+    for (l=0;l<6;l++)
     {
         v =  gridSearch(scaleFactor,translateFactor,&updatedScaleFactor,&updatedTranslateFactor,feature,feature1,integralTemp,integralTemp1,size,scale,translate,anchor);
 

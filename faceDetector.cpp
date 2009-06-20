@@ -112,7 +112,7 @@ void faceDetector::runFaceDetector(IplImage *input)
             //faceTracker.setModel(in);
             fp1=faceInformation.LT;
             fp2=faceInformation.RB;
-            //cvRectangle( input, faceInformation.LT, faceInformation.RB, CV_RGB(255,0,0), 3, 8, 0 );
+   //         cvRectangle( input, faceInformation.LT, faceInformation.RB, CV_RGB(255,0,0), 3, 8, 0 );
 
         }
 
