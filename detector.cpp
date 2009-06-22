@@ -23,9 +23,9 @@
 #include <stdio.h>
 #include <tracker.h>
 
-#define eyeSidePad 28
-#define eyeTopPad 45
-#define eyeBottomPad 110
+#define eyeSidePad 30
+#define eyeTopPad 55
+#define eyeBottomPad 130
 
 double CenterofMass(IplImage* src,int flagXY);
 
@@ -34,12 +34,17 @@ void rotatePoint(CvPoint* srcP,CvPoint* dstP,double angle,float centreX, float c
 
 IplImage * preprocess(IplImage * img,CvPoint plefteye,CvPoint prighteye)
 {
+
     IplImage * face= cvCreateImage( cvSize(120,140),8,3);
     IplImage* imgDest = cvCreateImage( cvSize(img->width,img->height),8,3);
     cvZero(face);
+
+
+
+
     double yvalue=prighteye.y-plefteye.y;
     double xvalue=prighteye.x-plefteye.x;
-    double ang= atan(yvalue/xvalue);
+    double ang= atan(yvalue/xvalue)*(180/CV_PI);
     double width= sqrt(pow(xvalue,2)+pow(yvalue,2));
     double ratio=sqrt(pow(xvalue,2)+pow(yvalue,2))/80;
     double sidePad=eyeSidePad*ratio;
@@ -341,37 +346,37 @@ int detector::runDetector(IplImage * input)
             antiRotateL.y= floor(leftEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  leftEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
             leftEyeP=antiRotateL;
             rightEyeP=antiRotateR;
-  /*
-            CvPoint centerPoint;
-            centerPoint=leftEyeP;
-            IplImage* eyeDetect=0;
+            /*
+                      CvPoint centerPoint;
+                      centerPoint=leftEyeP;
+                      IplImage* eyeDetect=0;
 
-            IplImage *grayInput = cvCreateImage( cvSize(input->width,input->height), 8, 1 );
-            cvCvtColor( input, grayInput, CV_BGR2GRAY );
+                      IplImage *grayInput = cvCreateImage( cvSize(input->width,input->height), 8, 1 );
+                      cvCvtColor( input, grayInput, CV_BGR2GRAY );
 
-            cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
-            eyeDetect = cvCreateImage(cvSize(16,16),8,1);
-            cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
-            cvResetImageROI(grayInput);
-             double xCordinate,yCordinate;
-            xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
-            yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
+                      cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
+                      eyeDetect = cvCreateImage(cvSize(16,16),8,1);
+                      cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
+                      cvResetImageROI(grayInput);
+                       double xCordinate,yCordinate;
+                      xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
+                      yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
 
-            leftEyeP.x=xCordinate;
-            leftEyeP.y=yCordinate;
+                      leftEyeP.x=xCordinate;
+                      leftEyeP.y=yCordinate;
 
-            centerPoint=rightEyeP;
+                      centerPoint=rightEyeP;
 
-            cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
-            cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
-            cvResetImageROI(grayInput);
-            xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
-            yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
-            rightEyeP.x=xCordinate;
-            rightEyeP.y=yCordinate;
-            cvReleaseImage(&eyeDetect);
-            cvReleaseImage(&grayInput);
-*/
+                      cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
+                      cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
+                      cvResetImageROI(grayInput);
+                      xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
+                      yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
+                      rightEyeP.x=xCordinate;
+                      rightEyeP.y=yCordinate;
+                      cvReleaseImage(&eyeDetect);
+                      cvReleaseImage(&grayInput);
+            */
             eyesInformation.LE.x=leftEyeP.x;
             eyesInformation.LE.y=leftEyeP.y;
             eyesInformation.RE.x=rightEyeP.x;

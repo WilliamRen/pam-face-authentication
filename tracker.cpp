@@ -47,7 +47,7 @@ void tracker::trackImage(IplImage * input)
     lastDifference1=v1;
     lastDifference2=v2;
 //if(v1>10000 && v2>10000)
-    //printf("%d %d V1 V2 \n",anchorPoint.x,anchorPoint.y);
+ //   printf("%e %e V1 V2 \n",lastDifference1,lastDifference2);
 
 }
 
@@ -78,7 +78,7 @@ void tracker:: setModel(IplImage * input)
 double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
 {
 
-    cvEqualizeHist( input,input);
+  cvEqualizeHist( input,input);
     //  IplImage * input =cvCreateImage( cvSize(in->width,in->height), 8, 1 );
     //cvThreshold(in,input,100,255,CV_THRESH_TRUNC);
 
@@ -111,7 +111,7 @@ double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
             else
                 s=cvGet2D(input,i,j);
 
-            integral[i]+=(255-s.val[0]);
+            integral[i]+=(s.val[0]);
 
 
 
@@ -136,7 +136,7 @@ double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
                 s=cvGet2D(input,j,i);
             else
                 s=cvGet2D(input,i,j);
-            var[i]+=pow(((255-s.val[0])-integral[i]),2);
+            var[i]+=pow(((s.val[0])-integral[i]),2);
 
 
 
@@ -279,8 +279,8 @@ j=(ind) - (i*GRID_SIDE_SIZE);
             py=translateFactor + j*translate;
     *(updatedScaleFactor)=px;
     *(updatedTranslateFactor)=py;
-
-    return min;
+double sd= diffVal1[GRID_SIDE_SIZE*i+j] + diffVal2[GRID_SIDE_SIZE*i+j];
+    return sd;
 }
 
 
@@ -368,6 +368,9 @@ double tracker::difference(double * feature,double * featureModel,int size, doub
             double val  = feature[k] + decimal*(feature[k+1]- feature[k]);
 
             diff+=pow(featureModel[i] -val,2);
+
+
+
             /*  if( (i>int(anchor - floor(.05*size))) && (i<int(anchor+ floor(.05*size))))
               {
               //    printf("true anchor \n",k);

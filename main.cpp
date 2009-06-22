@@ -65,10 +65,7 @@ faceTrainer::faceTrainer(QWidget *parent)
 void faceTrainer::timerEvent( QTimerEvent * )
 {
     IplImage * queryImage = webcam.queryFrame();
-    double t = (double)cvGetTickCount();
     newDetector.runDetector(queryImage);
-    t = (double)cvGetTickCount() - t;
-   printf( " total time = %gms\n", t/((double)cvGetTickFrequency()*1000.) );
 
 
    //double t = (double)cvGetTickCount();
