@@ -384,7 +384,7 @@ double tracker::difference(double * feature,double * featureModel,int size, doub
              if( (i>int(anchor - floor(.07*size))) && (i<int(anchor+ floor(.07*size))))
               {
               //    printf("true anchor \n",k);
-                diff+= (1.7*pow(featureModel[i] -val,2));
+                diff+= (1.3*pow(featureModel[i] -val,2));
 
 
               }
