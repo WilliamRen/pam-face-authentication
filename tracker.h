@@ -20,13 +20,16 @@ private:
     double lastImageHeight;
 
     double * calculateFeature(IplImage * input,int flag,int varint);
-    double *trackerModelFeatureX;
-    double *trackerModelFeatureY;
-    double *trackerModelFeatureX1;
-    double *trackerModelFeatureY1;
+    double *trackerModelFeatureVARIANCEX;
+    double *trackerModelFeatureVARIANCEY;
+    double *trackerModelFeatureINTEGRALX;
+    double *trackerModelFeatureINTEGRALY;
 
-    int trackerModelFeatureXSize;
-    int trackerModelFeatureYSize;
+
+
+
+    int trackerModelFeatureSizeX;
+    int trackerModelFeatureSizeY;
     double runGridSearch(IplImage *gray,int size,int flag,double *d,double* e ,double * integralTemp,double * integralTemp1,int anchor);
     double gridSearch(double  scaleFactor,double translateFactor,double * updatedScaleFactor,double * updatedTranslateFactor,double *feature,double*feature1,double* featureModel,double* featureModel1,int size,double scale,double translate,int anchor);
     double difference(double * feature,double * featureModel,int size, double px,double py,int anchor);

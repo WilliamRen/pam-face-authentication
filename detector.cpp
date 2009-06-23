@@ -80,6 +80,7 @@ detector::detector()
 
 IplImage * detector::clipFace(IplImage * inputImage)
 {
+    static CvPoint leftEye,rightEye;
     if (inputImage==0)
         return 0;
     if (checkEyeDetected()==1 && checkFaceDetected()==1)

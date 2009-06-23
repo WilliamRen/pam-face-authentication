@@ -17,17 +17,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#define NUMBER_OF_GRID_POINTS 9
-#define GRID_SIDE_SIZE 3
+#define NUMBER_OF_GRID_POINTS 25
+#define GRID_SIDE_SIZE 5
 #include "cv.h"
 #include <stdio.h>
 #include "tracker.h"
 tracker::tracker(void)
 {
-    trackerModelFeatureYSize=0;
-    trackerModelFeatureXSize=0;
-    trackerModelFeatureY= 0;
-    trackerModelFeatureX= 0;
+    trackerModelFeatureSizeY=0;
+    trackerModelFeatureSizeX=0;
+    trackerModelFeatureVARIANCEY= 0;
+    trackerModelFeatureVARIANCEX= 0;
+    trackerModelFeatureINTEGRALY= 0;
+    trackerModelFeatureINTEGRALY= 0;
     stateVariableScaleX=0;
     stateVariableTranslateX=0;
     stateVariableScaleY=0;
@@ -40,9 +42,9 @@ void tracker::trackImage(IplImage * input)
     lastImageHeight=input->height;
     lastImageWidth=input->width;
 
-    double v1=runGridSearch(input,trackerModelFeatureYSize,1,&stateVariableScaleY,&stateVariableTranslateY,trackerModelFeatureY,trackerModelFeatureY1,anchorPoint.y);
+    double v1=runGridSearch(input,trackerModelFeatureSizeY,1,&stateVariableScaleY,&stateVariableTranslateY,trackerModelFeatureVARIANCEY,trackerModelFeatureINTEGRALY,anchorPoint.y);
+    double  v2=runGridSearch(input,trackerModelFeatureSizeX,0,&stateVariableScaleX,&stateVariableTranslateX,trackerModelFeatureVARIANCEX,trackerModelFeatureINTEGRALX,anchorPoint.x);
 
-    double  v2=runGridSearch(input,trackerModelFeatureXSize,0,&stateVariableScaleX,&stateVariableTranslateX,trackerModelFeatureX,trackerModelFeatureX1,anchorPoint.x);
 
     lastDifference1=v1;
     lastDifference2=v2;
@@ -53,8 +55,8 @@ void tracker::trackImage(IplImage * input)
 
 void tracker::findPoint(CvPoint p1,CvPoint* p2)
 {
-    (*p2).x=floor((double)(stateVariableScaleX*(double)p1.x + (double)(stateVariableTranslateX))*((double)(lastImageWidth)/(double)(trackerModelFeatureXSize)));
-    (*p2).y=floor((double)(stateVariableScaleY*(double)p1.y + (double)(stateVariableTranslateY))*((double)(lastImageHeight)/(double)(trackerModelFeatureYSize)));
+    (*p2).x=floor((double)(stateVariableScaleX*(double)p1.x + (double)(stateVariableTranslateX))*((double)(lastImageWidth)/(double)(trackerModelFeatureSizeX)));
+    (*p2).y=floor((double)(stateVariableScaleY*(double)p1.y + (double)(stateVariableTranslateY))*((double)(lastImageHeight)/(double)(trackerModelFeatureSizeY)));
 }
 
 
@@ -62,18 +64,26 @@ void tracker:: setModel(IplImage * input)
 {
     if (input==0)
         return;
-    if (trackerModelFeatureY!=0)
-        delete [] trackerModelFeatureY;
-    if (trackerModelFeatureX!=0)
-        delete [] trackerModelFeatureX;
+    if (trackerModelFeatureVARIANCEY!=0)
+        delete [] trackerModelFeatureVARIANCEY;
+    if (trackerModelFeatureVARIANCEX!=0)
 
-    trackerModelFeatureYSize=input->height;
-    trackerModelFeatureXSize=input->width;
+      delete [] trackerModelFeatureVARIANCEX;
 
-    trackerModelFeatureY= calculateFeature(input,1,0);
-    trackerModelFeatureX= calculateFeature(input,0,0);       ;
-    trackerModelFeatureY1= calculateFeature(input,1,1);
-    trackerModelFeatureX1= calculateFeature(input,0,1);
+    if (trackerModelFeatureINTEGRALX!=0)
+        delete [] trackerModelFeatureINTEGRALX;
+    if (trackerModelFeatureINTEGRALY!=0)
+
+      delete [] trackerModelFeatureINTEGRALY;
+
+    trackerModelFeatureSizeY=input->height;
+    trackerModelFeatureSizeX=input->width;
+//Variance
+    trackerModelFeatureVARIANCEY= calculateFeature(input,1,0);
+    trackerModelFeatureVARIANCEX= calculateFeature(input,0,0);       ;
+//Integral
+    trackerModelFeatureINTEGRALY= calculateFeature(input,1,1);
+    trackerModelFeatureINTEGRALX= calculateFeature(input,0,1);
 }
 double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
 {
@@ -367,18 +377,19 @@ double tracker::difference(double * feature,double * featureModel,int size, doub
             double decimal =px*i + py - k;
             double val  = feature[k] + decimal*(feature[k+1]- feature[k]);
 
-            diff+=pow(featureModel[i] -val,2);
 
 
 
-            /*  if( (i>int(anchor - floor(.05*size))) && (i<int(anchor+ floor(.05*size))))
+
+             if( (i>int(anchor - floor(.07*size))) && (i<int(anchor+ floor(.07*size))))
               {
               //    printf("true anchor \n",k);
-                  diff*=1.1;
+                diff+= (1.7*pow(featureModel[i] -val,2));
+
 
               }
               else
-              diff*=.9;*/
+              diff+= (.7*pow(featureModel[i] -val,2));
 
         }
     }
