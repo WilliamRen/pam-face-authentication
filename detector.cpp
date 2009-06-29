@@ -24,8 +24,8 @@
 #include <tracker.h>
 
 #define eyeSidePad 30
-#define eyeTopPad 55
-#define eyeBottomPad 130
+#define eyeTopPad 30
+#define eyeBottomPad 120
 
 double CenterofMass(IplImage* src,int flagXY);
 
@@ -35,7 +35,7 @@ void rotatePoint(CvPoint* srcP,CvPoint* dstP,double angle,float centreX, float c
 IplImage * preprocess(IplImage * img,CvPoint plefteye,CvPoint prighteye)
 {
 
-    IplImage * face= cvCreateImage( cvSize(120,140),8,3);
+    IplImage * face= cvCreateImage( cvSize(140,150),8,3);
     IplImage* imgDest = cvCreateImage( cvSize(img->width,img->height),8,3);
     cvZero(face);
 
@@ -76,6 +76,10 @@ detector::detector()
     paintInformation.Length=0;
     paintInformation.Width=0;
     paintInformation.Height=0;
+    clippedFace=0;
+    boolClipFace=0;
+    totalFaceClipNum=0;
+    clipFaceCounter=0;
 }
 
 IplImage * detector::clipFace(IplImage * inputImage)
@@ -83,7 +87,7 @@ IplImage * detector::clipFace(IplImage * inputImage)
     static CvPoint leftEye,rightEye;
     if (inputImage==0)
         return 0;
-    if (checkEyeDetected()==1 && checkFaceDetected()==1)
+    if (checkFaceDetected()==1)
     {
         IplImage *face=preprocess(inputImage,eyesInformation.LE,eyesInformation.RE);
         return face;
@@ -386,7 +390,7 @@ int detector::runDetector(IplImage * input)
             eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
 
             prevlengthEye=eyesInformation.Length;
-            cvLine(input, eyesInformation.LE, eyesInformation.RE, cvScalar(0,255,0), 4);
+            //cvLine(input, eyesInformation.LE, eyesInformation.RE, cvScalar(0,255,0), 4);
 
         }
         cvReleaseImage(&dstimg);
@@ -394,7 +398,72 @@ int detector::runDetector(IplImage * input)
         cvReleaseImage(&grayIm2);
     }
 
+    if (checkEyeDetected()==1 && checkFaceDetected()==1 && boolClipFace==1 )
+    {
+        if (clipFaceCounter>0)
+        {
+            clippedFace[totalFaceClipNum-clipFaceCounter]=clipFace(input);
+            clipFaceCounter--;
+            messageIndex=5;
+            sprintf(messageCaptureMessage,"Varied Expression. Better Recognition. Captured %d/%d faces.",totalFaceClipNum-clipFaceCounter+1,totalFaceClipNum);
+            if(clipFaceCounter==0)
+            {
+                messageIndex=6;
+                finishedClipFaceFlag=1;
+
+            }
+            //printf("aaaaaaaaaaaaa \n");
+        }
+
+
+
+    }
+
     return 0;
+}
+int detector::finishedClipFace()
+{
+  if(totalFaceClipNum>0 && finishedClipFaceFlag==1)
+  {
+    finishedClipFaceFlag=0;
+       return 1;
+
+  }
+   else
+   return 0;
+}
+
+IplImage ** detector::returnClipedFace()
+{
+    IplImage**temp =clippedFace;
+    clippedFace=0;
+
+    return temp;
+}
+void detector::startClipFace(int num)
+{
+    clippedFace =new IplImage * [num];
+    totalFaceClipNum=num;
+    clipFaceCounter=num;
+    boolClipFace=1;
+}
+
+void detector::stopClipFace()
+{
+    totalFaceClipNum=0;
+    clipFaceCounter=0;
+ boolClipFace=0;
+finishedClipFaceFlag=0;
+    int i=0;
+    for (i=0;i<totalFaceClipNum;i++)
+    {
+        if (clippedFace[i]!=0)
+            cvReleaseImage(&clippedFace[i]);
+    }
+    if (clippedFace!=0)
+        delete [] clippedFace;
+
+
 }
 int detector::detectorSuccessful()
 {
@@ -410,6 +479,7 @@ char * detector::queryMessage()
     char *message2="Unable to Detect Your Face.";
     char *message3="Tracker lost, trying to reinitialize.";
     char *message4="Tracking in progress.";
+    char *message6="TCapturing Image Finished.";
 
     if (messageIndex==-1)
         return 0;
@@ -423,6 +493,10 @@ char * detector::queryMessage()
         return message3;
     else if (messageIndex==4)
         return message4;
+    else if (messageIndex==5)
+    return messageCaptureMessage;
+    else if (messageIndex==6)
+    return message6;
 }
 
 

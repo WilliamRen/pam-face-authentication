@@ -39,12 +39,13 @@ eyesDetector::eyesDetector()
     eyesInformation.LE =cvPoint(0,0);
     eyesInformation.RE =cvPoint(0,0);
     eyesInformation.Length =0;
+	eyesCascadeTrue=0;
 
 
 }
 int eyesDetector::checkEyeDetected()
 {
-    if (eyesInformation.Length!=0)
+    if (eyesCascadeTrue==1)
     {
         return 1;
     }
@@ -58,7 +59,7 @@ int eyesDetector::checkEyeDetected()
 void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint LT)
 
 {
-
+eyesCascadeTrue=0;
     //static int countR;
     //static CvPoint leftEyeP,rightEyeP;
     eyesInformation.LE =cvPoint(0,0);
@@ -99,15 +100,15 @@ void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint
             center.x = cvRound((LT.x+ nr->x + nr->width*0.5)*scale);
             center.y = cvRound((LT.y + (input->height)/8+nr->y + nr->height*0.5)*scale);
 
-            if ((center.x-4)>0 && (center.x-4)<(IMAGE_WIDTH-8) && (center.y-4)>0  && (center.y-4)<(IMAGE_HEIGHT-8))
+            if ((center.x-8)>0 && (center.x-8)<(IMAGE_WIDTH-16) && (center.y-8)>0  && (center.y-8)<(IMAGE_HEIGHT-16))
             {
-                cvSetImageROI(gray_fullimage,cvRect(center.x-4,center.y-4,8,8));
-                IplImage* eyeDetect = cvCreateImage(cvSize(8,8),8,1);
+                cvSetImageROI(gray_fullimage,cvRect(center.x-8,center.y-8,16,16));
+                IplImage* eyeDetect = cvCreateImage(cvSize(16,16),8,1);
                 cvResize( gray_fullimage,eyeDetect, CV_INTER_LINEAR ) ;
                 cvResetImageROI(gray_fullimage);
 
-                double xCordinate=(center.x-4+CenterofMass(eyeDetect,0))*scale;
-                double yCordinate=(center.y-4+CenterofMass(eyeDetect,1))*scale;
+                double xCordinate=(center.x-8+CenterofMass(eyeDetect,0))*scale;
+                double yCordinate=(center.y-8+CenterofMass(eyeDetect,1))*scale;
 
                 cvReleaseImage( &eyeDetect );
                 if (center.x<cvRound((LT.x + input->width*0.5)*scale))
@@ -136,7 +137,7 @@ void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint
         if (leftT==1 && rightT==1)
         {
         eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
-
+eyesCascadeTrue=1;
         }
 
     }

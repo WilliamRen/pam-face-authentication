@@ -54,7 +54,7 @@ PROGRAMS = $(bin_PROGRAMS)
 am_qt_facemanager_OBJECTS = main.$(OBJEXT) qrc_graphics.$(OBJEXT) \
 	opencvWebcam.$(OBJEXT) detector.$(OBJEXT) \
 	faceDetector.$(OBJEXT) eyesDetector.$(OBJEXT) \
-	tracker.$(OBJEXT) utils.$(OBJEXT)
+	tracker.$(OBJEXT) verifier.$(OBJEXT) utils.$(OBJEXT)
 nodist_qt_facemanager_OBJECTS = moc_faceTrainer.$(OBJEXT) \
 	moc_faceTrainerAdvSettings.$(OBJEXT)
 qt_facemanager_OBJECTS = $(am_qt_facemanager_OBJECTS) \
@@ -248,6 +248,8 @@ qt_facemanager_SOURCES = ui_faceTrainerAdvSettings.h \
 			eyesDetector.h \
 			tracker.cpp \
 			tracker.h \
+            verifier.cpp \
+			verifier.h \
 			utils.cpp \
 			opencvWebcam.h \
 			faceTrainer.h \
@@ -369,6 +371,7 @@ include ./$(DEPDIR)/opencvWebcam.Po
 include ./$(DEPDIR)/qrc_graphics.Po
 include ./$(DEPDIR)/tracker.Po
 include ./$(DEPDIR)/utils.Po
+include ./$(DEPDIR)/verifier.Po
 
 .cpp.o:
 	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<

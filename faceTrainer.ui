@@ -35,8 +35,8 @@
    <widget class="QStackedWidget" name="stkWg">
     <property name="geometry">
      <rect>
-      <x>6</x>
-      <y>7</y>
+      <x>12</x>
+      <y>0</y>
       <width>746</width>
       <height>567</height>
      </rect>
@@ -581,34 +581,12 @@ p, li { white-space: pre-wrap; }
        <string>Next</string>
       </property>
      </widget>
-     <widget class="QListView" name="lv_thumbnails_3">
-      <property name="geometry">
-       <rect>
-        <x>372</x>
-        <y>111</y>
-        <width>351</width>
-        <height>291</height>
-       </rect>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>120</width>
-        <height>140</height>
-       </size>
-      </property>
-      <property name="movement">
-       <enum>QListView::Snap</enum>
-      </property>
-      <property name="flow">
-       <enum>QListView::LeftToRight</enum>
-      </property>
-     </widget>
      <widget class="QPushButton" name="pb_adv">
       <property name="geometry">
        <rect>
-        <x>562</x>
-        <y>406</y>
-        <width>161</width>
+        <x>558</x>
+        <y>399</y>
+        <width>160</width>
         <height>31</height>
        </rect>
       </property>
@@ -673,6 +651,91 @@ p, li { white-space: pre-wrap; }
         <width>320.000000000000000</width>
         <height>240.000000000000000</height>
        </rectf>
+      </property>
+     </widget>
+     <widget class="QListWidget" name="lv_thumbnails">
+      <property name="geometry">
+       <rect>
+        <x>371</x>
+        <y>104</y>
+        <width>351</width>
+        <height>289</height>
+       </rect>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="showDropIndicator" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="dragEnabled">
+       <bool>false</bool>
+      </property>
+      <property name="dragDropMode">
+       <enum>QAbstractItemView::NoDragDrop</enum>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>90</width>
+        <height>110</height>
+       </size>
+      </property>
+      <property name="movement">
+       <enum>QListView::Static</enum>
+      </property>
+      <property name="flow">
+       <enum>QListView::LeftToRight</enum>
+      </property>
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="viewMode">
+       <enum>QListView::IconMode</enum>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="pb_ds">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>373</x>
+        <y>399</y>
+        <width>180</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">font: 12pt &quot;Sans Serif&quot;;</string>
+      </property>
+      <property name="text">
+       <string>Delete Selected Item</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="button1">
+      <property name="geometry">
+       <rect>
+        <x>267</x>
+        <y>392</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>PushButton</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="but">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>398</y>
+        <width>80</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>PushButton</string>
       </property>
      </widget>
     </widget>

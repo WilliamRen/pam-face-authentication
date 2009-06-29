@@ -15,6 +15,7 @@ public:
     eyesDetector(void);
     void runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint LE);
     int checkEyeDetected();
+    int eyesCascadeTrue;
 
 
 

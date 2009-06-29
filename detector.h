@@ -19,13 +19,24 @@ struct paintDescription
     {
     private:
     int messageIndex;
+    int boolClipFace;
+    int totalFaceClipNum;
+    int clipFaceCounter;
+    int finishedClipFaceFlag;
 
     public:
+    IplImage**clippedFace;
+
+    IplImage * *returnClipedFace();
+    void startClipFace(int num);
+    void stopClipFace();
+    int finishedClipFace();
     struct paintDescription paintInformation;
     detector(void);
 	int runDetector(IplImage * input);
     char * queryMessage();
     IplImage * clipFace(IplImage * inputImage);
     int detectorSuccessful();
-
+ private:
+ char messageCaptureMessage[300];
     };

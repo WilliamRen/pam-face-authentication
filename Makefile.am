@@ -34,6 +34,8 @@ qt_facemanager_SOURCES = ui_faceTrainerAdvSettings.h \
 			eyesDetector.h \
 			tracker.cpp \
 			tracker.h \
+            verifier.cpp \
+			verifier.h \
 			utils.cpp \
 			opencvWebcam.h \
 			faceTrainer.h \

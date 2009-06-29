@@ -1,3 +1,22 @@
+/*
+    OpenCV Webcam CLASS
+    Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
+    http://code.google.com/p/pam-face-authentication/
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "cv.h"
 #include "highgui.h"
 #include <stdio.h>
@@ -11,35 +30,38 @@
 #include <ctype.h>
 #include "opencvWebcam.h"
 #include "pam_face_defines.h"
+static IplImage * orginalFrame=0;
+IplImage * frame=0;
+IplImage * frame_copy=0;
 
-
- opencvWebcam::opencvWebcam()
+opencvWebcam::opencvWebcam()
 {
-	    cascade = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_FACE, 0, 0, 0 );
-	    capture = cvCaptureFromCAM(0);
-	    nested_cascade = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE, 0, 0, 0 );
-	    nested_cascade_2    = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE_2, 0, 0, 0 );
-	    storage = cvCreateMemStorage(0);
-	    cvClearMemStorage( storage );
+      //capture = cvCreateFileCapture("fiasample.avi");
+    capture =cvCaptureFromCAM(0);
+
 }
 
 IplImage *opencvWebcam::queryFrame()
- {
+{
+    orginalFrame = cvQueryFrame( capture );
+    if (orginalFrame==NULL) return 0;
+    //return orginalFrame;
 
-    IplImage * orginalFrame = cvQueryFrame( capture );
-    if(orginalFrame==NULL) return 0;
-     IplImage *frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
+    frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
     cvResize(orginalFrame,frame, CV_INTER_LINEAR);
+
     if ( !frame )
         return 0;
-        IplImage *  frame_copy = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
+
+    frame_copy = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
     if ( frame->origin == IPL_ORIGIN_TL )
         cvCopy( frame, frame_copy, 0 );
     else
         cvFlip( frame, frame_copy, 0 );
+    cvReleaseImage(&frame);
 
-	cvReleaseImage( &orginalFrame );
-	cvReleaseImage( &frame );
-   return frame_copy;
+    return frame_copy;
+
+
 }
 
