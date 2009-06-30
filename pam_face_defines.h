@@ -1,5 +1,13 @@
 /*
-    Copyright (C) 2008 Rohan Anil (rohan.anil@gmail.com) , Alex Lau ( avengermojo@gmail.com)
+
+Rewritten
+    Google Summer of Code Program 2009
+    Mentoring Organization: pardus
+    Mentor: Onur Kucuk
+
+    Copyright (C) 2008-2009
+     Rohan Anil (rohan.anil@gmail.com) ,
+     Alex Lau ( avengermojo@gmail.com)
 
     Google Summer of Code Program 2008
     Mentoring Organization: openSUSE
@@ -28,5 +36,9 @@
 #define IMAGE_WIDTH 320
 #define IMAGE_HEIGHT 240
 
+//DEFAULT PARAMETERS FOR MACE FILTER PEAK TO SIDE LOBE RATIO
+#define MACE_FACE_DEFAULT 17
+#define MACE_EYE_DEFAULT 25
+#define MACE_INSIDE_FACE_DEFAULT 25
 
 

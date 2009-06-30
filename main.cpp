@@ -92,9 +92,9 @@ void faceTrainerAdvSettings::saveClicked()
 
 void faceTrainerAdvSettings::restoreDefaults()
 {
-    ui.sb_face->setValue(17);
-    ui.sb_eye->setValue(25);
-    ui.sb_insideFace->setValue(25);
+    ui.sb_face->setValue(MACE_FACE_DEFAULT);
+    ui.sb_eye->setValue(MACE_EYE_DEFAULT);
+    ui.sb_insideFace->setValue(MACE_INSIDE_FACE_DEFAULT);
 }
 faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent, char* configDir)
         : QDialog(parent)
@@ -124,8 +124,8 @@ faceTrainer::faceTrainer(QWidget *parent)
     connect(ui.pb_ds,SIGNAL(clicked()), this, SLOT(removeSelected()));
     connect(ui.pb_adv,SIGNAL(clicked()), this, SLOT(showAdvDialog()));
 
-    connect(ui.button1,SIGNAL(clicked()), this, SLOT(verify()));
-    connect(ui.but,SIGNAL(clicked()), this, SLOT(butClick()));
+    //connect(ui.button1,SIGNAL(clicked()), this, SLOT(verify()));
+    //connect(ui.but,SIGNAL(clicked()), this, SLOT(butClick()));
 
 
 }
@@ -135,6 +135,7 @@ void faceTrainer::showAdvDialog()
 
 }
 
+/*
 void faceTrainer::verify()
 {
 
@@ -159,11 +160,13 @@ void faceTrainer::verify()
 //newVerifier.verifyFace(queryImage);
 
 }
+
 void faceTrainer::butClick()
 {
     IplImage * queryImage = webcam.queryFrame();
     newVerifier.verifyFace(newDetector.clipFace(queryImage));
 }
+*/
 void faceTrainer::removeSelected()
 {
     QList<QListWidgetItem *>  list=ui.lv_thumbnails->selectedItems();

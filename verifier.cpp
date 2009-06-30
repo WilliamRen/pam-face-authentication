@@ -8,6 +8,8 @@
 #include <time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "pam_face_defines.h"
+
 #include <iostream>
 #include <list>
 #include <string>
@@ -67,9 +69,9 @@ verifier::verifier()
 // Default Config
 
 config  newConfig;
-newConfig.filterMaceEyePSLR=25;
-newConfig.filterMaceFacePSLR=17;
-newConfig.filterMaceInsideFacePSLR=25;
+newConfig.filterMaceEyePSLR=MACE_EYE_DEFAULT;
+newConfig.filterMaceFacePSLR=MACE_FACE_DEFAULT;
+newConfig.filterMaceInsideFacePSLR=MACE_INSIDE_FACE_DEFAULT;
 setConfig(&newConfig,configDirectory);
     }
 
