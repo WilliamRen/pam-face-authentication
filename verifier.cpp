@@ -76,6 +76,22 @@ setConfig(&newConfig,configDirectory);
     }
 
 }
+
+
+verifier::verifier(uid_t   userID)
+{
+    userStruct=getpwuid(userID);
+    sprintf(facesDirectory,"%s/.pam-face-authentication/faces", userStruct->pw_dir);
+    sprintf(modelDirectory,"%s/.pam-face-authentication/model", userStruct->pw_dir);
+    sprintf(configDirectory,"%s/.pam-face-authentication/config", userStruct->pw_dir);
+    char maceConfig[300];
+    sprintf(maceConfig,"%s/mace.xml", configDirectory);
+
+    mkdir(facesDirectory, S_IRWXU );
+    mkdir(modelDirectory, S_IRWXU );
+    mkdir(configDirectory, S_IRWXU );
+}
+
 void verifier::createMaceFilter()
 {
     cvNamedWindow("eyeRight",1);

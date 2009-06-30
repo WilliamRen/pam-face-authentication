@@ -21,11 +21,10 @@
 #include <float.h>
 #include <limits.h>
 #include "cv.h"
-#include <QtGui>
-#include "highgui.h"
 #include "pam_face_defines.h"
 #include <cxcore.h>
 #include <stdio.h>
+
 #define TOTALPIXEL 16384
 typedef struct
 {
@@ -850,36 +849,3 @@ double CenterofMass(IplImage* src,int flagXY)
 
 
 
-QImage *QImageIplImageCvt(IplImage *input)
-{
-    if (!input)
-        return 0;
-
-    QImage *image = new QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
-    QRgb value;
-    uchar* pBits         = image->bits();
-    int nBytesPerLine    = image->bytesPerLine();
-
-    int n,m;
-    for (n=0;n<IMAGE_HEIGHT;n++)
-    {
-        for (m= 0;m<IMAGE_WIDTH;m++)
-        {
-            CvScalar s;
-            s=cvGet2D(input,n,m);
-            QRgb value;
-
-            value = qRgb((uchar)s.val[2], (uchar)s.val[1], (uchar)s.val[0]);
-
-//            //printf("%d %d %d \n",(uchar)s.val[2], (uchar)s.val[1], (uchar)s.val[0]);
-            uchar * scanLine = pBits+n*nBytesPerLine;
-            ((uint *)scanLine)[m] = value;
-//image->setPixel(m, n, value);
-        }
-    }
-
-
-
-
-    return image;
-}

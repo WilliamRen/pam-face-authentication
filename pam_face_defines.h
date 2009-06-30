@@ -26,6 +26,7 @@ Rewritten
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
+
 #define IPC_KEY_IMAGE 567814
 #define IPC_KEY_STATUS 567813
 #define IMAGE_SIZE 230400

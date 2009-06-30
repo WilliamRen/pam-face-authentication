@@ -29,9 +29,9 @@ protected:
         void showTab2();
         void showTab1();
         void removeSelected();
-        void verify();
+     //   void verify();
         void showAdvDialog();
-        void butClick();
+//        void butClick();
 
 
   public slots:

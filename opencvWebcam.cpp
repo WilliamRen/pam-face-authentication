@@ -37,8 +37,16 @@ IplImage * frame_copy=0;
 opencvWebcam::opencvWebcam()
 {
   //capture = cvCreateFileCapture("ggm2.avi");
-  capture =cvCaptureFromCAM(0);
-
+  //  capture =cvCaptureFromCAM(0);
+}
+int opencvWebcam::startCamera()
+{
+  //capture = cvCreateFileCapture("ggm2.avi");
+    capture =cvCaptureFromCAM(0);
+    if(capture==0)
+    return 0;
+    else
+    return 1;
 }
 
 IplImage *opencvWebcam::queryFrame()

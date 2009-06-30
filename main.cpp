@@ -209,6 +209,8 @@ void faceTrainer::timerEvent( QTimerEvent * )
 {
     IplImage * queryImage = webcam.queryFrame();
     newDetector.runDetector(queryImage);
+    //if(newDetector.checkEyeDetected()==1)
+    //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     //this works captureClick();
     //double t = (double)cvGetTickCount();
     cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
@@ -231,10 +233,12 @@ void faceTrainer::timerEvent( QTimerEvent * )
 
 void faceTrainer::showTab2()
 {
+    if(webcam.startCamera()==1)
+    {
     ui.stkWg->setCurrentIndex(1);
     populateQList();
     startTimer( 100 );
-
+    }
 }
 
 void faceTrainer::showTab1()

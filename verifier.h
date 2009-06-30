@@ -20,7 +20,7 @@ class verifier
 {
 public:
 verifier();
-
+verifier(uid_t   userID);
 void createMaceFilter();
 //Done
 void addFaceSet(IplImage **set,int size);
