@@ -5,11 +5,6 @@
 #include <pwd.h> /* getpwdid */
 #include <time.h>
 
-typedef struct{
-int filterMaceFacePSLR;
-int filterMaceEyePSLR;
-int filterMaceInsideFacePSLR;
-}config;
 
 typedef struct {
 char **setName;
@@ -25,11 +20,6 @@ class verifier
 {
 public:
 verifier();
-//^^CONFIG LATER =)
-void setConfig(config *configuration);
-config * getConfig();
-
-//^^CONFIG LATER =)
 
 void createMaceFilter();
 //Done
@@ -43,13 +33,13 @@ setFace* getFaceSet();
 
 //TODO
 int verifyFace(IplImage *face);
-
-
-
-private:
 char facesDirectory[200];
 char modelDirectory[200];
 char configDirectory[200];
+
+
+private:
+
 char * createSetDir();
 struct passwd *userStruct;
 };

@@ -23,7 +23,6 @@
 #include "cv.h"
 #include "highgui.h"
 #include "faceTrainer.h"
-#include "faceTrainerAdvSettings.h"
 #include "pam_face_defines.h"
 #include <iostream>
 #include <list>
@@ -31,6 +30,16 @@
 #include <cctype>
 using namespace std;
 QImage *QImageIplImageCvt(IplImage *input);
+typedef struct{
+int filterMaceFacePSLR;
+int filterMaceEyePSLR;
+int filterMaceInsideFacePSLR;
+}config;
+
+void setConfig(config *configuration,char * configDirectory);
+config * getConfig(char *configDirectory);
+
+
 void faceTrainer::setIbarText(char *message)
 {
     ui.lbl_ibar->setText(message);
@@ -39,22 +48,22 @@ void faceTrainer::setIbarText(char *message)
 
 void faceTrainer:: populateQList()
 {
-ui.lv_thumbnails->clear();
-setFace* faceSetStruct =newVerifier.getFaceSet();
-int i=0;
-for(i=0;i<faceSetStruct->count;i++)
-{
-      char setName[100];
+    ui.lv_thumbnails->clear();
+    setFace* faceSetStruct =newVerifier.getFaceSet();
+    int i=0;
+    for (i=0;i<faceSetStruct->count;i++)
+    {
+        char setName[100];
         sprintf(setName,"Set %d",i+1);
         //ui.lv_thumbnails->setIconSize(QSize(60, 60));
-       QListWidgetItem *item = new QListWidgetItem(setName,ui.lv_thumbnails);
+        QListWidgetItem *item = new QListWidgetItem(setName,ui.lv_thumbnails);
         item->setIcon(QIcon(faceSetStruct->setFilePathThumbnails[i]));
-         QString qstring(faceSetStruct->setName[i]);
-      //   printf("%s \n",faceSetStruct->setName[i]);
+        QString qstring(faceSetStruct->setName[i]);
+        //   printf("%s \n",faceSetStruct->setName[i]);
         item->setData(Qt::UserRole,qstring);
 
 
-}
+    }
 
 
 }
@@ -71,9 +80,41 @@ void faceTrainer::setQImageWebcam(QImage *input)
 
 }
 
+void faceTrainerAdvSettings::saveClicked()
+{
+    config newConfig;
+    newConfig.filterMaceEyePSLR= ui.sb_eye->value();
+    newConfig.filterMaceFacePSLR= ui.sb_face->value();
+    newConfig.filterMaceInsideFacePSLR= ui.sb_insideFace->value();
+    setConfig(&newConfig,configDirectory);
+    close();
+}
+
+void faceTrainerAdvSettings::restoreDefaults()
+{
+    ui.sb_face->setValue(17);
+    ui.sb_eye->setValue(25);
+    ui.sb_insideFace->setValue(25);
+}
+faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent, char* configDir)
+        : QDialog(parent)
+{
+    configDirectory=configDir;
+    ui.setupUi(this);
+    connect(ui.pb_save,SIGNAL(clicked()), this, SLOT(saveClicked()));
+    connect(ui.pb_restore,SIGNAL(clicked()), this, SLOT(restoreDefaults()));
+
+    config* newConfig;
+    newConfig=getConfig(configDirectory);
+    ui.sb_face->setValue(newConfig->filterMaceFacePSLR);
+    ui.sb_eye->setValue(newConfig->filterMaceEyePSLR);
+    ui.sb_insideFace->setValue(newConfig->filterMaceInsideFacePSLR);
+}
+
 faceTrainer::faceTrainer(QWidget *parent)
         : QMainWindow(parent)
 {
+    newDialog= new faceTrainerAdvSettings(this,newVerifier.configDirectory);
     ui.setupUi(this);
     ui.stkWg->setCurrentIndex(0);
     connect(ui.pb_capture,SIGNAL(clicked()), this, SLOT(captureClick()));
@@ -81,30 +122,38 @@ faceTrainer::faceTrainer(QWidget *parent)
     connect(ui.pb_next_t1,SIGNAL(clicked()), this, SLOT(showTab2()));
     connect(ui.pb_back_t2,SIGNAL(clicked()), this, SLOT(showTab1()));
     connect(ui.pb_ds,SIGNAL(clicked()), this, SLOT(removeSelected()));
+    connect(ui.pb_adv,SIGNAL(clicked()), this, SLOT(showAdvDialog()));
+
     connect(ui.button1,SIGNAL(clicked()), this, SLOT(verify()));
     connect(ui.but,SIGNAL(clicked()), this, SLOT(butClick()));
 
 
 }
+void faceTrainer::showAdvDialog()
+{
+    newDialog->exec();
+
+}
+
 void faceTrainer::verify()
 {
 
     struct dirent *de=NULL;
     DIR *d=NULL;
 
-           d=opendir("/home/darksid3hack0r/train");
-        while (de = readdir(d))
+    d=opendir("/home/darksid3hack0r/train");
+    while (de = readdir(d))
+    {
+        if (!((strcmp(de->d_name, ".")==0) || (strcmp(de->d_name, "..")==0)))
         {
-            if (!((strcmp(de->d_name, ".")==0) || (strcmp(de->d_name, "..")==0)))
-            {
-                char fullPath[300];
-                sprintf(fullPath,"%s/%s","/home/darksid3hack0r/train",de->d_name);
-                IplImage *temp=cvLoadImage(fullPath,1);
-                printf("%s \n",fullPath);
-                newVerifier.verifyFace(temp);
+            char fullPath[300];
+            sprintf(fullPath,"%s/%s","/home/darksid3hack0r/train",de->d_name);
+            IplImage *temp=cvLoadImage(fullPath,1);
+            printf("%s \n",fullPath);
+            newVerifier.verifyFace(temp);
 
-            }
         }
+    }
 
 //IplImage * queryImage = webcam.queryFrame();
 //newVerifier.verifyFace(queryImage);
@@ -112,8 +161,8 @@ void faceTrainer::verify()
 }
 void faceTrainer::butClick()
 {
-IplImage * queryImage = webcam.queryFrame();
-newVerifier.verifyFace(newDetector.clipFace(queryImage));
+    IplImage * queryImage = webcam.queryFrame();
+    newVerifier.verifyFace(newDetector.clipFace(queryImage));
 }
 void faceTrainer::removeSelected()
 {
@@ -124,31 +173,31 @@ void faceTrainer::removeSelected()
     {
         QListWidgetItem *item = *i;
         QString dat=item->data(Qt::UserRole).toString();
-         char *ptr =  dat.toAscii().data();
- //      printf("%s \n",ptr);
-    newVerifier.removeFaceSet(ptr);
+        char *ptr =  dat.toAscii().data();
+//      printf("%s \n",ptr);
+        newVerifier.removeFaceSet(ptr);
 
     }
     ui.lv_thumbnails->clear();
 
-populateQList();
+    populateQList();
 }
 void faceTrainer::captureClick()
 {
 
-static int latch=0;
-if(latch==0)
-{
-    ui.pb_capture->setText("Cancel");
-    latch=1;
-newDetector.startClipFace(13);
-}
-else
-{
-    ui.pb_capture->setText("Capture");
-    latch=0;
-newDetector.stopClipFace();
-}
+    static int latch=0;
+    if (latch==0)
+    {
+        ui.pb_capture->setText("Cancel");
+        latch=1;
+        newDetector.startClipFace(13);
+    }
+    else
+    {
+        ui.pb_capture->setText("Capture");
+        latch=0;
+        newDetector.stopClipFace();
+    }
 
 
 
@@ -158,15 +207,15 @@ void faceTrainer::timerEvent( QTimerEvent * )
     IplImage * queryImage = webcam.queryFrame();
     newDetector.runDetector(queryImage);
     //this works captureClick();
-   //double t = (double)cvGetTickCount();
-       cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+    //double t = (double)cvGetTickCount();
+    cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     QImage * qm=QImageIplImageCvt(queryImage);
-    if(newDetector.finishedClipFace()==1)
+    if (newDetector.finishedClipFace()==1)
     {
-    newVerifier.addFaceSet(newDetector.returnClipedFace(),13);
-captureClick();
-populateQList();
+        newVerifier.addFaceSet(newDetector.returnClipedFace(),13);
+        captureClick();
+        populateQList();
 
     }
 
@@ -180,7 +229,7 @@ populateQList();
 void faceTrainer::showTab2()
 {
     ui.stkWg->setCurrentIndex(1);
-populateQList();
+    populateQList();
     startTimer( 100 );
 
 }
@@ -195,17 +244,13 @@ void faceTrainer::showTab3()
     ui.stkWg->setCurrentIndex(2);
 }
 
-faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent)
-        : QDialog(parent)
-{
-    ui.setupUi(this);
-}
+
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     faceTrainer tab1;
     tab1.show();
-      return app.exec();
+    return app.exec();
 }
 

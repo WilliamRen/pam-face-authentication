@@ -12,11 +12,21 @@
 #include <list>
 #include <string>
 #include <cctype>
+
 using namespace std;
+typedef struct{
+int filterMaceFacePSLR;
+int filterMaceEyePSLR;
+int filterMaceInsideFacePSLR;
+}config;
+
+void setConfig(config *configuration,char * configDirectory);
+config * getConfig(char *configDirectory);
+
+
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img);
 void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
 CvMat *computeMace(IplImage **img,int size);
-
 
 char * verifier::createSetDir()
 {
@@ -41,13 +51,13 @@ verifier::verifier()
     sprintf(facesDirectory,"%s/.pam-face-authentication/faces", userStruct->pw_dir);
     sprintf(modelDirectory,"%s/.pam-face-authentication/model", userStruct->pw_dir);
     sprintf(configDirectory,"%s/.pam-face-authentication/config", userStruct->pw_dir);
-    char maceConig[300];
-    sprintf(maceConig,"%s/mace.xml", configDirectory);
+    char maceConfig[300];
+    sprintf(maceConfig,"%s/mace.xml", configDirectory);
 
     mkdir(facesDirectory, S_IRWXU );
     mkdir(modelDirectory, S_IRWXU );
     mkdir(configDirectory, S_IRWXU );
-    FILE* fp = fopen(maceConig, "r");
+    FILE* fp = fopen(maceConfig, "r");
     if (fp)
     {
         fclose(fp);
@@ -55,12 +65,12 @@ verifier::verifier()
     else
     {
 // Default Config
-        CvFileStorage* fs ;
-        fs = cvOpenFileStorage( maceConig, 0, CV_STORAGE_WRITE );
-        cvWriteInt( fs, "faceThreshold", 17 );
-        cvWriteInt( fs, "eyeThreshold", 25 );
-        cvWriteInt( fs, "insideFaceThreshold", 25 );
-        cvReleaseFileStorage( &fs );
+
+config  newConfig;
+newConfig.filterMaceEyePSLR=25;
+newConfig.filterMaceFacePSLR=17;
+newConfig.filterMaceInsideFacePSLR=25;
+setConfig(&newConfig,configDirectory);
     }
 
 }
@@ -180,31 +190,9 @@ void verifier::removeFaceSet(char* setName)
     //remove(dirname);
 
 }
-void verifier::setConfig(config *configuration)
-{
-    char maceConig[300];
-    sprintf(maceConig,"%s/mace.xml", configDirectory);
-    CvFileStorage* fs ;
-    fs = cvOpenFileStorage( maceConig, 0, CV_STORAGE_WRITE );
-    cvWriteInt( fs, "faceThreshold", configuration->filterMaceFacePSLR );
-    cvWriteInt( fs, "eyeThreshold", configuration->filterMaceEyePSLR );
-    cvWriteInt( fs, "insideFaceThreshold", configuration->filterMaceInsideFacePSLR );
-    cvReleaseFileStorage( &fs );
-}
 
-config * verifier::getConfig()
-{
-    config * newConfig=new config;
-    char maceConig[300];
-    sprintf(maceConig,"%s/mace.xml", configDirectory);
-    CvFileStorage * fileStorage;
-    fileStorage = cvOpenFileStorage(maceConig, 0, CV_STORAGE_READ );
-    newConfig->filterMaceFacePSLR=cvReadIntByName( fileStorage, 0, "faceThreshold", 17);
-    newConfig->filterMaceEyePSLR=cvReadIntByName( fileStorage, 0, "eyeThreshold", 25);
-    newConfig->filterMaceInsideFacePSLR=cvReadIntByName( fileStorage, 0, "insideFaceThreshold", 25);
-    cvReleaseFileStorage( &fileStorage );
-    return newConfig;
-}
+
+
 
 int verifier::verifyFace(IplImage *faceMain)
 {

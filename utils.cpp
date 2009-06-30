@@ -27,6 +27,14 @@
 #include <cxcore.h>
 #include <stdio.h>
 #define TOTALPIXEL 16384
+typedef struct
+{
+    int filterMaceFacePSLR;
+    int filterMaceEyePSLR;
+    int filterMaceInsideFacePSLR;
+}config;
+
+
 
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img);
 void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
@@ -35,6 +43,31 @@ IplImage *  featureLBPSum(IplImage * img);
 int checkBit(int i);
 double getBIT(IplImage* img,double px,double py,double threshold);
 
+void setConfig(config *configuration,char * configDirectory)
+{
+    char maceConfig[300];
+    sprintf(maceConfig,"%s/mace.xml", configDirectory);
+    CvFileStorage* fs ;
+    fs = cvOpenFileStorage( maceConfig, 0, CV_STORAGE_WRITE );
+    cvWriteInt( fs, "faceThreshold", configuration->filterMaceFacePSLR );
+    cvWriteInt( fs, "eyeThreshold", configuration->filterMaceEyePSLR );
+    cvWriteInt( fs, "insideFaceThreshold", configuration->filterMaceInsideFacePSLR );
+    cvReleaseFileStorage( &fs );
+}
+
+config * getConfig(char *configDirectory)
+{
+    config * newConfig=new config;
+    char maceConig[300];
+    sprintf(maceConig,"%s/mace.xml", configDirectory);
+    CvFileStorage * fileStorage;
+    fileStorage = cvOpenFileStorage(maceConig, 0, CV_STORAGE_READ );
+    newConfig->filterMaceFacePSLR=cvReadIntByName( fileStorage, 0, "faceThreshold", 17);
+    newConfig->filterMaceEyePSLR=cvReadIntByName( fileStorage, 0, "eyeThreshold", 25);
+    newConfig->filterMaceInsideFacePSLR=cvReadIntByName( fileStorage, 0, "insideFaceThreshold", 25);
+    cvReleaseFileStorage( &fileStorage );
+    return newConfig;
+}
 int checkBit(int i)
 {
 // Well Removing patterns with bits changing consecutively  more than twice
@@ -652,19 +685,11 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img)
     double m1,M1;
     CvPoint p1,p2;
     cvMinMaxLoc(image_Re, &m1, &M1, &p1, &p2, NULL);
-    // //printf("min %e max  %e \n",m1,M1);
-    //cvScale(image_Re, image_ReV, 1.0/(M1-m1), 1.0*(-m1)/(M1-m1));
     static int count=0;
     count++;
     char a[3];
-    //printf(a,"a%d",count);
-    //cvNamedWindow((a),1);
-    //cvRectangle( image_ReV, cvPoint(44,44), cvPoint(84,84), CV_RGB(255,0,0), 3, 8, 0 );
-   // cvShowImage((a),image_ReV);
     cvScale(image_Re, image_Re, 1.0, 1.0*(-m1));
-
     cvMinMaxLoc(image_Re, &m1, &M1, &p1, &p2, NULL);
-    ////printf("min %e max  %e \n",m1,M1);
     int l=0,m=0;
     double value=0;
     double num=0;

@@ -1,4 +1,5 @@
  #include "ui_faceTrainer.h"
+ #include "faceTrainerAdvSettings.h"
 //#include "opencvWebcamThread.h"
 #include "opencvWebcam.h"
 #include "detector.h"
@@ -10,6 +11,7 @@
 
     public:
         faceTrainer(QWidget *parent = 0);
+        faceTrainerAdvSettings* newDialog;
         opencvWebcam webcam;
         detector newDetector;
         verifier newVerifier;
@@ -28,7 +30,9 @@ protected:
         void showTab1();
         void removeSelected();
         void verify();
+        void showAdvDialog();
         void butClick();
+
 
   public slots:
         void setQImageWebcam(QImage *);
