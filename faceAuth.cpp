@@ -22,6 +22,44 @@
 #include <QDialog>
 #include "faceAuth.h"
 #include "pam_face_defines.h"
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
+
+void resetFlags();
+void ipcStart();
+char *shared;
+key_t ipckey;
+int shmid;
+
+// COMMUNICATION SHARED MEMORY
+int *commAuth;
+key_t ipckeyCommAuth;
+int shmidCommAuth;
+
+void resetFlags()
+{
+    *commAuth=0;
+}
+
+void ipcStart()
+{
+    /*   IPC   */
+    ipckey =  IPC_KEY_IMAGE;
+    shmid = shmget(ipckey, IMAGE_SIZE, IPC_CREAT | 0666);
+    shared = shmat(shmid, NULL, 0);
+
+    ipckeyCommAuth = IPC_KEY_STATUS;
+    shmidCommAuth = shmget(ipckeyCommAuth, sizeof(int), IPC_CREAT | 0666);
+    commAuth = shmat(shmidCommAuth, NULL, 0);
+
+    *commAuth=0;
+    /*   IPC END  */
+}
+void faceAuth::timerEvent( QTimerEvent * )
+{
+}
 void faceAuth::authClicked()
 {
     close();
@@ -52,6 +90,9 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     faceAuth faceAuthWindow;
+    ipcStart();
+    resetFlags();
+    startTimer( 100 );
     faceAuthWindow.exec();
 //return app.exec();
 }

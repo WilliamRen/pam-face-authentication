@@ -8,6 +8,8 @@
     public:
         faceAuth(QWidget *parent = 0);
 
+protected:
+    void        timerEvent( QTimerEvent * );
 
     private:
         Ui::faceAuth ui;
