@@ -653,14 +653,14 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img)
     CvPoint p1,p2;
     cvMinMaxLoc(image_Re, &m1, &M1, &p1, &p2, NULL);
     // //printf("min %e max  %e \n",m1,M1);
-    cvScale(image_Re, image_ReV, 1.0/(M1-m1), 1.0*(-m1)/(M1-m1));
+    //cvScale(image_Re, image_ReV, 1.0/(M1-m1), 1.0*(-m1)/(M1-m1));
     static int count=0;
     count++;
     char a[3];
-    s//printf(a,"a%d",count);
-    cvNamedWindow((a),1);
-    cvRectangle( image_ReV, cvPoint(44,44), cvPoint(84,84), CV_RGB(255,0,0), 3, 8, 0 );
-    cvShowImage((a),image_ReV);
+    //printf(a,"a%d",count);
+    //cvNamedWindow((a),1);
+    //cvRectangle( image_ReV, cvPoint(44,44), cvPoint(84,84), CV_RGB(255,0,0), 3, 8, 0 );
+   // cvShowImage((a),image_ReV);
     cvScale(image_Re, image_Re, 1.0, 1.0*(-m1));
 
     cvMinMaxLoc(image_Re, &m1, &M1, &p1, &p2, NULL);

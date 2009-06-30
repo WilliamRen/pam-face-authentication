@@ -1,103 +1,160 @@
-<ui version="4.0" >
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
  <class>faceTrainerAdvSettings</class>
- <widget class="QDialog" name="faceTrainerAdvSettings" >
-  <property name="windowModality" >
+ <widget class="QDialog" name="faceTrainerAdvSettings">
+  <property name="windowModality">
    <enum>Qt::WindowModal</enum>
   </property>
-  <property name="enabled" >
+  <property name="enabled">
    <bool>true</bool>
   </property>
-  <property name="geometry" >
+  <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>390</width>
-    <height>136</height>
+    <width>195</width>
+    <height>187</height>
    </rect>
   </property>
-  <property name="minimumSize" >
+  <property name="minimumSize">
    <size>
-    <width>390</width>
-    <height>136</height>
+    <width>195</width>
+    <height>187</height>
    </size>
   </property>
-  <property name="maximumSize" >
+  <property name="maximumSize">
    <size>
-    <width>390</width>
-    <height>136</height>
+    <width>195</width>
+    <height>187</height>
    </size>
   </property>
-  <property name="windowTitle" >
+  <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <property name="styleSheet" >
-   <string notr="true" >background-color: rgb(255, 255, 255);</string>
+  <property name="styleSheet">
+   <string notr="true">background-color: rgb(255, 255, 255);</string>
   </property>
-  <widget class="QDialogButtonBox" name="buttonBox" >
-   <property name="geometry" >
+  <widget class="QDialogButtonBox" name="saveAndCancel">
+   <property name="geometry">
     <rect>
-     <x>206</x>
-     <y>88</y>
+     <x>17</x>
+     <y>146</y>
      <width>166</width>
      <height>32</height>
     </rect>
    </property>
-   <property name="orientation" >
+   <property name="orientation">
     <enum>Qt::Horizontal</enum>
    </property>
-   <property name="standardButtons" >
+   <property name="standardButtons">
     <set>QDialogButtonBox::Cancel|QDialogButtonBox::Save</set>
    </property>
   </widget>
-  <widget class="QCheckBox" name="checkBox" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label">
+   <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>50</y>
-     <width>331</width>
-     <height>24</height>
+     <x>11</x>
+     <y>6</y>
+     <width>91</width>
+     <height>16</height>
     </rect>
    </property>
-   <property name="text" >
-    <string>Use Gestures to fix "Photo Infront of the Webcam Threat"</string>
+   <property name="styleSheet">
+    <string>font: 75 12pt &quot;Sans Serif&quot;;</string>
+   </property>
+   <property name="text">
+    <string>Thresholds</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboBox" >
-   <property name="geometry" >
+  <widget class="QSpinBox" name="sb_face">
+   <property name="geometry">
     <rect>
      <x>110</x>
-     <y>13</y>
-     <width>75</width>
-     <height>27</height>
+     <y>22</y>
+     <width>51</width>
+     <height>25</height>
     </rect>
    </property>
-   <item>
-    <property name="text" >
-     <string>Low</string>
-    </property>
-   </item>
-   <item>
-    <property name="text" >
-     <string>Medium</string>
-    </property>
-   </item>
-   <item>
-    <property name="text" >
-     <string>High</string>
-    </property>
-   </item>
+   <property name="value">
+    <number>17</number>
+   </property>
   </widget>
-  <widget class="QLabel" name="label" >
-   <property name="geometry" >
+  <widget class="QLabel" name="label_2">
+   <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>20</y>
-     <width>91</width>
-     <height>18</height>
+     <x>71</x>
+     <y>27</y>
+     <width>32</width>
+     <height>16</height>
     </rect>
    </property>
-   <property name="text" >
-    <string>Level of Security</string>
+   <property name="text">
+    <string>Face</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_3">
+   <property name="geometry">
+    <rect>
+     <x>76</x>
+     <y>55</y>
+     <width>32</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Eye</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>22</x>
+     <y>83</y>
+     <width>83</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Nose &amp; Mouth</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="sb_eye">
+   <property name="geometry">
+    <rect>
+     <x>109</x>
+     <y>50</y>
+     <width>51</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>25</number>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="sb_insideFace">
+   <property name="geometry">
+    <rect>
+     <x>109</x>
+     <y>79</y>
+     <width>51</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="value">
+    <number>25</number>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pb_restore">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>112</y>
+     <width>124</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Restore Defaults</string>
    </property>
   </widget>
  </widget>

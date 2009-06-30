@@ -6,8 +6,9 @@
 #include <time.h>
 
 typedef struct{
-
-
+int filterMaceFacePSLR;
+int filterMaceEyePSLR;
+int filterMaceInsideFacePSLR;
 }config;
 
 typedef struct {
@@ -27,7 +28,9 @@ verifier();
 //^^CONFIG LATER =)
 void setConfig(config *configuration);
 config * getConfig();
+
 //^^CONFIG LATER =)
+
 void createMaceFilter();
 //Done
 void addFaceSet(IplImage **set,int size);
@@ -46,6 +49,7 @@ int verifyFace(IplImage *face);
 private:
 char facesDirectory[200];
 char modelDirectory[200];
+char configDirectory[200];
 char * createSetDir();
 struct passwd *userStruct;
 };
