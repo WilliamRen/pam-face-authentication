@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>faceAuth</class>
+ <widget class="QDialog" name="faceAuth">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>378</width>
+    <height>352</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>378</width>
+    <height>352</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>378</width>
+    <height>352</height>
+   </size>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::DefaultContextMenu</enum>
+  </property>
+  <property name="styleSheet">
+   <string>border-color: rgb(0, 0, 0);
+background-color: qlineargradient(spread:pad, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(141, 141, 141, 255), stop:0.442478 rgba(217, 217, 217, 255), stop:0.733333 rgba(255, 255, 255, 255));</string>
+  </property>
+  <widget class="QGraphicsView" name="gv_webcam">
+   <property name="geometry">
+    <rect>
+     <x>4</x>
+     <y>6</y>
+     <width>371</width>
+     <height>301</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>371</width>
+     <height>301</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>371</width>
+     <height>301</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-image: url(:/webcam.png);</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>0</number>
+   </property>
+  </widget>
+  <widget class="QGraphicsView" name="webcamPreview">
+   <property name="geometry">
+    <rect>
+     <x>25</x>
+     <y>38</y>
+     <width>320</width>
+     <height>240</height>
+    </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>320</width>
+     <height>240</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string>background-color: rgb(0, 0, 0);</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::NoFrame</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Plain</enum>
+   </property>
+   <property name="lineWidth">
+    <number>0</number>
+   </property>
+   <property name="sceneRect">
+    <rectf>
+     <x>0.000000000000000</x>
+     <y>0.000000000000000</y>
+     <width>320.000000000000000</width>
+     <height>240.000000000000000</height>
+    </rectf>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbAuth">
+   <property name="geometry">
+    <rect>
+     <x>188</x>
+     <y>302</y>
+     <width>117</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string>background-color: rgb(255, 255, 255);</string>
+   </property>
+   <property name="text">
+    <string>Authenticate</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="pbCancel">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>302</y>
+     <width>117</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string>background-color: rgb(255, 255, 255);</string>
+   </property>
+   <property name="text">
+    <string>Cancel</string>
+   </property>
+  </widget>
+ </widget>
+ <resources>
+  <include location="graphics.qrc"/>
+ </resources>
+ <connections/>
+</ui>

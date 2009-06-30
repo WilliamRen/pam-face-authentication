@@ -16,7 +16,27 @@ qrc_graphics.cpp : graphics.qrc
 	rcc -name graphics graphics.qrc -o qrc_graphics.cpp
 
 
-bin_PROGRAMS = qt-facemanager
+bin_PROGRAMS = qt-facemanager qt-faceauth
+
+qt_faceauth_LDFLAGS = -export-dynamic
+qt_faceauth_CPPFLAGS = \
+	$(QTCORE_CFLAGS) \
+	$(QTGUI_CFLAGS)
+
+
+qt_faceauth_SOURCES = ui_faceAuth.h \
+			 faceAuth.cpp \
+			faceAuth.h \
+			qrc_graphics.cpp
+
+qt_faceauth_LDADD = \
+			$(QTCORE_LIBS) \
+			$(QTGUI_LIBS)
+
+nodist_qt_faceauth_SOURCES = \
+			moc_faceAuth.cpp 
+
+
 qt_facemanager_LDFLAGS = -export-dynamic
 qt_facemanager_CPPFLAGS = \
 	$(OPENCV_CFLAGS) \
@@ -90,5 +110,5 @@ EXTRA_DIST = \
 	graphics.qrc
 
 
-CLEANFILES =$(nodist_qt_facemanager_SOURCES) ui_faceTrainerAdvSettings.h ui_faceTrainer.h qrc_graphics.cpp
+CLEANFILES =$(nodist_qt_facemanager_SOURCES) $(nodist_qt_faceauth_SOURCES) ui_faceTrainerAdvSettings.h ui_faceTrainer.h qrc_graphics.cpp
 
