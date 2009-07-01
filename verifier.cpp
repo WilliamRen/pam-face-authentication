@@ -52,12 +52,15 @@ verifier::verifier()
 {
     uid_t   userID=getuid();
     userStruct=getpwuid(getuid());
+    char init[300];
+    sprintf(init,"%s/.pam-face-authentication", userStruct->pw_dir);
+
     sprintf(facesDirectory,"%s/.pam-face-authentication/faces", userStruct->pw_dir);
     sprintf(modelDirectory,"%s/.pam-face-authentication/model", userStruct->pw_dir);
     sprintf(configDirectory,"%s/.pam-face-authentication/config", userStruct->pw_dir);
     char maceConfig[300];
     sprintf(maceConfig,"%s/mace.xml", configDirectory);
-
+    mkdir(init, S_IRWXU );
     mkdir(facesDirectory, S_IRWXU );
     mkdir(modelDirectory, S_IRWXU );
     mkdir(configDirectory, S_IRWXU );
@@ -96,7 +99,7 @@ verifier::verifier(uid_t   userID)
 
 void verifier::createMaceFilter()
 {
-    cvNamedWindow("eyeRight",1);
+    //cvNamedWindow("eyeRight",1);
 
     allFaces* temp=getFaceImagesFromAllSet();
     if (temp->count>0)
@@ -177,7 +180,7 @@ void verifier::addFaceSet(IplImage **set,int size)
     for (i=0;i<size;i++)
     {
         char filename[300];
-        sprintf(filename,"%s/%d.jpg",dirName,i);
+       // sprintf(filename,"%s/%d.jpg",dirName,i);
         cvSaveImage(filename,set[i]);
 
         cvReleaseImage(&set[i]);
@@ -286,14 +289,15 @@ return 0;
     //printf("%d PTSR of INSIDE FACE \n",v);
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
-/*    FILE* fp = fopen("/home/darksid3hack0r/value.txt", "a");
+  /*
+    FILE* fp = fopen("/home/darksid3hack0r/value.txt", "a");
+
     if (fp)
     {
         fprintf(fp,"%d %d %d \n",faceValue,eyeValue,insideFaceValue);
     }
     fclose(fp);
-
-*/
+    */
     int count=0;
     if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
         count++;

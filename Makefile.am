@@ -109,6 +109,13 @@ pam_face_authenticate_so_LDFLAGS =  -Xcompiler -shared   \
 EXTRA_DIST = \
 	graphics.qrc
 
+uidir=$(pkgdatadir)
+ui_DATA = \
+haarcascade_eye.xml \
+haarcascade_eye_tree_eyeglasses.xml \
+haarcascade_nose.xml \
+haarcascade.xml
 
-CLEANFILES =$(nodist_qt_facemanager_SOURCES) $(nodist_qt_faceauth_SOURCES) ui_faceTrainerAdvSettings.h ui_faceTrainer.h qrc_graphics.cpp
+
+CLEANFILES =$(nodist_qt_facemanager_SOURCES) $(nodist_qt_faceauth_SOURCES) ui_faceTrainerAdvSettings.h ui_faceTrainer.h ui_faceAuth.h qrc_graphics.cpp
 

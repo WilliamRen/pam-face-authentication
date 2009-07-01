@@ -134,6 +134,19 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     }
 
     pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
+
+//printf("%s Xauth\n",xauthpath);
+
+    if (argc>=1)
+    {
+        if(strcmp(argv[0],"extract_xauth")==0)
+        {
+        //     printf("No Xauth\n",xauthpath);
+        // We need to extract the Path where Xauth is stored
+        // Following Code Sets Xauthority cookie
+
+        // DISPLAY[1] Contains the value
+
     if (pamtty!=NULL&&strlen(pamtty)>0)
     {
         if (pamtty[0]==':')
@@ -145,16 +158,6 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             }
         }
     }
-//printf("%s Xauth\n",xauthpath);
-    if (xauthpath==NULL)
-    {
-        //     printf("No Xauth\n",xauthpath);
-        // We need to extract the Path where Xauth is stored
-        // Following Code Sets Xauthority cookie
-
-        // DISPLAY[1] Contains the value
-
-
 
         sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
 
@@ -208,7 +211,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             setenv("XAUTHORITY",xauthpath,-1);
         }
     }
-
+    }
     ipcStart();
     resetFlags();
 
@@ -261,7 +264,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                             //printf("True Eye");
                             if (newVerifier->verifyFace(newDetector.clipFace(queryImage))==1)
                             {
-                                //cvSaveImage("/home/darksid3hack0r/darksid3.jpg",newDetector.clipFace(queryImage));
+                               // cvSaveImage("/home/darksid3hack0r/darksid3.jpg",newDetector.clipFace(queryImage));
                                 *commAuth=STOPPED;
                                 return PAM_SUCCESS;
 
