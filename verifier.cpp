@@ -216,6 +216,7 @@ int verifier::verifyFace(IplImage *faceMain)
 {
     if (faceMain==0)
         return 0;
+
     IplImage * face= cvCreateImage( cvSize(140,150),8,faceMain->nChannels);
     cvResize( faceMain,face, CV_INTER_LINEAR ) ;
     struct dirent *de=NULL;
@@ -248,27 +249,25 @@ int verifier::verifyFace(IplImage *faceMain)
     cvResize(face, insideFace, CV_INTER_LINEAR );
     cvResetImageROI(face);
 
+config * newConfig=getConfig(configDirectory);
     char * macefilternamepath=new char[300];
     CvFileStorage * fileStorage;
     CvMat *maceFilterUser;
-
     sprintf(macefilternamepath,"%s/%s",modelDirectory,"face_mace.xml");
     fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-
-    int v;
-
-    v=peakToSideLobeRatio(maceFilterUser,face);
-    printf("%d PTSR of FACE \n",v);
-    cvReleaseFileStorage( &fileStorage );
+    int faceValue=peakToSideLobeRatio(maceFilterUser,face);
+        cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
+
 
     sprintf(macefilternamepath,"%s/%s",modelDirectory,"eye_mace.xml");
     fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
 
-    v=peakToSideLobeRatio(maceFilterUser,eye);
-    printf("%d PTSR of  EYE \n",v);
+    int eyeValue=peakToSideLobeRatio(maceFilterUser,eye);
+
+    //printf("%d PTSR of  EYE \n",v);
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
 
@@ -276,17 +275,21 @@ int verifier::verifyFace(IplImage *faceMain)
     fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
 
-    v=peakToSideLobeRatio(maceFilterUser,insideFace);
-    printf("%d PTSR of INSIDE FACE \n",v);
+    int insideFaceValue=peakToSideLobeRatio(maceFilterUser,insideFace);
+     //printf("%d PTSR of INSIDE FACE \n",v);
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
-
-
-
-
-
-    //}
-
+    int count=0;
+    if(newConfig->filterMaceInsideFacePSLR<insideFaceValue)
+    count++;
+    if(newConfig->filterMaceFacePSLR<faceValue)
+    count++;
+    if(newConfig->filterMaceEyePSLR<eyeValue)
+    count++;
+if(count>1)
+return 1;
+else
+return 0;
 
 
 }

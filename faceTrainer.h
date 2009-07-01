@@ -16,6 +16,7 @@
         detector newDetector;
         verifier newVerifier;
         void populateQList();
+        void verify();
 
     private:
         Ui::faceTrainer ui;

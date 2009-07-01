@@ -135,7 +135,7 @@ void faceTrainer::showAdvDialog()
 
 }
 
-/*
+
 void faceTrainer::verify()
 {
 
@@ -160,7 +160,7 @@ void faceTrainer::verify()
 //newVerifier.verifyFace(queryImage);
 
 }
-
+/*
 void faceTrainer::butClick()
 {
     IplImage * queryImage = webcam.queryFrame();
@@ -169,6 +169,7 @@ void faceTrainer::butClick()
 */
 void faceTrainer::removeSelected()
 {
+
     QList<QListWidgetItem *>  list=ui.lv_thumbnails->selectedItems();
     QList<QListWidgetItem *>::iterator i;
 
@@ -184,6 +185,7 @@ void faceTrainer::removeSelected()
     ui.lv_thumbnails->clear();
 
     populateQList();
+
 }
 void faceTrainer::captureClick()
 {

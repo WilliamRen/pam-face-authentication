@@ -240,18 +240,43 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     opencvWebcam webcam;
     detector newDetector;
     verifier* newVerifier=new verifier(userID);
-    webcam.startCamera();
+   if(webcam.startCamera()==0)
+    return PAM_AUTH_ERR;
+    else
+    *commAuth=STARTED;
+
     int loop=1;
-    while(loop==1)
+    while(loop==1 || *commAuth!=CANCEL)
     {
     IplImage * queryImage = webcam.queryFrame();
     newDetector.runDetector(queryImage);
     writeImageToMemory(queryImage,shared);
+    if(*commAuth==AUTHENTICATE)
+    {
+      //  printf("True Auth");
+    if(newDetector.checkEyeDetected()==1)
+    {
+
+        //printf("True Eye");
+           if(newVerifier->verifyFace(newDetector.clipFace(queryImage))==1)
+          {
+          *commAuth=STOPPED;
+            return PAM_SUCCESS;
+
+          }
+
+
+
+    }
+    }
+    if(*commAuth==CANCEL)
+    loop=0;
     }
 
-    return PAM_SUCCESS;
 
-//    return PAM_AUTH_ERR;
+ //   return PAM_SUCCESS;
+
+   return PAM_AUTH_ERR;
 }
 
 PAM_EXTERN

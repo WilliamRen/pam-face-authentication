@@ -16,4 +16,4 @@ int shmidCommAuth;
 
 // FLAGS
 //char *QT_FACE_AUTH=BINDIR "/qt-faceauth &";
-char *QT_FACE_AUTH=BINDIR "/gtk-facetracker &";
+char *QT_FACE_AUTH=BINDIR "/qt-faceauth &";

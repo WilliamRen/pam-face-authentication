@@ -60,10 +60,16 @@ void ipcStart()
 void faceAuth::timerEvent( QTimerEvent * )
 {
     static int latch=0;
+   if(*commAuth==STOPPED)
+   {
+    close();
+   }
 if(*commAuth==STARTED || latch==1)
 {
-    latch==1;
-    *commAuth=0;
+  if(latch==0)
+  *commAuth=0;
+    latch=1;
+
     QImage *image = new QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
     QRgb value;
     uchar* pBits         = image->bits();
@@ -95,7 +101,7 @@ void faceAuth::authClicked()
         ui.pbAuth->setText("Stop");
 
         latch=1;
-        *commAuth==AUTHENTICATE;
+        *commAuth=AUTHENTICATE;
     }
     else
     {
