@@ -56,25 +56,13 @@
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
+int file_exists(const char* filename);
 
 
 void resetFlags()
 {
     *commAuth=0;
 }
-
-
-int file_exists(const char* filename)
-{
-    FILE* file;
-    if (file=fopen(filename,"r"))
-    {
-        fclose(file);
-        return 1;
-    }
-    return 0;
-}
-
 
 
 void ipcStart()
@@ -240,43 +228,65 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     opencvWebcam webcam;
     detector newDetector;
     verifier* newVerifier=new verifier(userID);
-   if(webcam.startCamera()==0)
-    return PAM_AUTH_ERR;
+    if (webcam.startCamera()==0)
+        return PAM_AUTH_ERR;
     else
-    *commAuth=STARTED;
+        *commAuth=STARTED;
 
     int loop=1;
-    while(loop==1 || *commAuth!=CANCEL)
+    while (loop==1 || *commAuth!=CANCEL)
     {
-    IplImage * queryImage = webcam.queryFrame();
-    newDetector.runDetector(queryImage);
-    writeImageToMemory(queryImage,shared);
-    if(*commAuth==AUTHENTICATE)
-    {
-      //  printf("True Auth");
-    if(newDetector.checkEyeDetected()==1)
-    {
+        IplImage * queryImage = webcam.queryFrame();
+        newDetector.runDetector(queryImage);
 
-        //printf("True Eye");
-           if(newVerifier->verifyFace(newDetector.clipFace(queryImage))==1)
-          {
-          *commAuth=STOPPED;
-            return PAM_SUCCESS;
+        if (*commAuth==AUTHENTICATE)
+        {
+          // printf("True Auth \n");
+            if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>60  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
+            {
+//printf("True lenth \n");
+                if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
+                {
+                   // printf("True Inside \n");
+                    double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
+                    double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
+                    double ang= atan(yvalue/xvalue)*(180/CV_PI);
 
-          }
+                    if (pow(ang,2)<200)
+                    {
+                        //printf("True ang \n");
+                        if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
+                        {
+                            //printf("True up \n");
+                            //printf("True Eye");
+                            if (newVerifier->verifyFace(newDetector.clipFace(queryImage))==1)
+                            {
+                                //cvSaveImage("/home/darksid3hack0r/darksid3.jpg",newDetector.clipFace(queryImage));
+                                *commAuth=STOPPED;
+                                return PAM_SUCCESS;
+
+                            }
+                        }
+                    }
 
 
+
+                }
+            }
+
+        }
+
+        if (*commAuth==CANCEL)
+            loop=0;
+        cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+        writeImageToMemory(queryImage,shared);
 
     }
-    }
-    if(*commAuth==CANCEL)
-    loop=0;
-    }
 
 
- //   return PAM_SUCCESS;
+//   return PAM_SUCCESS;
 
-   return PAM_AUTH_ERR;
+    return PAM_AUTH_ERR;
 }
 
 PAM_EXTERN

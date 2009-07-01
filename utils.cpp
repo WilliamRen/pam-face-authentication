@@ -41,6 +41,22 @@ CvMat *computeMace(IplImage **img,int size);
 IplImage *  featureLBPSum(IplImage * img);
 int checkBit(int i);
 double getBIT(IplImage* img,double px,double py,double threshold);
+int file_exists(const char* filename);
+
+
+
+int file_exists(const char* filename)
+{
+    FILE* file;
+    if (file=fopen(filename,"r"))
+    {
+        fclose(file);
+        return 1;
+    }
+    return 0;
+}
+
+
 
 void setConfig(config *configuration,char * configDirectory)
 {

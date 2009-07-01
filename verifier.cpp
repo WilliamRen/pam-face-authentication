@@ -16,14 +16,16 @@
 #include <cctype>
 
 using namespace std;
-typedef struct{
-int filterMaceFacePSLR;
-int filterMaceEyePSLR;
-int filterMaceInsideFacePSLR;
+typedef struct
+{
+    int filterMaceFacePSLR;
+    int filterMaceEyePSLR;
+    int filterMaceInsideFacePSLR;
 }config;
 
 void setConfig(config *configuration,char * configDirectory);
 config * getConfig(char *configDirectory);
+int file_exists(const char* filename);
 
 
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img);
@@ -68,11 +70,11 @@ verifier::verifier()
     {
 // Default Config
 
-config  newConfig;
-newConfig.filterMaceEyePSLR=MACE_EYE_DEFAULT;
-newConfig.filterMaceFacePSLR=MACE_FACE_DEFAULT;
-newConfig.filterMaceInsideFacePSLR=MACE_INSIDE_FACE_DEFAULT;
-setConfig(&newConfig,configDirectory);
+        config  newConfig;
+        newConfig.filterMaceEyePSLR=MACE_EYE_DEFAULT;
+        newConfig.filterMaceFacePSLR=MACE_FACE_DEFAULT;
+        newConfig.filterMaceInsideFacePSLR=MACE_INSIDE_FACE_DEFAULT;
+        setConfig(&newConfig,configDirectory);
     }
 
 }
@@ -216,6 +218,11 @@ int verifier::verifyFace(IplImage *faceMain)
 {
     if (faceMain==0)
         return 0;
+char temp[300];
+sprintf(temp,"%s/face_mace.xml",modelDirectory);
+if(file_exists(temp)==0)
+return 0;
+
 
     IplImage * face= cvCreateImage( cvSize(140,150),8,faceMain->nChannels);
     cvResize( faceMain,face, CV_INTER_LINEAR ) ;
@@ -249,7 +256,7 @@ int verifier::verifyFace(IplImage *faceMain)
     cvResize(face, insideFace, CV_INTER_LINEAR );
     cvResetImageROI(face);
 
-config * newConfig=getConfig(configDirectory);
+    config * newConfig=getConfig(configDirectory);
     char * macefilternamepath=new char[300];
     CvFileStorage * fileStorage;
     CvMat *maceFilterUser;
@@ -257,7 +264,7 @@ config * newConfig=getConfig(configDirectory);
     fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
     int faceValue=peakToSideLobeRatio(maceFilterUser,face);
-        cvReleaseFileStorage( &fileStorage );
+    cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
 
 
@@ -276,20 +283,38 @@ config * newConfig=getConfig(configDirectory);
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
 
     int insideFaceValue=peakToSideLobeRatio(maceFilterUser,insideFace);
-     //printf("%d PTSR of INSIDE FACE \n",v);
+    //printf("%d PTSR of INSIDE FACE \n",v);
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
+/*    FILE* fp = fopen("/home/darksid3hack0r/value.txt", "a");
+    if (fp)
+    {
+        fprintf(fp,"%d %d %d \n",faceValue,eyeValue,insideFaceValue);
+    }
+    fclose(fp);
+
+*/
     int count=0;
-    if(newConfig->filterMaceInsideFacePSLR<insideFaceValue)
-    count++;
-    if(newConfig->filterMaceFacePSLR<faceValue)
-    count++;
-    if(newConfig->filterMaceEyePSLR<eyeValue)
-    count++;
-if(count>1)
-return 1;
-else
-return 0;
+    if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
+        count++;
+    if (newConfig->filterMaceFacePSLR<=faceValue)
+        count++;
+    if (newConfig->filterMaceEyePSLR<=eyeValue)
+        count++;
+
+    int v1=floor((newConfig->filterMaceInsideFacePSLR)*.2);
+    int v2=floor((newConfig->filterMaceEyePSLR)*.2);
+    if ((newConfig->filterMaceEyePSLR<=eyeValue) && (newConfig->filterMaceInsideFacePSLR<=insideFaceValue) )
+    {
+        if ((insideFaceValue<(newConfig->filterMaceInsideFacePSLR-v1)) ||  (eyeValue<(newConfig->filterMaceEyePSLR-v2)))
+            return 0;
+    }
+
+
+    if (count>1)
+        return 1;
+    else
+        return 0;
 
 
 }

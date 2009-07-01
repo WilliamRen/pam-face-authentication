@@ -53,6 +53,7 @@ int opencvWebcam::startCamera()
 {
   //capture = cvCreateFileCapture("ggm2.avi");
     capture =cvCaptureFromCAM(0);
+    //capture = cvCreateFileCapture("ggm2.avi");
     if(capture==0)
     return 0;
     else
