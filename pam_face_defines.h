@@ -30,6 +30,8 @@ Rewritten
 #define IPC_KEY_IMAGE 567814
 #define IPC_KEY_STATUS 567813
 #define IMAGE_SIZE 230400
+#define STARTED 21
+
 #define CANCEL 14
 #define AUTHENTICATE 7
 #define DISPLAY_ERROR 1

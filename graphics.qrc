@@ -1,7 +1,9 @@
-<RCC version="1.0">
-<qresource prefix="">
-<file>webcam.png</file>
-<file>record.png</file>
-<file>about.png</file>
-</qresource>
+<RCC>
+  <qresource>
+    <file>webcam.png</file>
+    <file>bkg.png</file>
+    <file>intro.png</file>
+    <file>record.png</file>
+    <file>about.png</file>
+  </qresource>
 </RCC>

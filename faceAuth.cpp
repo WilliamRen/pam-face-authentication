@@ -48,25 +48,70 @@ void ipcStart()
     /*   IPC   */
     ipckey =  IPC_KEY_IMAGE;
     shmid = shmget(ipckey, IMAGE_SIZE, IPC_CREAT | 0666);
-    shared = shmat(shmid, NULL, 0);
+    shared = (char *)shmat(shmid, NULL, 0);
 
     ipckeyCommAuth = IPC_KEY_STATUS;
     shmidCommAuth = shmget(ipckeyCommAuth, sizeof(int), IPC_CREAT | 0666);
-    commAuth = shmat(shmidCommAuth, NULL, 0);
+    commAuth = (int *)shmat(shmidCommAuth, NULL, 0);
 
     *commAuth=0;
     /*   IPC END  */
 }
 void faceAuth::timerEvent( QTimerEvent * )
 {
+    static int latch=0;
+if(*commAuth==STARTED || latch==1)
+{
+    latch==1;
+    *commAuth=0;
+    QImage *image = new QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
+    QRgb value;
+    uchar* pBits         = image->bits();
+    int nBytesPerLine    = image->bytesPerLine();
+
+    int n,m;
+    for (n=0;n<IMAGE_HEIGHT;n++)
+    {
+        for (m= 0;m<IMAGE_WIDTH;m++)
+        {
+
+            QRgb value;
+            value = qRgb((unsigned char)*(shared + m*3 + 2+ n*IMAGE_WIDTH*3), (unsigned char)*(shared + m*3 + 1+ n*IMAGE_WIDTH*3), (unsigned char)*(shared + m*3 + 0+ n*IMAGE_WIDTH*3));
+            uchar * scanLine = pBits+n*nBytesPerLine;
+            ((uint *)scanLine)[m] = value;
+        }
+    }
+    static QGraphicsScene * scene = new QGraphicsScene(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+    ui.webcamPreview->setScene(scene);
+    ui.webcamPreview->setBackgroundBrush(*image);
+    ui.webcamPreview->show();
+}
 }
 void faceAuth::authClicked()
 {
-    close();
+    static int latch=0;
+    if (latch==0)
+    {
+        ui.pbAuth->setText("Stop");
+
+        latch=1;
+        *commAuth==AUTHENTICATE;
+    }
+    else
+    {
+        ui.pbAuth->setText("Authenticate");
+
+        latch=0;
+        *commAuth=0;
+    }
+
+
+
 }
 
 void faceAuth::cancelClicked()
 {
+    *commAuth=CANCEL;
     close();
 }
 
@@ -74,12 +119,12 @@ faceAuth::faceAuth(QWidget *parent)
         : QDialog(parent)
 {
     ui.setupUi(this);
-Qt::WindowFlags flags;
-Qt::WindowModality modality =Qt::ApplicationModal;
-flags =Qt::SplashScreen | Qt::FramelessWindowHint;
+    Qt::WindowFlags flags;
+    Qt::WindowModality modality =Qt::ApplicationModal;
+    flags =Qt::SplashScreen | Qt::FramelessWindowHint;
 
-setWindowFlags( flags );
-setWindowModality(modality);
+    setWindowFlags( flags );
+    setWindowModality(modality);
     connect(ui.pbAuth,SIGNAL(clicked()), this, SLOT(authClicked()));
     connect(ui.pbCancel,SIGNAL(clicked()), this, SLOT(cancelClicked()));
 
@@ -92,7 +137,7 @@ int main(int argc, char *argv[])
     faceAuth faceAuthWindow;
     ipcStart();
     resetFlags();
-    startTimer( 100 );
+    faceAuthWindow.startTimer( 100 );
     faceAuthWindow.exec();
 //return app.exec();
 }
