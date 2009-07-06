@@ -27,6 +27,8 @@
 #include <sys/shm.h>
 #include <unistd.h>
 
+     faceAuth* faceAuthWindow;
+
 void resetFlags();
 void ipcStart();
 char *shared;
@@ -54,22 +56,34 @@ void ipcStart()
     shmidCommAuth = shmget(ipckeyCommAuth, sizeof(int), IPC_CREAT | 0666);
     commAuth = (int *)shmat(shmidCommAuth, NULL, 0);
 
-    *commAuth=0;
+
     /*   IPC END  */
 }
 void faceAuth::timerEvent( QTimerEvent * )
 {
+
+
+      //  faceAuthWindow.exec();
+
     static int latch=0;
-   if(*commAuth==STOPPED)
+if(*commAuth==STARTED && latch==0)
+{
+        latch=1;
+
+}
+
+  if(*commAuth==CANCEL)
    {
     close();
-   }
-if(*commAuth==STARTED || latch==1)
-{
-  if(latch==0)
-  *commAuth=0;
-    latch=1;
 
+   }
+   if(*commAuth==STOPPED)
+   {
+       latch=0;
+    close();
+   }
+if( latch==1)
+{
     QImage *image = new QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
     QRgb value;
     uchar* pBits         = image->bits();
@@ -139,12 +153,15 @@ faceAuth::faceAuth(QWidget *parent)
 
 int main(int argc, char *argv[])
 {
+
+
     QApplication app(argc, argv);
-    faceAuth faceAuthWindow;
     ipcStart();
-    resetFlags();
-    faceAuthWindow.startTimer( 100 );
-    faceAuthWindow.exec();
+    //resetFlags();
+    faceAuthWindow = new faceAuth;
+    faceAuthWindow->startTimer( 100 );
+
+   faceAuthWindow->exec();
+
 //return app.exec();
 }
-

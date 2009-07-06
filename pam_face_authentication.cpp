@@ -89,9 +89,13 @@ void writeImageToMemory(IplImage* img,char *shared)
         {
             CvScalar s;
             s=cvGet2D(img,n,m);
-            *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=(uchar)s.val[2];
-            *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=(uchar)s.val[1];
-            *(shared + m*3 + 0+ n*IMAGE_WIDTH*3)=(uchar)s.val[0];
+            int val3=(uchar)s.val[2];
+            int val2=(uchar)s.val[1];
+            int val1=(uchar)s.val[0];
+
+            *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=val3;
+            *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=val2;
+            *(shared + m*3 + 0+ n*IMAGE_WIDTH*3)=val1;
 
         }
     }
@@ -139,78 +143,86 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     if (argc>=1)
     {
-        if(strcmp(argv[0],"extract_xauth")==0)
+        if (strcmp(argv[0],"extract_xauth")==0)
         {
-        //     printf("No Xauth\n",xauthpath);
-        // We need to extract the Path where Xauth is stored
-        // Following Code Sets Xauthority cookie
 
-        // DISPLAY[1] Contains the value
 
-    if (pamtty!=NULL&&strlen(pamtty)>0)
-    {
-        if (pamtty[0]==':')
-        {
-            if (display==NULL)
+
+
+            //     printf("No Xauth\n",xauthpath);
+            // We need to extract the Path where Xauth is stored
+            // Following Code Sets Xauthority cookie
+
+            // DISPLAY[1] Contains the value
+
+            if (pamtty!=NULL&&strlen(pamtty)>0)
             {
-                display=pamtty;
-                setenv("DISPLAY",display,-1);
-            }
-        }
-    }
-
-        sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
-
-        /* if (!file_exists(X_lock))
-         {
-             return -1;
-         }
-         */
-        char str[50];
-        xlock=fopen(X_lock,"r");
-        fgets(cmdline, 300,xlock);
-        fclose(xlock);
-
-
-        char *word1;
-        word1=strtok(cmdline,"  \n");
-        sprintf(X_lock,"/proc/%s/cmdline",word1);
-
-
-        /*
-                if (!file_exists(X_lock))
+                if (pamtty[0]==':')
                 {
-                    return -1;
+                    if (display==NULL)
+                    {
+                        display=pamtty;
+                        setenv("DISPLAY",display,-1);
+                    }
                 }
-        */
-        xlock=fopen(X_lock,"r");
-        fgets (X_lock , 300 , xlock);
-        fclose(xlock);
-
-        for (j=0;j<300;j++)
-        {
-            if (X_lock[j]=='\0')
-                X_lock[j]=' ';
-
-        }
-
-
-        char *word;
-        for (word=strtok(X_lock," ");word!=NULL;word=strtok(NULL," "))
-        {
-            if (strcmp(word,"-auth")==0)
-            {
-                xauthpath=strtok(NULL," ");
-                break;
             }
-        }
+
+            sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
+
+            /* if (!file_exists(X_lock))
+             {
+                 return -1;
+             }
+             */
+            char str[50];
+            xlock=fopen(X_lock,"r");
+            fgets(cmdline, 300,xlock);
+            fclose(xlock);
 
 
-        if (file_exists(xauthpath)==1)
-        {
-            setenv("XAUTHORITY",xauthpath,-1);
+            char *word1;
+            word1=strtok(cmdline,"  \n");
+
+            sprintf(X_lock,"/proc/%s/cmdline",word1);
+
+
+            /*
+                    if (!file_exists(X_lock))
+                    {
+                        return -1;
+                    }
+            */
+            xlock=fopen(X_lock,"r");
+            fgets (X_lock , 300 , xlock);
+            fclose(xlock);
+
+            for (j=0;j<300;j++)
+            {
+                if (X_lock[j]=='\0')
+                    X_lock[j]=' ';
+
+            }
+
+
+            char *word;
+            for (word=strtok(X_lock," ");word!=NULL;word=strtok(NULL," "))
+            {
+                if (strcmp(word,"-auth")==0)
+                {
+                    xauthpath=strtok(NULL," ");
+                    break;
+                }
+            }
+
+
+            if (file_exists(xauthpath)==1)
+            {
+
+                setenv("XAUTHORITY",xauthpath,-1);
+            }
+
+
         }
-    }
     }
     ipcStart();
     resetFlags();
@@ -218,7 +230,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     char *username=(char *)calloc(strlen(user)+1,sizeof(char));
     strcpy(username,user);
 
-    system(QT_FACE_AUTH);
+
 
     struct passwd *userStruct;
     userStruct = getpwnam(username);
@@ -230,65 +242,85 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     writeImageToMemory(zeroFrame,shared);
     opencvWebcam webcam;
     detector newDetector;
+
+
+
     verifier* newVerifier=new verifier(userID);
     if (webcam.startCamera()==0)
+    {
         return PAM_AUTH_ERR;
+    }
     else
         *commAuth=STARTED;
 
+
+    system(QT_FACE_AUTH);
+
     int loop=1;
-    while (loop==1 || *commAuth!=CANCEL)
+    while (loop==1 && *commAuth!=CANCEL)
     {
+//printf("%d \n",*commAuth);
+
         IplImage * queryImage = webcam.queryFrame();
-        newDetector.runDetector(queryImage);
-
-        if (*commAuth==AUTHENTICATE)
+        if (queryImage!=0)
         {
-          // printf("True Auth \n");
-            if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>60  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
+            cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+            writeImageToMemory(queryImage,shared);
+            newDetector.runDetector(queryImage);
+
+            if (*commAuth==AUTHENTICATE)
             {
-//printf("True lenth \n");
-                if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
+
+                // printf("True Auth \n");
+                if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>60  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
                 {
-                   // printf("True Inside \n");
-                    double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
-                    double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
-                    double ang= atan(yvalue/xvalue)*(180/CV_PI);
-
-                    if (pow(ang,2)<200)
+                    //printf("True lenth \n");
+                    if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
                     {
-                        //printf("True ang \n");
-                        if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
-                        {
-                            //printf("True up \n");
-                            //printf("True Eye");
-                            if (newVerifier->verifyFace(newDetector.clipFace(queryImage))==1)
-                            {
-                               // cvSaveImage("/home/darksid3hack0r/darksid3.jpg",newDetector.clipFace(queryImage));
-                                *commAuth=STOPPED;
-                                return PAM_SUCCESS;
+                        // printf("True Inside \n");
+                        double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
+                        double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
+                        double ang= atan(yvalue/xvalue)*(180/CV_PI);
 
+                        if (pow(ang,2)<200)
+                        {
+                            //printf("True ang \n");
+                            if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
+                            {
+                                //printf("True up \n");
+                                //printf("True Eye");
+
+                                if (newVerifier->verifyFace(newDetector.clipFace(queryImage))==1)
+                                {
+                                    // cvSaveImage("/home/darksid3hack0r/darksid3.jpg",newDetector.clipFace(queryImage));
+                                    *commAuth=STOPPED;
+                                    webcam.stopCamera();
+                                    return PAM_SUCCESS;
+                                }
                             }
+
+
                         }
                     }
-
-
-
                 }
+            }
+            else
+            {
+//    *commAuth=CANCEL;
+
             }
 
         }
 
         if (*commAuth==CANCEL)
             loop=0;
-        cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
-        writeImageToMemory(queryImage,shared);
+
 
     }
 
 
 //   return PAM_SUCCESS;
-
+    webcam.stopCamera();
     return PAM_AUTH_ERR;
 }
 

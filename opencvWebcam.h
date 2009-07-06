@@ -4,9 +4,9 @@
     {
     public:
         opencvWebcam(void);
-        ~opencvWebcam(void);
 	IplImage *queryFrame();
 int startCamera();
+void stopCamera();
     private:
 	CvCapture* capture;
 

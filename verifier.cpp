@@ -180,9 +180,8 @@ void verifier::addFaceSet(IplImage **set,int size)
     for (i=0;i<size;i++)
     {
         char filename[300];
-       // sprintf(filename,"%s/%d.jpg",dirName,i);
+        sprintf(filename,"%s/%d.jpg",dirName,i);
         cvSaveImage(filename,set[i]);
-
         cvReleaseImage(&set[i]);
     }
 
@@ -277,7 +276,7 @@ return 0;
 
     int eyeValue=peakToSideLobeRatio(maceFilterUser,eye);
 
-    //printf("%d PTSR of  EYE \n",v);
+
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
 
@@ -298,6 +297,7 @@ return 0;
     }
     fclose(fp);
     */
+    printf("%d %d %d \n",insideFaceValue,faceValue,eyeValue);
     int count=0;
     if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
         count++;

@@ -39,9 +39,7 @@ opencvWebcam::opencvWebcam()
   //capture = cvCreateFileCapture("ggm2.avi");
   //  capture =cvCaptureFromCAM(0);
 }
-
-
-opencvWebcam::~opencvWebcam()
+void opencvWebcam::stopCamera()
 {
     if(capture!=0)
     cvReleaseCapture( &capture );
@@ -53,7 +51,7 @@ int opencvWebcam::startCamera()
 {
   //capture = cvCreateFileCapture("ggm2.avi");
     capture =cvCaptureFromCAM(0);
-    //capture = cvCreateFileCapture("ggm2.avi");
+ //   capture = cvCreateFileCapture("ggm2.avi");
     if(capture==0)
     return 0;
     else

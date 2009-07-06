@@ -30,6 +30,8 @@ Rewritten
 #define IPC_KEY_IMAGE 567814
 #define IPC_KEY_STATUS 567813
 #define IMAGE_SIZE 230400
+#define INPROGRESS 35
+
 #define STOPPED 28
 #define STARTED 21
 

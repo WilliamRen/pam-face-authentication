@@ -124,6 +124,31 @@ double getBIT(IplImage* img,double px,double py,double threshold)
             return 0;
     }
 }
+
+ void logOfImage(IplImage * img,IplImage *logImage)
+{
+
+        double a=5.0;
+    double b=0.01;
+    double c=10;
+    int i=0; int j=0;
+  for (i=0;i<img->height;i++)
+    {
+
+        for (j=0;j<img->width;j++)
+        {
+
+             CvScalar s;
+             s=cvGet2D(img,i,j);
+            CvScalar s1;
+            s1.val[0]=a + log((uchar)s.val[0] + 1) / (b * log(c));
+            s1.val[1]=a + log((uchar)s.val[1] + 1) / (b * log(c));
+            s1.val[2]=a + log((uchar)s.val[2] + 1) / (b * log(c));
+            cvSet2D(logImage,i,j,s1);
+        }
+    }
+
+}
 IplImage *  featureLBPSum(IplImage * img)
 {
     double sum=0;
@@ -454,9 +479,12 @@ CvMat *computeMace(IplImage **img,int size)
     {
 
         faces[index]=cvCreateImage( cvSize(img[index]->width,img[index]->height), 8, 1 );
+       // cvResize(img[index], faces[index], CV_INTER_LINEAR );
         cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
-        //   faces[index]=featureLBPSum(faces[index]);
-        cvEqualizeHist(faces[index],faces[index]);
+ //          faces[index]=featureLBPSum(faces[index]);
+
+        logOfImage(faces[index],faces[index]);
+        //cvEqualizeHist(faces[index],faces[index]);
 
     }
 
@@ -657,10 +685,14 @@ CvMat *computeMace(IplImage **img,int size)
 
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img)
 {
+    int rad1=45;
+    int rad2=30;
     IplImage* face=cvCreateImage( cvSize(img->width,img->height), 8, 1 );
     cvCvtColor( img, face, CV_BGR2GRAY );
+logOfImage(face,face);
     //  face=featureLBPSum(face);
-    cvEqualizeHist( face,face);
+
+ //   cvEqualizeHist( face,face);
     IplImage * grayImage= cvCreateImage( cvSize(64,64),8,1);
     cvResize(face, grayImage, CV_INTER_LINEAR ) ;
     IplImage *  realInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
@@ -708,16 +740,17 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img)
     int l=0,m=0;
     double value=0;
     double num=0;
+
     for (l=0;l<128;l++)
     {
         for (m=0;m<128;m++)
         {
 
             double rad=sqrt((pow(m-64,2)+pow(l-64,2)));
-            if (rad<45)
+            if (rad<rad1)
             {
 
-                if (rad>30)
+                if (rad>rad2)
                 {
                     CvScalar s1= cvGet2D(image_Re,l,m);
                     value+=s1.val[0];
@@ -737,10 +770,10 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img)
         for (m=0;m<128;m++)
         {
             double rad=sqrt((pow(m-64,2)+pow(l-64,2)));
-            if (rad<45)
+            if (rad<rad1)
             {
 
-                if (rad>30)
+                if (rad>rad2)
                 {
                     CvScalar s1= cvGet2D(image_Re,l,m);
                     std2+=(pow(value-s1.val[0],2));
