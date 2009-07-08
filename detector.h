@@ -1,6 +1,10 @@
 #include "cv.h"
+#ifndef _INCL_GUARD_DET
+#define _INCL_GUARD_DET
+
 #include "faceDetector.h"
 #include "eyesDetector.h"
+
 struct paintDescription
 {
     CvPoint LT;
@@ -40,3 +44,4 @@ struct paintDescription
  private:
  char messageCaptureMessage[300];
     };
+#endif

@@ -1,5 +1,8 @@
 #include "cv.h"
 #include "highgui.h"
+#ifndef _INCL_GUARD_WEBCAM
+#define _INCL_GUARD_WEBCAM
+
  class opencvWebcam
     {
     public:
@@ -11,3 +14,4 @@ void stopCamera();
 	CvCapture* capture;
 
     };
+#endif

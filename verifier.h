@@ -4,6 +4,8 @@
 #include <sys/types.h>
 #include <pwd.h> /* getpwdid */
 #include <time.h>
+#ifndef _INCL_GUARD_VER
+#define _INCL_GUARD_VER
 
 
 typedef struct {
@@ -43,3 +45,4 @@ private:
 char * createSetDir();
 struct passwd *userStruct;
 };
+#endif

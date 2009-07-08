@@ -298,7 +298,7 @@ return 0;
     fclose(fp);
     */
 
-  //  printf("%d %d %d \n",insideFaceValue,faceValue,eyeValue);
+ //printf("The Values are %d %d %d \n",insideFaceValue,faceValue,eyeValue);
     int count=0;
     if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
         count++;
