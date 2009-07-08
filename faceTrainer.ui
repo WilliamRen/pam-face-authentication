@@ -45,7 +45,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="first">
      <widget class="QPushButton" name="pb_next_t1">
@@ -163,7 +163,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_instructions_3">
       <property name="geometry">
        <rect>
-        <x>104</x>
+        <x>91</x>
         <y>246</y>
         <width>600</width>
         <height>54</height>
@@ -228,7 +228,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_instructions_4">
       <property name="geometry">
        <rect>
-        <x>104</x>
+        <x>91</x>
         <y>326</y>
         <width>521</width>
         <height>27</height>
@@ -269,7 +269,7 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_instructions_2">
       <property name="geometry">
        <rect>
-        <x>104</x>
+        <x>91</x>
         <y>196</y>
         <width>591</width>
         <height>27</height>
@@ -849,9 +849,9 @@ p, li { white-space: pre-wrap; }
      <widget class="QPushButton" name="pb_finish">
       <property name="geometry">
        <rect>
-        <x>632</x>
+        <x>612</x>
         <y>411</y>
-        <width>81</width>
+        <width>101</width>
         <height>40</height>
        </rect>
       </property>
