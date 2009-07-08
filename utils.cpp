@@ -21,11 +21,13 @@
 #include <float.h>
 #include <limits.h>
 #include "cv.h"
+#include "highgui.h"
+
 #include "pam_face_defines.h"
 #include <cxcore.h>
 #include <stdio.h>
 
-#define TOTALPIXEL 16384
+#define TOTALPIXEL 4096
 typedef struct
 {
     int filterMaceFacePSLR;
@@ -94,7 +96,7 @@ int checkBit(int i)
     int bit4=((i/16)%2);
     int bit3=((i/32)%2);
     int bit2=((i/64)%2);
-    int bit1=((i/128)%2);
+    int bit1=((i/64)%2);
     int bitVector[9]  =   {bit1,bit8,bit7, bit6, bit5,bit4, bit3,bit2,bit1};
     int current=bitVector[0];
     int count=0;
@@ -181,7 +183,7 @@ IplImage *  featureLBPSum(IplImage * img)
             p8y=i;
             CvScalar s;
             s=cvGet2D(img,i,j);
-            double bit1=128*getBIT(img,p1x,p1y,s.val[0]);
+            double bit1=64*getBIT(img,p1x,p1y,s.val[0]);
             double bit2=64*getBIT(img,p2x,p2y,s.val[0]);
             double bit3=32*getBIT(img,p3x,p3y,s.val[0]);
             double bit4=16*getBIT(img,p4x,p4y,s.val[0]);
@@ -314,9 +316,9 @@ int i=0,j=0;
         CvMat tmp;
 
         IplImage *  realInput = cvCreateImage( cvGetSize(gray), IPL_DEPTH_64F, 1);
-        IplImage *  realInputDouble = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
-        IplImage *  imaginaryInput = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
-        IplImage *  complexInput = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 2);
+        IplImage *  realInputDouble = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
+        IplImage *  imaginaryInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
+        IplImage *  complexInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 2);
         cvScale(grayfaces[i], realInput, 1.0, 0.0);
         cvZero(realInputDouble);
         cvZero(imaginaryInput);
@@ -324,30 +326,30 @@ int i=0,j=0;
         cvCopy(realInput,&tmp);
         cvMerge(realInputDouble, imaginaryInput, NULL, NULL, complexInput);
 
-        CvMat * dftImage = cvCreateMat( 128, 128, CV_64FC2 );
-        cvGetSubRect( dftImage, &tmp, cvRect(0,0,128,128));
+        CvMat * dftImage = cvCreateMat( 64, 64, CV_64FC2 );
+        cvGetSubRect( dftImage, &tmp, cvRect(0,0,64,64));
         cvCopy( complexInput, &tmp, NULL );
         cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
         int l=0,m=0;
-        for (l=0;l<128;l++)
+        for (l=0;l<64;l++)
         {
-            for (m=0;m<128;m++)
+            for (m=0;m<64;m++)
             {
                 CvScalar scalar = cvGet2D( dftImage, l, m );
-                CvScalar scalar1 = cvGet2D( M_UMACE, (l*128 + m), 0 );
+                CvScalar scalar1 = cvGet2D( M_UMACE, (l*64 + m), 0 );
                 scalar1.val[0]+=scalar.val[0];
                 scalar1.val[1]+=scalar.val[1];
-                cvSet2D(M_UMACE,(l*128 + m), 0,scalar1);
-                cvSet2D(S,(l*128 + m), i,scalar);
+                cvSet2D(M_UMACE,(l*64 + m), 0,scalar1);
+                cvSet2D(S,(l*64 + m), i,scalar);
                 CvScalar scalarConj=scalar;
                 scalarConj.val[1]*=-1;
-                cvSet2D(SPLUS,i,(l*128 + m),scalarConj);
+                cvSet2D(SPLUS,i,(l*64 + m),scalarConj);
                 double val=(pow(scalar.val[0],2)+pow(scalar.val[1],2));
 
-                CvScalar s= cvGet2D(D,(l*128 + m),0);
+                CvScalar s= cvGet2D(D,(l*64 + m),0);
                 s.val[0]+=val;
                 s.val[1]=0;
-                cvSet2D(  D, (l*128 + m), 0,s);
+                cvSet2D(  D, (l*64 + m), 0,s);
 
             }
         }
@@ -367,8 +369,8 @@ int i=0,j=0;
         s.val[0]=(1/s.val[0]);
         s.val[1]=0;
         cvSet2D(  DINV, i, 0, s);
-        s1.val[0]*=((s.val[0])*size*128*128);
-        s1.val[1]*=((s.val[0])*size*128*128);
+        s1.val[0]*=((s.val[0])*size*64*64);
+        s1.val[1]*=((s.val[0])*size*64*64);
         cvSet2D(  M_UMACE, i, 0, s1);
 
     }
@@ -438,12 +440,12 @@ int i=0,j=0;
 
     }
     cvMatMul(Hmace,Cvalue,Hmace_FIN);
-    CvMat *  maceFilterVisualize = cvCreateMat( 128, 128, CV_64FC2 );
-    for (l=0;l<128;l++)
+    CvMat *  maceFilterVisualize = cvCreateMat( 64, 64, CV_64FC2 );
+    for (l=0;l<64;l++)
     {
-        for (m=0;m<128;m++)
+        for (m=0;m<64;m++)
         {
-            CvScalar s1= cvGet2D(M_UMACE,(l*128 +m),0);
+            CvScalar s1= cvGet2D(M_UMACE,(l*64 +m),0);
             cvSet2D(maceFilterVisualize, l, m,s1);
         }
 
@@ -483,8 +485,8 @@ CvMat *computeMace(IplImage **img,int size)
         cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
  //          faces[index]=featureLBPSum(faces[index]);
 
-        logOfImage(faces[index],faces[index]);
-        //cvEqualizeHist(faces[index],faces[index]);
+      //  logOfImage(faces[index],faces[index]);
+    cvEqualizeHist(faces[index],faces[index]);
 
     }
 
@@ -521,9 +523,9 @@ CvMat *computeMace(IplImage **img,int size)
         CvMat tmp;
 
         IplImage *  realInput = cvCreateImage( cvGetSize(gray), IPL_DEPTH_64F, 1);
-        IplImage *  realInputDouble = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
-        IplImage *  imaginaryInput = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
-        IplImage *  complexInput = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 2);
+        IplImage *  realInputDouble = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
+        IplImage *  imaginaryInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
+        IplImage *  complexInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 2);
         cvScale(grayfaces[i], realInput, 1.0, 0.0);
         cvZero(realInputDouble);
         cvZero(imaginaryInput);
@@ -531,18 +533,18 @@ CvMat *computeMace(IplImage **img,int size)
         cvCopy(realInput,&tmp);
         cvMerge(realInputDouble, imaginaryInput, NULL, NULL, complexInput);
 
-        CvMat * dftImage = cvCreateMat( 128, 128, CV_64FC2 );
-        cvGetSubRect( dftImage, &tmp, cvRect(0,0,128,128));
+        CvMat * dftImage = cvCreateMat( 64, 64, CV_64FC2 );
+        cvGetSubRect( dftImage, &tmp, cvRect(0,0,64,64));
         cvCopy( complexInput, &tmp, NULL );
         cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
         int l=0,m=0;
-        for (l=0;l<128;l++)
+        for (l=0;l<64;l++)
         {
-            for (m=0;m<128;m++)
+            for (m=0;m<64;m++)
             {
 
                 CvScalar scalar = cvGet2D( dftImage, l, m );
-                cvSet2D(S,(l*128 + m), i,scalar);
+                cvSet2D(S,(l*64 + m), i,scalar);
 
                 //   if(i==0)
                 ////printf("%e %e VAL of S1 and S2 \n",scalar.val[0],scalar.val[1]);
@@ -550,13 +552,13 @@ CvMat *computeMace(IplImage **img,int size)
                 CvScalar scalarConj;
                 scalarConj.val[0]=scalar.val[0];
                 scalarConj.val[1]=-scalar.val[1];
-                cvSet2D(SPLUS,i,(l*128 + m),scalarConj);
+                cvSet2D(SPLUS,i,(l*64 + m),scalarConj);
                 double val=((pow(scalar.val[0],2)+pow(scalar.val[1],2)));
 
-                CvScalar s= cvGet2D(D,(l*128 + m),0);
+                CvScalar s= cvGet2D(D,(l*64 + m),0);
                 s.val[0]=s.val[0]+val;
                 s.val[1]=0;
-                cvSet2D(  D, (l*128 + m), 0,s);
+                cvSet2D(  D, (l*64 + m), 0,s);
 
             }
         }
@@ -574,7 +576,7 @@ CvMat *computeMace(IplImage **img,int size)
         CvScalar s= cvGet2D(D,i,0);
         //  //printf("%e %e   VAL of S1 and S2 \n",s.val[0],s.val[1]);
 
-        s.val[0]=((128*128*size)/sqrt(s.val[0]));
+        s.val[0]=((64*64*size)/(s.val[0]));
         s.val[1]=0;
         // //printf("%e %e   VAL of S1 and S2 \n",s.val[0],s.val[1]);
 
@@ -651,12 +653,12 @@ CvMat *computeMace(IplImage **img,int size)
         cvSet2D(Cvalue, l, 0,s3);
     }
     cvMatMul(Hmace,Cvalue,Hmace_FIN);
-    CvMat *  maceFilterVisualize = cvCreateMat( 128, 128, CV_64FC2 );
-    for (l=0;l<128;l++)
+    CvMat *  maceFilterVisualize = cvCreateMat( 64, 64, CV_64FC2 );
+    for (l=0;l<64;l++)
     {
-        for (m=0;m<128;m++)
+        for (m=0;m<64;m++)
         {
-            CvScalar s1= cvGet2D(Hmace_FIN,(l*128 +m),0);
+            CvScalar s1= cvGet2D(Hmace_FIN,(l*64 +m),0);
             cvSet2D(maceFilterVisualize, l, m,s1);
         }
 
@@ -685,68 +687,82 @@ CvMat *computeMace(IplImage **img,int size)
 
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img)
 {
-    int rad1=45;
-    int rad2=30;
+  //  static int count1=0;
+   // count1++;
+   // char n1[200];
+   // sprintf(n1,"%d",count1);
+  //  cvNamedWindow(n1,0);
+    int rad1=40;
+    int rad2=7;
     IplImage* face=cvCreateImage( cvSize(img->width,img->height), 8, 1 );
     cvCvtColor( img, face, CV_BGR2GRAY );
-logOfImage(face,face);
+//logOfImage(face,face);
     //  face=featureLBPSum(face);
 
- //   cvEqualizeHist( face,face);
+   cvEqualizeHist( face,face);
     IplImage * grayImage= cvCreateImage( cvSize(64,64),8,1);
     cvResize(face, grayImage, CV_INTER_LINEAR ) ;
     IplImage *  realInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
-    IplImage *  realInputDouble = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
-    IplImage *  imaginaryInput = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
-    IplImage *  complexInput = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 2);
+    IplImage *  realInputDouble = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
+    IplImage *  imaginaryInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
+    IplImage *  complexInput = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 2);
 
     cvScale(grayImage, realInput, 1.0, 0.0);
     cvZero(imaginaryInput);
     cvZero(realInputDouble);
 
-    CvMat tmp;
-    cvGetSubRect( realInputDouble, &tmp, cvRect(0,0,64,64));
-    cvCopy(realInput,&tmp);
+  //  CvMat tmp;
+   // cvGetSubRect( realInputDouble, &tmp, cvRect(0,0,63,63));
+    cvCopy(realInput,realInputDouble);
     cvMerge(realInputDouble, imaginaryInput, NULL, NULL, complexInput);
 
-    CvMat * dftImage = cvCreateMat( 128, 128, CV_64FC2 );
-    cvGetSubRect( dftImage, &tmp, cvRect(0,0,128,128));
-    cvCopy( complexInput, &tmp, NULL );
+    CvMat * dftImage = cvCreateMat( 64, 64, CV_64FC2 );
+    //cvGetSubRect( dftImage, &tmp, cvRect(0,0,63,63));
+    cvCopy( complexInput, dftImage, NULL );
     cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
     cvMulSpectrums(dftImage , maceFilterVisualize, dftImage,CV_DXT_MUL_CONJ);
 
     cvDFT( dftImage, dftImage, CV_DXT_INV_SCALE,0 );
-    IplImage * image_Re = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
-    IplImage * image_ReV = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
+    IplImage * image_Re = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
+    IplImage * image_ReV = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
 
-    IplImage *   image_Im = cvCreateImage( cvSize(128,128), IPL_DEPTH_64F, 1);
+    IplImage *   image_Im = cvCreateImage( cvSize(64,64), IPL_DEPTH_64F, 1);
 
 
     // Split Fourier in real and imaginary parts
     cvSplit( dftImage, image_Re, image_Im, 0, 0 );
-    //cvPow( image_Re, image_Re, 2.0);
+        cvShiftDFT( image_Re, image_Re );
+
+  //cvScale(image_Re, image_ReV, 1.0, 0.0);
+ // cvPow( image_ReV, image_ReV, 2.0);
+ // cvAddS( image_ReV, cvScalarAll(1.0), image_ReV, NULL ); // 1 + Mag
+   // cvLog( image_ReV, image_ReV ); // log(1 + Mag)
+
+
 //    cvPow( image_Im, image_Im, 2.0);
     //  cvAdd( image_Re, image_Im, image_Re, NULL);
     //cvPow( image_Re, image_Re, 0.5 );
-    cvShiftDFT( image_Re, image_Re );
     double m1,M1;
     CvPoint p1,p2;
     cvMinMaxLoc(image_Re, &m1, &M1, &p1, &p2, NULL);
     static int count=0;
     count++;
     char a[3];
+
     cvScale(image_Re, image_Re, 1.0, 1.0*(-m1));
-    cvMinMaxLoc(image_Re, &m1, &M1, &p1, &p2, NULL);
+ // cvMinMaxLoc(image_ReV, &m1, &M1, &p1, &p2, NULL);
+  //  cvScale(image_ReV, image_ReV, 1.0/(M1-m1), 1.0*(-m1)/(M1-m1));
+// cvShowImage(n1,image_ReV);
     int l=0,m=0;
     double value=0;
     double num=0;
 
-    for (l=0;l<128;l++)
+    for (l=0;l<64;l++)
     {
-        for (m=0;m<128;m++)
+        for (m=0;m<64;m++)
         {
 
-            double rad=sqrt((pow(m-64,2)+pow(l-64,2)));
+            double rad=sqrt((pow(m-32,2)+pow(l-32,2)));
             if (rad<rad1)
             {
 
@@ -765,11 +781,11 @@ logOfImage(face,face);
     value=value/num;
 
     double std2=0;
-    for (l=0;l<128;l++)
+    for (l=0;l<64;l++)
     {
-        for (m=0;m<128;m++)
+        for (m=0;m<64;m++)
         {
-            double rad=sqrt((pow(m-64,2)+pow(l-64,2)));
+            double rad=sqrt((pow(m-32,2)+pow(l-32,2)));
             if (rad<rad1)
             {
 
@@ -787,7 +803,8 @@ logOfImage(face,face);
 
     std2/=num;
     std2=(sqrt(std2));
-    CvScalar sca= cvGet2D(image_Re,64,64);
+    CvScalar sca= cvGet2D(image_Re,32,32);
+
     double v=(sca.val[0]-value)/std2;
     cvReleaseImage(&face);
     cvReleaseImage(&grayImage);

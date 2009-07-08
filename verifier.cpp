@@ -297,7 +297,8 @@ return 0;
     }
     fclose(fp);
     */
-    printf("%d %d %d \n",insideFaceValue,faceValue,eyeValue);
+
+  //  printf("%d %d %d \n",insideFaceValue,faceValue,eyeValue);
     int count=0;
     if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
         count++;
@@ -305,15 +306,6 @@ return 0;
         count++;
     if (newConfig->filterMaceEyePSLR<=eyeValue)
         count++;
-
-    int v1=floor((newConfig->filterMaceInsideFacePSLR)*.2);
-    int v2=floor((newConfig->filterMaceEyePSLR)*.2);
-    if ((newConfig->filterMaceEyePSLR<=eyeValue) && (newConfig->filterMaceInsideFacePSLR<=insideFaceValue) )
-    {
-        if ((insideFaceValue<(newConfig->filterMaceInsideFacePSLR-v1)) ||  (eyeValue<(newConfig->filterMaceEyePSLR-v2)))
-            return 0;
-    }
-
 
     if (count>1)
         return 1;
@@ -336,7 +328,7 @@ allFaces* verifier::getFaceImagesFromAllSet()
     for (i=0;i<faceSetStruct->count;i++)
     {
         sprintf(modelDir,"%s/%s",facesDirectory,faceSetStruct->setName[i]);
-        printf("%s \n",modelDir);
+       // printf("%s \n",modelDir);
         d=opendir(modelDir);
         while (de = readdir(d))
         {

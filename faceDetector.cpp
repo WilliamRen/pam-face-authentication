@@ -22,7 +22,7 @@
 #include "tracker.h"
 #include <stdio.h>
 
-char *HAAR_CASCADE_FACE=PKGDATADIR "/haarcascade.xml";
+char* HAAR_CASCADE_FACE=PKGDATADIR "/haarcascade.xml";
 
 int faceDetector::checkFaceDetected()
 {

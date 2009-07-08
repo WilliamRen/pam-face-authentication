@@ -105,6 +105,7 @@ PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         ,const char **argv)
 {
+printf("Started PAM \n");
 
     int retval;
     const char *user=NULL;
@@ -243,8 +244,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     opencvWebcam webcam;
     detector newDetector;
 
-
-
+        *commAuth=0;
     verifier* newVerifier=new verifier(userID);
     if (webcam.startCamera()==0)
     {
@@ -252,9 +252,10 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     }
     else
         *commAuth=STARTED;
-
+printf("Camera Initialized");
 
     system(QT_FACE_AUTH);
+printf("QT Face Auth Started ?");
 
     int loop=1;
     while (loop==1 && *commAuth!=CANCEL)
