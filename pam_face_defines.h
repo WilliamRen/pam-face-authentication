@@ -2,6 +2,7 @@
 
 Rewritten
     Google Summer of Code Program 2009
+    Rohan Anil (rohan.anil@gmail.com) ,
     Mentoring Organization: pardus
     Mentor: Onur Kucuk
 
@@ -43,8 +44,8 @@ Rewritten
 #define IMAGE_HEIGHT 240
 
 //DEFAULT PARAMETERS FOR MACE FILTER PEAK TO SIDE LOBE RATIO
-#define MACE_FACE_DEFAULT 18
-#define MACE_EYE_DEFAULT 22
-#define MACE_INSIDE_FACE_DEFAULT 20
+#define MACE_FACE_DEFAULT 24
+#define MACE_EYE_DEFAULT 32
+#define MACE_INSIDE_FACE_DEFAULT 32
 
 
