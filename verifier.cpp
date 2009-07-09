@@ -220,10 +220,10 @@ int verifier::verifyFace(IplImage *faceMain)
 {
     if (faceMain==0)
         return 0;
-char temp[300];
-sprintf(temp,"%s/face_mace.xml",modelDirectory);
-if(file_exists(temp)==0)
-return 0;
+    char temp[300];
+    sprintf(temp,"%s/face_mace.xml",modelDirectory);
+    if (file_exists(temp)==0)
+        return 0;
 
 
     IplImage * face= cvCreateImage( cvSize(140,150),8,faceMain->nChannels);
@@ -288,17 +288,17 @@ return 0;
     //printf("%d PTSR of INSIDE FACE \n",v);
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
-  /*
-    FILE* fp = fopen("/home/darksid3hack0r/value.txt", "a");
+    /*
+      FILE* fp = fopen("/home/darksid3hack0r/value.txt", "a");
 
-    if (fp)
-    {
-        fprintf(fp,"%d %d %d \n",faceValue,eyeValue,insideFaceValue);
-    }
-    fclose(fp);
-    */
+      if (fp)
+      {
+          fprintf(fp,"%d %d %d \n",faceValue,eyeValue,insideFaceValue);
+      }
+      fclose(fp);
+      */
 
-printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",insideFaceValue,faceValue,eyeValue);
+    printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",faceValue,eyeValue,insideFaceValue);
     int count=0;
     if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
         count++;
@@ -306,6 +306,7 @@ printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",insideFaceValue,faceV
         count++;
     if (newConfig->filterMaceEyePSLR<=eyeValue)
         count++;
+
 
     if (count>1)
         return 1;
@@ -328,7 +329,7 @@ allFaces* verifier::getFaceImagesFromAllSet()
     for (i=0;i<faceSetStruct->count;i++)
     {
         sprintf(modelDir,"%s/%s",facesDirectory,faceSetStruct->setName[i]);
-       // printf("%s \n",modelDir);
+        // printf("%s \n",modelDir);
         d=opendir(modelDir);
         while (de = readdir(d))
         {

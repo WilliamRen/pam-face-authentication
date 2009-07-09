@@ -28,7 +28,7 @@
 #include <unistd.h>
 
      faceAuth* faceAuthWindow;
-
+   QImage *image ;
 void resetFlags();
 void ipcStart();
 char *shared;
@@ -62,24 +62,9 @@ void ipcStart()
 void faceAuth::timerEvent( QTimerEvent * )
 {
 
+ delete image;
 
-      //  faceAuthWindow.exec();
-
-    static int latch=0;
-if(*commAuth==STOPPED)
-{
-close();
-}
-if(*commAuth==STARTED && latch==0)
-{
-        latch=1;
-
-}
-
-
-if( latch==1)
-{
-    QImage *image = new QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
+ image= new QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
     QRgb value;
     uchar* pBits         = image->bits();
     int nBytesPerLine    = image->bytesPerLine();
@@ -100,7 +85,7 @@ if( latch==1)
     ui.webcamPreview->setScene(scene);
     ui.webcamPreview->setBackgroundBrush(*image);
     ui.webcamPreview->show();
-}
+
 }
 void faceAuth::authClicked()
 {

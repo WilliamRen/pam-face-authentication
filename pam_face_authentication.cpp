@@ -59,6 +59,49 @@
 int file_exists(const char* filename);
 
 
+
+static int send_info_msg(pam_handle_t *pamh, char *msg)
+{
+    struct pam_message mymsg;
+    mymsg.msg_style = PAM_TEXT_INFO;
+    mymsg.msg = msg;
+    const struct pam_message *msgp = &mymsg;
+    const struct pam_conv *pc;
+    struct pam_response *resp;
+    int r;
+
+    r = pam_get_item(pamh, PAM_CONV, (const void **) &pc);
+    if (r != PAM_SUCCESS)
+        return -1;
+
+    if (!pc || !pc->conv)
+        return -1;
+
+    return pc->conv(1, &msgp, &resp, pc->appdata_ptr);
+}
+
+static int send_err_msg(pam_handle_t *pamh, char *msg)
+{
+    struct pam_message mymsg;
+    mymsg.msg_style = PAM_ERROR_MSG;
+    mymsg.msg = msg;
+
+    const struct pam_message *msgp = &mymsg;
+    const struct pam_conv *pc;
+    struct pam_response *resp;
+    int r;
+
+    r = pam_get_item(pamh, PAM_CONV, (const void **) &pc);
+    if (r != PAM_SUCCESS)
+        return -1;
+
+    if (!pc || !pc->conv)
+        return -1;
+
+    return pc->conv(1, &msgp, &resp, pc->appdata_ptr);
+}
+
+
 void resetFlags()
 {
     *commAuth=0;
@@ -105,26 +148,11 @@ PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         ,const char **argv)
 {
-printf("Started PAM \n");
+    printf("Started PAM \n");
 
     int retval;
     const char *user=NULL;
     const char *error;
-
-    // From fingerprint GUI project
-    // We need the Xauth to fork the GUI
-    int j;
-    const char *pamtty=NULL;
-    char X_lock[300];
-    char cmdline[300];
-    FILE *xlock;
-    int length;
-    int procnumber=0;
-    const char* display=getenv("DISPLAY");
-    char* xauthpath=getenv("XAUTHORITY");
-    // Following Code Extracts the Display
-
-
 
     retval = pam_get_user(pamh, &user, NULL);
     if (retval != PAM_SUCCESS)
@@ -137,94 +165,8 @@ printf("Started PAM \n");
         D(("username not known"));
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
     }
-
-    pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
-
-//printf("%s Xauth\n",xauthpath);
-
-    if (argc>=1)
-    {
-        if (strcmp(argv[0],"extract_xauth")==0)
-        {
-
-
-
-
-            //     printf("No Xauth\n",xauthpath);
-            // We need to extract the Path where Xauth is stored
-            // Following Code Sets Xauthority cookie
-
-            // DISPLAY[1] Contains the value
-
-            if (pamtty!=NULL&&strlen(pamtty)>0)
-            {
-                if (pamtty[0]==':')
-                {
-                    if (display==NULL)
-                    {
-                        display=pamtty;
-                        setenv("DISPLAY",display,-1);
-                    }
-                }
-            }
-
-            sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
-
-            /* if (!file_exists(X_lock))
-             {
-                 return -1;
-             }
-             */
-            char str[50];
-            xlock=fopen(X_lock,"r");
-            fgets(cmdline, 300,xlock);
-            fclose(xlock);
-
-
-            char *word1;
-            word1=strtok(cmdline,"  \n");
-
-            sprintf(X_lock,"/proc/%s/cmdline",word1);
-
-
-            /*
-                    if (!file_exists(X_lock))
-                    {
-                        return -1;
-                    }
-            */
-            xlock=fopen(X_lock,"r");
-            fgets (X_lock , 300 , xlock);
-            fclose(xlock);
-
-            for (j=0;j<300;j++)
-            {
-                if (X_lock[j]=='\0')
-                    X_lock[j]=' ';
-
-            }
-
-
-            char *word;
-            for (word=strtok(X_lock," ");word!=NULL;word=strtok(NULL," "))
-            {
-                if (strcmp(word,"-auth")==0)
-                {
-                    xauthpath=strtok(NULL," ");
-                    break;
-                }
-            }
-
-
-            if (file_exists(xauthpath)==1)
-            {
-
-                setenv("XAUTHORITY",xauthpath,-1);
-            }
-
-
-        }
-    }
+int retValMsg;
+    /*\m/ \m/  \m/ \m/  \m/ \m/  yay ! removed Xauth stuff Not Needed for KDM or GDM  ! yay \m/ \m/  \m/ \m/  \m/ \m/  */
     ipcStart();
     resetFlags();
 
@@ -232,97 +174,115 @@ printf("Started PAM \n");
     strcpy(username,user);
 
 
-
     struct passwd *userStruct;
     userStruct = getpwnam(username);
     uid_t userID=userStruct->pw_uid;
-
-    IplImage *zeroFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
-    cvZero(zeroFrame);
-
-    writeImageToMemory(zeroFrame,shared);
+    verifier* newVerifier=new verifier(userID);
     opencvWebcam webcam;
     detector newDetector;
 
-        *commAuth=0;
-    verifier* newVerifier=new verifier(userID);
+
+    /* Clear Shared Memory */
+
+    IplImage *zeroFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
+    cvZero(zeroFrame);
+    writeImageToMemory(zeroFrame,shared);
+
     if (webcam.startCamera()==0)
     {
-        return PAM_AUTH_ERR;
+        //Awesome Graphic Could be put to shared memory over here [TODO]
+        send_err_msg(pamh, "Unable to get hold of your webcam. Please check if it is plugged in.");
+        return PAM_AUTHINFO_UNAVAIL;
     }
-    else
-        *commAuth=STARTED;
-printf("Camera Initialized");
 
-    system(QT_FACE_AUTH);
-printf("QT Face Auth Started ?");
+    /* New Logic, run it for some X amount of Seconds and Reply Not Allowed */
 
+// This line might be necessary for GDM , will fix later, right now KDM
+// system(QT_FACE_AUTH);
+    double t1 = (double)cvGetTickCount();
+    double t2=0;
     int loop=1;
-    while (loop==1 && *commAuth!=CANCEL)
+    while (loop==1 && t2<25000)
     {
-//printf("%d \n",*commAuth);
+        t2 = (double)cvGetTickCount() - t1;
+        t2=t2/((double)cvGetTickFrequency()*1000.0);
 
-        IplImage * queryImage = webcam.queryFrame();
-        if (queryImage!=0)
-        {
-            cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
-            writeImageToMemory(queryImage,shared);
-            newDetector.runDetector(queryImage);
-
-            if (*commAuth==AUTHENTICATE)
-            {
-
-                // printf("True Auth \n");
-                if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>60  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
-                {
-                    //printf("True lenth \n");
-                    if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
-                    {
-                        // printf("True Inside \n");
-                        double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
-                        double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
-                        double ang= atan(yvalue/xvalue)*(180/CV_PI);
-
-                        if (pow(ang,2)<200)
-                        {
-                            //printf("True ang \n");
-                            if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
+               IplImage * queryImage = webcam.queryFrame();
+               if (queryImage!=0)
+    {
+           newDetector.runDetector(queryImage);
+                        if(newDetector.messageIndex!=4)
                             {
-                                //printf("True up \n");
-                                //printf("True Eye");
+                                send_info_msg(pamh, newDetector.queryMessage());
 
-                                if (newVerifier->verifyFace(newDetector.clipFace(queryImage))==1)
-                                {
-                                    // cvSaveImage("/home/darksid3hack0r/darksid3.jpg",newDetector.clipFace(queryImage));
-                                    *commAuth=STOPPED;
-                                    webcam.stopCamera();
-                                    return PAM_SUCCESS;
-                                }
+                            }
+            if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>34  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
+            {
+                if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
+                {
+                    double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
+                    double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
+                    double ang= atan(yvalue/xvalue)*(180/CV_PI);
+
+                    if (pow(ang,2)<200)
+                    {
+                        if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
+                        {
+                            IplImage * im = newDetector.clipFace(queryImage);
+
+                            if (newVerifier->verifyFace(im)==1)
+                            {
+                                cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
+                                send_info_msg(pamh, "Verification successful.");
+                                webcam.stopCamera();
+                                return PAM_SUCCESS;
+                            }
+                            else
+                            {
+                                send_info_msg(pamh, "Verification failed. Trying again.");
                             }
 
-
+                            cvReleaseImage(&im);
                         }
+                        else
+                        {
+                            send_info_msg(pamh, "Your eyes are not detected properly.");
+                        }
+
+
                     }
+                    else
+                    {
+                        send_info_msg(pamh, "The face is tilted at a greater angle, Cannot perform verification.");
+
+                    }
+
+                      cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+                        writeImageToMemory(queryImage,shared);
+
+                }
+                else
+                {
+                    send_info_msg(pamh, "Trying putting Your face to the center of the frame.");
                 }
             }
             else
             {
-//    *commAuth=CANCEL;
-
+                send_info_msg(pamh, "Your eyes are not detected properly. Keep proper distance with the camera.");
             }
+        }
+        else
+        {
+            send_info_msg(pamh, "Unable query image from your webcam.");
 
         }
-
-        if (*commAuth==CANCEL)
-            loop=0;
 
 
     }
 
-
-//   return PAM_SUCCESS;
+    send_err_msg(pamh, "Giving Up Face Authentication. Try Again=(.");
     webcam.stopCamera();
-    return PAM_AUTH_ERR;
+    return PAM_AUTHINFO_UNAVAIL;
 }
 
 PAM_EXTERN

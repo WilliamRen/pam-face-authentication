@@ -22,7 +22,6 @@ struct paintDescription
  class detector: public faceDetector, public eyesDetector
     {
     private:
-    int messageIndex;
     int boolClipFace;
     int totalFaceClipNum;
     int clipFaceCounter;
@@ -30,6 +29,7 @@ struct paintDescription
 
     public:
     IplImage**clippedFace;
+    int messageIndex;
 
     IplImage * *returnClipedFace();
     void startClipFace(int num);

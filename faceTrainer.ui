@@ -45,7 +45,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="first">
      <widget class="QPushButton" name="pb_next_t1">
@@ -687,7 +687,7 @@ p, li { white-space: pre-wrap; }
        <enum>QListView::LeftToRight</enum>
       </property>
       <property name="spacing">
-       <number>10</number>
+       <number>6</number>
       </property>
       <property name="viewMode">
        <enum>QListView::IconMode</enum>
