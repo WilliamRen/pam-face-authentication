@@ -26,9 +26,7 @@
 #include "pam_face_defines.h"
 #include <cxcore.h>
 #include <stdio.h>
-#define SIZE_OF_IMAGE 100
-#define SIZE_OF_IMAGE_2X 200
-#define TOTALPIXEL 40000
+
 
 typedef struct
 {
@@ -39,13 +37,13 @@ typedef struct
 
 
 
-int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img);
 void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
-CvMat *computeMace(IplImage **img,int size);
-IplImage *  featureLBPSum(IplImage * img);
-int checkBit(int i);
-double getBIT(IplImage* img,double px,double py,double threshold);
+CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE);
+int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE);
+
 int file_exists(const char* filename);
+
+
 
 
 
@@ -64,7 +62,7 @@ int file_exists(const char* filename)
 
 void setConfig(config *configuration,char * configDirectory)
 {
-    char maceConfig[SIZE_OF_IMAGE_2X];
+    char maceConfig[300];
     sprintf(maceConfig,"%s/mace.xml", configDirectory);
     CvFileStorage* fs ;
     fs = cvOpenFileStorage( maceConfig, 0, CV_STORAGE_WRITE );
@@ -77,7 +75,7 @@ void setConfig(config *configuration,char * configDirectory)
 config * getConfig(char *configDirectory)
 {
     config * newConfig=new config;
-    char maceConig[SIZE_OF_IMAGE_2X];
+    char maceConig[300];
     sprintf(maceConig,"%s/mace.xml", configDirectory);
     CvFileStorage * fileStorage;
     fileStorage = cvOpenFileStorage(maceConig, 0, CV_STORAGE_READ );
@@ -86,47 +84,6 @@ config * getConfig(char *configDirectory)
     newConfig->filterMaceInsideFacePSLR=cvReadIntByName( fileStorage, 0, "insideFaceThreshold", 25);
     cvReleaseFileStorage( &fileStorage );
     return newConfig;
-}
-int checkBit(int i)
-{
-// Well Removing patterns with bits changing consecutively  more than twice
-    int j=i;
-    int bit8=(i%2);
-    int bit7=((i/2)%2);
-    int bit6=((i/4)%2);
-    int bit5=((i/8)%2);
-    int bit4=((i/16)%2);
-    int bit3=((i/32)%2);
-    int bit2=((i/SIZE_OF_IMAGE)%2);
-    int bit1=((i/SIZE_OF_IMAGE)%2);
-    int bitVector[9]  =   {bit1,bit8,bit7, bit6, bit5,bit4, bit3,bit2,bit1};
-    int current=bitVector[0];
-    int count=0;
-    for (i=0;i<9;i++)
-    {
-        if (current!=bitVector[i])
-            count++;
-        current=bitVector[i];
-    }
-    if (count>2)
-        return -1;
-    else
-        return 0;
-}
-
-double getBIT(IplImage* img,double px,double py,double threshold)
-{
-    if (px<0 || py<0 || px>=img->width || py>=img->height)
-        return 0;
-    else
-    {
-        CvScalar s;
-        s=cvGet2D(img,py,px);
-        if (s.val[0]>=threshold)
-            return 1;
-        else
-            return 0;
-    }
 }
 
 void logOfImage(IplImage * img,IplImage *logImage)
@@ -154,56 +111,6 @@ void logOfImage(IplImage * img,IplImage *logImage)
     }
 
 }
-IplImage *  featureLBPSum(IplImage * img)
-{
-    double sum=0;
-    IplImage* imgLBP=cvCreateImage( cvSize(img->width,img->height), 8, img->nChannels );
-    int i,j=0;
-    cvZero(imgLBP);
-    for (i=0;i<img->height;i++)
-    {
-
-        for (j=0;j<img->width;j++)
-        {
-            int p1x,p2x,p3x,p4x,p5x,p6x,p7x,p8x;
-            int p1y,p2y,p3y,p4y,p5y,p6y,p7y,p8y;
-
-            p1x=j-1;
-            p1y=i-1;
-            p2x=j;
-            p2y=i-1;
-            p3x=j+1;
-            p3y=i-1;
-            p4x=j+1;
-            p4y=i;
-            p5x=j+1;
-            p5y=i+1;
-            p6x=j;
-            p6y=i+1;
-            p7x=j-1;
-            p7y=i+1;
-            p8x=j-1;
-            p8y=i;
-            CvScalar s;
-            s=cvGet2D(img,i,j);
-            double bit1=SIZE_OF_IMAGE*getBIT(img,p1x,p1y,s.val[0]);
-            double bit2=SIZE_OF_IMAGE*getBIT(img,p2x,p2y,s.val[0]);
-            double bit3=32*getBIT(img,p3x,p3y,s.val[0]);
-            double bit4=16*getBIT(img,p4x,p4y,s.val[0]);
-            double bit5=8*getBIT(img,p5x,p5y,s.val[0]);
-            double bit6=4*getBIT(img,p6x,p6y,s.val[0]);
-            double bit7=2*getBIT(img,p7x,p7y,s.val[0]);
-            double bit8=1*getBIT(img,p8x,p8y,s.val[0]);
-            CvScalar s1;
-            s1.val[0]=bit1+bit2+bit3+bit4+bit5+bit6+bit7+bit8;
-            s1.val[1]=0;
-            s1.val[2]=0;
-            cvSet2D(imgLBP,i,j,s1);
-        }
-    }
-    return imgLBP;
-}
-
 
 void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr )
 {
@@ -474,8 +381,10 @@ return maceFilterVisualize;
 }
 */
 
-CvMat *computeMace(IplImage **img,int size)
+CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE)
 {
+int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
     ////printf("%d size =",size);
     IplImage ** faces=new IplImage *[size];
     IplImage ** grayfaces=new IplImage *[size];
@@ -687,8 +596,11 @@ CvMat *computeMace(IplImage **img,int size)
 
 
 }
-int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img)
+int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE)
 {
+int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
+
     int radius1=int(floor((double)(45.0/64.0)*(double)SIZE_OF_IMAGE));
 int radius2=int(floor((double)(30.0/64.0)*(double)SIZE_OF_IMAGE));
 

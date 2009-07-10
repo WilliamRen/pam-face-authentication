@@ -141,7 +141,7 @@ eyesCascadeTrue=1;
         }
 
     }
-
+    cvReleaseImage(&gray_fullimage);
     cvReleaseImage(&gray);
 
 

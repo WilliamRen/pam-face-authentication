@@ -250,6 +250,7 @@ void faceTrainer::captureClick()
 }
 void faceTrainer::timerEvent( QTimerEvent * )
 {
+
     IplImage * queryImage = webcam.queryFrame();
     newDetector.runDetector(queryImage);
     //if(newDetector.checkEyeDetected()==1)
@@ -258,7 +259,7 @@ void faceTrainer::timerEvent( QTimerEvent * )
     //double t = (double)cvGetTickCount();
     cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
-    QImage * qm=QImageIplImageCvt(queryImage);
+   QImage * qm=QImageIplImageCvt(queryImage);
     if (newDetector.finishedClipFace()==1)
     {
         newVerifier.addFaceSet(newDetector.returnClipedFace(),13);
@@ -268,10 +269,16 @@ void faceTrainer::timerEvent( QTimerEvent * )
     }
 
     setQImageWebcam(qm);
+
+
     setIbarText(newDetector.queryMessage());
+
+
     cvWaitKey(1);
 
     delete qm;
+    cvReleaseImage(&queryImage);
+
 }
 
 
@@ -299,6 +306,19 @@ void faceTrainer::showTab2()
     populateQList();
     startTimer( 100 );
     }
+    else
+    {
+    QMessageBox msgBox1;
+            msgBox1.setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);"));
+    msgBox1.setWindowTitle("Face Trainer");
+    msgBox1.setText("<strong>Error</strong>");
+    msgBox1.setInformativeText(
+        "Camera Not Found. <br /> "
+        "Plugin Your Camera and Try Again.");
+    msgBox1.setStandardButtons(QMessageBox::Ok);
+    msgBox1.setIconPixmap(QPixmap(":/cnc.png"));
+    msgBox1.exec();
+    }
 }
 
 void faceTrainer::showTab1()
@@ -317,6 +337,13 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
     faceTrainer tab1;
+    tab1.setWindowTitle("Face Trainer");
+
+     QRect r = tab1.geometry();
+     r.moveCenter(QApplication::desktop()->availableGeometry().center());
+     tab1.setGeometry(r);
+
+
     tab1.show();
     return app.exec();
 }

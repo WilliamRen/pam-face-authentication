@@ -396,6 +396,7 @@ int detector::runDetector(IplImage * input)
         cvReleaseImage(&dstimg);
         cvReleaseImage(&grayIm1);
         cvReleaseImage(&grayIm2);
+        cvReleaseMat(&rotateMatrix);
     }
 
     if (checkEyeDetected()==1 && checkFaceDetected()==1 && boolClipFace==1 )

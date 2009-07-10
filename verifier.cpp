@@ -15,6 +15,12 @@
 #include <string>
 #include <cctype>
 
+
+#define FACE_MACE_SIZE 32
+#define EYE_MACE_SIZE 42
+#define INSIDE_FACE_MACE_SIZE 42
+
+
 using namespace std;
 typedef struct
 {
@@ -27,10 +33,10 @@ void setConfig(config *configuration,char * configDirectory);
 config * getConfig(char *configDirectory);
 int file_exists(const char* filename);
 
+CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE);
+int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE);
 
-int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img);
 void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
-CvMat *computeMace(IplImage **img,int size);
 
 char * verifier::createSetDir()
 {
@@ -112,7 +118,7 @@ void verifier::createMaceFilter()
         CvFileStorage* fs ;
         char modelname[300];
         sprintf(modelname,"%s/.pam-face-authentication/model/face_mace.xml", userStruct->pw_dir);
-        maceFilterVisualize=computeMace(temp->faceImages,temp->count);
+        maceFilterVisualize=computeMace(temp->faceImages,temp->count,FACE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "maceFilter", maceFilterVisualize, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
@@ -127,7 +133,7 @@ void verifier::createMaceFilter()
             cvSetImageROI(temp->faceImages[index],cvRect(0,0,140,60));
             cvResize(temp->faceImages[index], eye[index], CV_INTER_LINEAR );
         }
-        maceFilterVisualize=computeMace(eye,temp->count);
+        maceFilterVisualize=computeMace(eye,temp->count,EYE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "maceFilter", maceFilterVisualize, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
@@ -146,7 +152,7 @@ void verifier::createMaceFilter()
             cvResetImageROI(temp->faceImages[index]);
         }
 
-        maceFilterVisualize=computeMace(insideFace,temp->count);
+        maceFilterVisualize=computeMace(insideFace,temp->count,INSIDE_FACE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "maceFilter", maceFilterVisualize, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
@@ -265,7 +271,7 @@ int verifier::verifyFace(IplImage *faceMain)
     sprintf(macefilternamepath,"%s/%s",modelDirectory,"face_mace.xml");
     fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-    int faceValue=peakToSideLobeRatio(maceFilterUser,face);
+    int faceValue=peakToSideLobeRatio(maceFilterUser,face,FACE_MACE_SIZE);
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
 
@@ -274,7 +280,7 @@ int verifier::verifyFace(IplImage *faceMain)
     fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
 
-    int eyeValue=peakToSideLobeRatio(maceFilterUser,eye);
+    int eyeValue=peakToSideLobeRatio(maceFilterUser,eye,EYE_MACE_SIZE);
 
 
     cvReleaseFileStorage( &fileStorage );
@@ -284,7 +290,7 @@ int verifier::verifyFace(IplImage *faceMain)
     fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
     maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
 
-    int insideFaceValue=peakToSideLobeRatio(maceFilterUser,insideFace);
+    int insideFaceValue=peakToSideLobeRatio(maceFilterUser,insideFace,INSIDE_FACE_MACE_SIZE);
     //printf("%d PTSR of INSIDE FACE \n",v);
     cvReleaseFileStorage( &fileStorage );
     cvReleaseMat( &maceFilterUser );
@@ -298,7 +304,8 @@ int verifier::verifyFace(IplImage *faceMain)
       fclose(fp);
       */
 
-    printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",faceValue,eyeValue,insideFaceValue);
+//   printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",faceValue,eyeValue,insideFaceValue);
+
     int count=0;
     if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
         count++;
@@ -309,7 +316,8 @@ int verifier::verifyFace(IplImage *faceMain)
 
 
     if (count>1)
-        return 1;
+   {    //printf("\n YES \n");
+   return 1;}
     else
         return 0;
 

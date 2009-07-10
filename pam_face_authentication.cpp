@@ -165,7 +165,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         D(("username not known"));
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
     }
-int retValMsg;
+    int retValMsg;
     /*\m/ \m/  \m/ \m/  \m/ \m/  yay ! removed Xauth stuff Not Needed for KDM or GDM  ! yay \m/ \m/  \m/ \m/  \m/ \m/  */
     ipcStart();
     resetFlags();
@@ -207,15 +207,15 @@ int retValMsg;
         t2 = (double)cvGetTickCount() - t1;
         t2=t2/((double)cvGetTickFrequency()*1000.0);
 
-               IplImage * queryImage = webcam.queryFrame();
-               if (queryImage!=0)
-    {
-           newDetector.runDetector(queryImage);
-                        if(newDetector.messageIndex!=4)
-                            {
-                                send_info_msg(pamh, newDetector.queryMessage());
+        IplImage * queryImage = webcam.queryFrame();
+        if (queryImage!=0)
+        {
+            newDetector.runDetector(queryImage);
+            if (newDetector.messageIndex!=4)
+            {
+                send_info_msg(pamh, newDetector.queryMessage());
 
-                            }
+            }
             if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>34  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
             {
                 if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
@@ -232,7 +232,7 @@ int retValMsg;
 
                             if (newVerifier->verifyFace(im)==1)
                             {
-                                cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
+                               // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
                                 send_info_msg(pamh, "Verification successful.");
                                 webcam.stopCamera();
                                 return PAM_SUCCESS;
@@ -257,8 +257,8 @@ int retValMsg;
 
                     }
 
-                      cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
-                        writeImageToMemory(queryImage,shared);
+                    cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+                    writeImageToMemory(queryImage,shared);
 
                 }
                 else
@@ -276,7 +276,7 @@ int retValMsg;
             send_info_msg(pamh, "Unable query image from your webcam.");
 
         }
-
+        cvReleaseImage(&queryImage);
 
     }
 

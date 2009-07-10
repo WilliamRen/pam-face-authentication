@@ -1,7 +1,12 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
+
+
 PROJECT( PAM_FACE_AUTHENTICATION )
-  SET( QT_FACEMANAGER_SRCS
+
+  
+
+SET( QT_FACEMANAGER_SRCS
       main.cpp
       opencvWebcam.cpp           
       detector.cpp               
@@ -113,6 +118,8 @@ ADD_DEFINITIONS (-DVERSION='"${VERSION}"' -DPKGDATADIR="${PKGDATADIR}" -DBINDIR=
 
   TARGET_LINK_LIBRARIES( qt-facemanager ${QT_LIBRARIES} ${OPENCV_LIBRARIES})
   TARGET_LINK_LIBRARIES( qt-faceauth ${QT_LIBRARIES} ${OPENCV_LIBRARIES})
+
+
 INSTALL(
   TARGETS
     pam_face_authenticate
@@ -133,3 +140,5 @@ INSTALL(
   DESTINATION
    ${PKGDATADIR}
 )
+
+
