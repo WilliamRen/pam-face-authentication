@@ -35,6 +35,7 @@ int file_exists(const char* filename);
 
 CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE);
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE);
+ void createSQI(IplImage * im,IplImage *final);
 
 void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
 
@@ -117,8 +118,10 @@ void verifier::createMaceFilter()
         CvMat *maceFilterVisualize;
         CvFileStorage* fs ;
         char modelname[300];
+
+
         sprintf(modelname,"%s/.pam-face-authentication/model/face_mace.xml", userStruct->pw_dir);
-        maceFilterVisualize=computeMace(temp->faceImages,temp->count,FACE_MACE_SIZE);
+        maceFilterVisualize=computeMace( temp->faceImages,temp->count,FACE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "maceFilter", maceFilterVisualize, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
@@ -128,10 +131,10 @@ void verifier::createMaceFilter()
         int index=0;
         for (index=0;index<temp->count;index++)
         {
-            cvResetImageROI(temp->faceImages[index]);
-            eye[index]=cvCreateImage(cvSize(140,60),8,temp->faceImages[index]->nChannels);
-            cvSetImageROI(temp->faceImages[index],cvRect(0,0,140,60));
-            cvResize(temp->faceImages[index], eye[index], CV_INTER_LINEAR );
+            cvResetImageROI( temp->faceImages[index]);
+            eye[index]=cvCreateImage(cvSize(140,60),8, temp->faceImages[index]->nChannels);
+            cvSetImageROI( temp->faceImages[index],cvRect(0,0,140,60));
+            cvResize( temp->faceImages[index], eye[index], CV_INTER_LINEAR );
         }
         maceFilterVisualize=computeMace(eye,temp->count,EYE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
@@ -145,11 +148,11 @@ void verifier::createMaceFilter()
         for (index=0;index<temp->count;index++)
         {
 
-            cvResetImageROI(temp->faceImages[index]);
-            insideFace[index]=cvCreateImage(cvSize(80,105),8,temp->faceImages[index]->nChannels);
-            cvSetImageROI(temp->faceImages[index],cvRect(30,45,80,105));
-            cvResize(temp->faceImages[index], insideFace[index], CV_INTER_LINEAR );
-            cvResetImageROI(temp->faceImages[index]);
+            cvResetImageROI( temp->faceImages[index]);
+            insideFace[index]=cvCreateImage(cvSize(80,105),8, temp->faceImages[index]->nChannels);
+            cvSetImageROI( temp->faceImages[index],cvRect(30,45,80,105));
+            cvResize( temp->faceImages[index], insideFace[index], CV_INTER_LINEAR );
+            cvResetImageROI( temp->faceImages[index]);
         }
 
         maceFilterVisualize=computeMace(insideFace,temp->count,INSIDE_FACE_MACE_SIZE);
@@ -304,7 +307,7 @@ int verifier::verifyFace(IplImage *faceMain)
       fclose(fp);
       */
 
-//   printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",faceValue,eyeValue,insideFaceValue);
+printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",faceValue,eyeValue,insideFaceValue);
 
     int count=0;
     if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)

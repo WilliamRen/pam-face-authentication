@@ -47,6 +47,260 @@ int file_exists(const char* filename);
 
 
 
+CvMat * createGaussianFilter(int size)
+{
+    CvMat * filter = cvCreateMat(size,size, CV_64FC1 );
+
+    double sigma = (double)size/5;
+    int halfsize = (int)size/2;
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            int x_value = (-halfsize) + i;
+            int y_value = (-halfsize) + j;
+            double val=exp(-(((double) (x_value * x_value + y_value * y_value)) / sigma));
+            CvScalar s;
+            s.val[0]=val;
+            cvSet2D( filter, i, j,s);
+
+        }
+    }
+
+    return filter;
+}
+////////////////  \m/ ^^ SELF QUOTIENT IMAGE \m/  ////
+
+IplImage * SQI(CvMat * filter,IplImage *  image,int size)
+{
+    CvMat * newfilter = cvCreateMat(size,size, CV_64FC1 );
+
+
+
+    int indexl=0,indexm=0;
+    int indexl1=0,indexm1=0;
+
+    int height=image->height;
+    int width=image->width;
+    int i=0,j=0,l=0,m=0;
+    IplImage *output =cvCreateImage( cvSize(width,height), IPL_DEPTH_64F, 1);
+    cvZero(output);
+    IplImage *integralImage =cvCreateImage( cvSize(width+1,height+1), IPL_DEPTH_64F, 1);
+    cvIntegral(image,integralImage,0,0);
+
+    for ( i = 0; i < image->height; i++)
+    {
+        for ( j = 0; j <  image->width; j++)
+        {
+
+
+            indexl=i- int(floor((size)/2));
+            if (indexl < 0)
+                indexl =0;
+            indexl1=i+ int(floor((size)/2));
+            if (indexl1 >= height)
+                indexl1 = height- 1;
+
+            indexm=j- int(floor((size)/2));
+            if (indexm < 0)
+                indexm = 0;
+
+            indexm1 =j+ int(floor((size)/2));
+            if (indexm1 >= width)
+                indexm1= (width)  - 1;
+
+            indexl+=1;
+            indexm+=1;
+            indexl1+=1;
+            indexm1+=1;
+
+
+            double mean=0;
+            int countGreater=0;
+            int countLower=0;
+            int flag=0;
+                    CvScalar sxy;
+                    sxy=cvGet2D( integralImage,  indexl, indexm);
+                    CvScalar sx1y;
+                    sx1y=cvGet2D( integralImage,  indexl1, indexm);
+                    CvScalar sxy1;
+                    sxy1=cvGet2D( integralImage,  indexl, indexm1);
+                    CvScalar sx1y1;
+                    sx1y1=cvGet2D( integralImage,  indexl1, indexm1);
+
+
+            mean= double(sx1y1.val[0] -  sxy1.val[0] - sx1y.val[0] +sxy.val[0])/double((indexm1-indexm+1)*(indexl1-indexl+1));
+
+            for ( l = 0; l < size; l++)
+            {
+                indexl=i+ l - int(floor((size)/2));
+                if (indexl < 0)
+                    indexl = abs(indexl) - 1;
+                if (indexl >= height)
+                    indexl = (2 * height) - indexl - 1;
+
+                for ( m = 0; m < size; m++)
+                {
+                    indexm=j+ m - int(floor((size)/2));
+                    if (indexm < 0)
+                        indexm = abs(indexm) - 1;
+                    if (indexm >= width)
+                        indexm= (2 * width) - indexm - 1;
+                    CvScalar s;
+                    s=cvGet2D( image,  indexl, indexm);
+                    if (mean>(double)s.val[0])
+                        countLower++;
+                    else
+                        countGreater++;
+
+                }
+            }
+
+            if (countLower>countGreater)
+                flag=1;
+            else
+                flag=0;
+            double sumv= 0.0;
+            for ( l = 0; l < size; l++)
+            {
+                indexl=i+ l - int(floor((size)/2));
+                if (indexl < 0)
+                    indexl = abs(indexl) - 1;
+                if (indexl >= height)
+                    indexl = (2 * height) - indexl - 1;
+
+                for ( m = 0; m < size; m++)
+                {
+                    indexm=j+ m - int(floor((size)/2));
+                    if (indexm < 0)
+                        indexm = abs(indexm) - 1;
+                    if (indexm >= width)
+                        indexm= (2 * width) - indexm - 1;
+
+                    CvScalar s;
+                    s=cvGet2D( image,  indexl, indexm);
+                    if (((double)s.val[0]<mean && flag==0) ||((double)s.val[0]>mean && flag==1))
+                    {
+                        CvScalar s1;
+                        s1.val[0]=0;
+                        cvSet2D( newfilter,  l, m,s1);
+                    }
+                    else
+                    {
+                        CvScalar s;
+                        s=cvGet2D(filter,  l, m);
+                        cvSet2D( newfilter,  l, m,s);
+                    }
+
+                    s=cvGet2D(newfilter,  l, m);
+
+                    sumv+=s.val[0];
+
+                }
+            }
+
+
+
+
+            //Convolve
+            for ( l = 0; l < size; l++)
+            {
+                indexl=i+ l - int(floor((size)/2));
+                if (indexl < 0)
+                    indexl = abs(indexl) - 1;
+                if (indexl >= height)
+                    indexl = (2 * height) - indexl - 1;
+
+                for ( m = 0; m < size; m++)
+                {
+                    indexm=j+ m - int(floor((size)/2));
+                    if (indexm < 0)
+                        indexm = abs(indexm) - 1;
+                    if (indexm >= width)
+                        indexm= (2 * width) - indexm - 1;
+
+                    CvScalar s;
+                    s= cvGet2D( output,  i, j);
+
+                    CvScalar s1;
+                    s1=cvGet2D( image,  indexl, indexm);
+                    CvScalar s2;
+                    s2=cvGet2D( newfilter,  l, m);
+                    s.val[0]+=((s1.val[0]*s2.val[0])/sumv);
+                    cvSet2D( output,  i, j,s);
+                }
+            }
+        }
+    }
+    return output;
+}
+////////////////  \m/ ^^ SELF QUOTIENT IMAGE \m/  TODO: DO IT FASTER (CACHE)////
+
+void createSQI(IplImage * im,IplImage *final)
+{
+    CvMat *a =createGaussianFilter(3);
+    CvMat *b =createGaussianFilter(9);
+    CvMat *c =createGaussianFilter(15);
+    IplImage * ima =SQI(a,im,3);
+    IplImage * imb= SQI(b,im,9);
+    IplImage * imc= SQI(c,im,15);
+    IplImage *final1 =cvCreateImage( cvSize(im->width,im->height), IPL_DEPTH_64F, 1);
+    int i,j;
+    for ( i = 0; i < im->height; i++)
+    {
+        for ( j = 0; j <  im->width; j++)
+        {
+
+
+            CvScalar s1;
+            s1=cvGet2D( im,  i, j);
+
+            CvScalar s2;
+            s2=cvGet2D( ima,  i, j);
+
+            CvScalar s3;
+            s3=cvGet2D( imb,  i, j);
+
+            CvScalar s4;
+            s4=cvGet2D( imc,  i, j);
+
+            CvScalar s5;
+            s5.val[0] = log(double(s1.val[0]+1)/double(s2.val[0]+1)) +log(double(s1.val[0]+1)/double(s3.val[0]+1)) +log(double(s1.val[0]+1)/double(s4.val[0]+1));
+            cvSet2D( final1,  i, j,s5);
+
+        }
+    }
+    double m1,M1;
+    CvPoint p1,p2;
+    cvMinMaxLoc(final1, &m1, &M1, &p1, &p2, NULL);
+    cvScale(final1,final1, 255.0/(M1-m1), 255.0*((-m1)/(M1-m1)));
+    for ( i = 0; i < im->height; i++)
+    {
+        for ( j = 0; j <  im->width; j++)
+        {
+
+            CvScalar s5;
+            s5=  cvGet2D( final1, i,j);
+            cvSet2D( final,  i, j,s5);
+        }
+    }
+    cvReleaseImage(&final1);
+
+    cvReleaseImage(&ima);
+    cvReleaseImage(&imb);
+    cvReleaseImage(&imc);
+    cvReleaseMat(&a);
+    cvReleaseMat(&b);
+    cvReleaseMat(&c);
+//return final;
+
+}
+
+
+////////////////  \m/ ^^ SELF QUOTIENT IMAGE \m/  ////
+
+
+
 int file_exists(const char* filename)
 {
     FILE* file;
@@ -383,8 +637,8 @@ return maceFilterVisualize;
 
 CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE)
 {
-int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
-int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
+    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+    int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
     ////printf("%d size =",size);
     IplImage ** faces=new IplImage *[size];
     IplImage ** grayfaces=new IplImage *[size];
@@ -393,12 +647,12 @@ int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
     {
 
         faces[index]=cvCreateImage( cvSize(img[index]->width,img[index]->height), 8, 1 );
-       // cvResize(img[index], faces[index], CV_INTER_LINEAR );
-        cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
- //          faces[index]=featureLBPSum(faces[index]);
+      //  cvResize(img[index], faces[index], CV_INTER_LINEAR );
+         cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
+//          faces[index]=featureLBPSum(faces[index]);
 
-      //  logOfImage(faces[index],faces[index]);
-    cvEqualizeHist(faces[index],faces[index]);
+        //  logOfImage(faces[index],faces[index]);
+        // cvEqualizeHist(faces[index],faces[index]);
 
     }
 
@@ -431,6 +685,7 @@ int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
     {
         IplImage *gray = cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE), 8, 1 );
         cvResize(faces[i], gray, CV_INTER_LINEAR ) ;
+	cvEqualizeHist( gray,gray);
         grayfaces[i]=gray;
         CvMat tmp;
 
@@ -598,23 +853,24 @@ int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
 }
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE)
 {
-int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
-int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
+    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+    int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
 
     int radius1=int(floor((double)(45.0/64.0)*(double)SIZE_OF_IMAGE));
-int radius2=int(floor((double)(30.0/64.0)*(double)SIZE_OF_IMAGE));
+    int radius2=int(floor((double)(30.0/64.0)*(double)SIZE_OF_IMAGE));
 
     int rad1=radius1;
     int rad2=radius2;
-   // printf("%d %d  \n",rad1,rad2);
+    // printf("%d %d  \n",rad1,rad2);
     IplImage* face=cvCreateImage( cvSize(img->width,img->height), 8, 1 );
     cvCvtColor( img, face, CV_BGR2GRAY );
 //logOfImage(face,face);
     //  face=featureLBPSum(face);
-
-   cvEqualizeHist( face,face);
+    // cvEqualizeHist( face,face);
+    // cvEqualizeHist( face,face);
     IplImage * grayImage= cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE),8,1);
     cvResize(face, grayImage, CV_INTER_LINEAR ) ;
+    cvEqualizeHist( grayImage,grayImage);
     IplImage *  realInput = cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE), IPL_DEPTH_64F, 1);
     IplImage *  realInputDouble = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
     IplImage *  imaginaryInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
@@ -734,7 +990,7 @@ void rotatePoint(CvPoint* srcP,CvPoint* dstP,double angle,float centreX, float c
     CvMat src = cvMat( 1, 1, CV_32FC2, &p1 );
     CvMat dst = cvMat( 1, 1, CV_32FC2, &p2 );
     CvMat *translate = cvCreateMat(2, 3, CV_32FC1);
-    CvPoint2D32f centre;
+    CvPoint2D32f centre;   
     centre.x = centreX;
     centre.y = centreY;
     //printf("%e %e CENTER @p1 p2 \n", centre.x, centre.y);

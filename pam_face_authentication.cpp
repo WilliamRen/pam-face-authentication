@@ -58,10 +58,26 @@
 #include "verifier.h"
 int file_exists(const char* filename);
 
+char * prevmsg=0;
+int msgPipeLiner(char *msg)
+{
+    if (prevmsg!=0)
+    {
+        if (strcmp(prevmsg,msg)==0)
+            return 0;
+    }
 
+    if (prevmsg!=0)
+        free(prevmsg);
+    prevmsg=(char *)calloc(strlen(msg)+1,sizeof(char));
+    strcpy(prevmsg,msg);
+    return 1;
+}
 
 static int send_info_msg(pam_handle_t *pamh, char *msg)
 {
+    if (msgPipeLiner(msg)==0)
+        return 0;
     struct pam_message mymsg;
     mymsg.msg_style = PAM_TEXT_INFO;
     mymsg.msg = msg;
@@ -82,6 +98,8 @@ static int send_info_msg(pam_handle_t *pamh, char *msg)
 
 static int send_err_msg(pam_handle_t *pamh, char *msg)
 {
+    if (msgPipeLiner(msg)==0)
+        return 0;
     struct pam_message mymsg;
     mymsg.msg_style = PAM_ERROR_MSG;
     mymsg.msg = msg;
@@ -143,7 +161,6 @@ void writeImageToMemory(IplImage* img,char *shared)
         }
     }
 }
-
 PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         ,const char **argv)
@@ -164,6 +181,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     {
         D(("username not known"));
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
+        send_err_msg(pamh, "Username Not Set.");
+        return PAM_AUTHINFO_UNAVAIL;
     }
     int retValMsg;
     /*\m/ \m/  \m/ \m/  \m/ \m/  yay ! removed Xauth stuff Not Needed for KDM or GDM  ! yay \m/ \m/  \m/ \m/  \m/ \m/  */
@@ -211,64 +230,68 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         if (queryImage!=0)
         {
             newDetector.runDetector(queryImage);
-            if (newDetector.messageIndex!=4)
+            if ( newDetector.checkFaceDetected()==1)
             {
-                send_info_msg(pamh, newDetector.queryMessage());
 
-            }
-            if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>34  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
-            {
-                if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
+                if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>28  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
                 {
-                    double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
-                    double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
-                    double ang= atan(yvalue/xvalue)*(180/CV_PI);
-
-                    if (pow(ang,2)<200)
+                    if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
                     {
-                        if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
-                        {
-                            IplImage * im = newDetector.clipFace(queryImage);
+                        double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
+                        double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
+                        double ang= atan(yvalue/xvalue)*(180/CV_PI);
 
-                            if (newVerifier->verifyFace(im)==1)
+                        if (pow(ang,2)<200)
+                        {
+                            if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
                             {
-                               // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
-                                send_info_msg(pamh, "Verification successful.");
-                                webcam.stopCamera();
-                                return PAM_SUCCESS;
+                                IplImage * im = newDetector.clipFace(queryImage);
+
+                                if (newVerifier->verifyFace(im)==1)
+                                {
+                                    // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
+                                    send_info_msg(pamh, "Verification successful.");
+                                    webcam.stopCamera();
+                                    return PAM_SUCCESS;
+                                }
+                                else
+                                {
+                                    send_info_msg(pamh, "Verification failed. Trying again.");
+                                }
+
+                                cvReleaseImage(&im);
                             }
                             else
                             {
-                                send_info_msg(pamh, "Verification failed. Trying again.");
+                                send_info_msg(pamh, "Your eyes are not detected properly.");
                             }
 
-                            cvReleaseImage(&im);
+
                         }
                         else
                         {
-                            send_info_msg(pamh, "Your eyes are not detected properly.");
+                            send_info_msg(pamh, "The face is tilted at a greater angle, Cannot perform verification.");
+
                         }
 
+                        cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+                        writeImageToMemory(queryImage,shared);
 
                     }
                     else
                     {
-                        send_info_msg(pamh, "The face is tilted at a greater angle, Cannot perform verification.");
-
+                        send_info_msg(pamh, "Trying putting Your face to the center of the frame.");
                     }
-
-                    cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
-                    writeImageToMemory(queryImage,shared);
 
                 }
                 else
                 {
-                    send_info_msg(pamh, "Trying putting Your face to the center of the frame.");
+                    send_info_msg(pamh, "Your eyes are not detected properly. Keep proper distance with the camera.");
                 }
             }
             else
             {
-                send_info_msg(pamh, "Your eyes are not detected properly. Keep proper distance with the camera.");
+                send_info_msg(pamh, "Unable to Detect Your Face.");
             }
         }
         else

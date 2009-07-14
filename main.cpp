@@ -209,7 +209,6 @@ void faceTrainer::butClick()
 void faceTrainer::removeSelected()
 {
 
-//verify();
 
     QList<QListWidgetItem *>  list=ui.lv_thumbnails->selectedItems();
     QList<QListWidgetItem *>::iterator i;
@@ -226,6 +225,8 @@ void faceTrainer::removeSelected()
     ui.lv_thumbnails->clear();
 
     populateQList();
+
+verify();
 
 }
 void faceTrainer::captureClick()
