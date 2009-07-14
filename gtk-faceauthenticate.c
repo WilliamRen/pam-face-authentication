@@ -176,10 +176,13 @@ main (int argc, char *argv[])
 
     if (gtk_init_check(&argc, &argv)==FALSE)
     {
+
         /* RUN CANCEL CLICK CODE */
         *commAuth=CANCEL;
         return -1;
     }
+
+
 
     ipcStart();
     resetFlags();
@@ -196,7 +199,9 @@ main (int argc, char *argv[])
 
     g_timeout_add(100, (GSourceFunc) time_handler, (gpointer) window);
     gtk_widget_show (window);
+
     gtk_main ();
+
     g_object_unref (G_OBJECT (builder));
     return 0;
 }
