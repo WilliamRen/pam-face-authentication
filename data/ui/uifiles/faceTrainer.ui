@@ -415,8 +415,8 @@ p, li { white-space: pre-wrap; }
        <string>Capture</string>
       </property>
       <property name="icon">
-       <iconset resource="graphics.qrc">
-        <normaloff>:/record.png</normaloff>:/record.png</iconset>
+       <iconset resource="../../../graphics.qrc">
+        <normaloff>:/data/ui/images/record.png</normaloff>:/data/ui/images/record.png</iconset>
       </property>
       <property name="iconSize">
        <size>
@@ -613,8 +613,8 @@ p, li { white-space: pre-wrap; }
        <string>About this Software !</string>
       </property>
       <property name="icon">
-       <iconset resource="graphics.qrc">
-        <normaloff>:/about.png</normaloff>:/about.png</iconset>
+       <iconset resource="../../../graphics.qrc">
+        <normaloff>:/data/ui/images/about.png</normaloff>:/data/ui/images/about.png</iconset>
       </property>
      </widget>
      <widget class="QGraphicsView" name="webcamPreview">
@@ -643,6 +643,12 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="lineWidth">
        <number>0</number>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
+      </property>
+      <property name="horizontalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="sceneRect">
        <rectf>
@@ -926,7 +932,7 @@ p, li { white-space: pre-wrap; }
   </widget>
  </widget>
  <resources>
-  <include location="graphics.qrc"/>
+  <include location="../../../graphics.qrc"/>
  </resources>
  <connections>
   <connection>

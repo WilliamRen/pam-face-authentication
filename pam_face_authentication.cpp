@@ -1,4 +1,4 @@
-/*
+ 220                 if ( msg.indexOf( "Place your finger on the reader again" ) > -1 ||/*
     Rewritten
     Google Summer of Code Program 2009
     Mentoring Organization: pardus
@@ -57,7 +57,7 @@
 #include "detector.h"
 #include "verifier.h"
 int file_exists(const char* filename);
-
+ 220                 if ( msg.indexOf( "Place your finger on the reader again" ) > -1 ||
 char * prevmsg=0;
 int msgPipeLiner(char *msg)
 {
@@ -151,7 +151,7 @@ void writeImageToMemory(IplImage* img,char *shared)
             CvScalar s;
             s=cvGet2D(img,n,m);
             int val3=(uchar)s.val[2];
-            int val2=(uchar)s.val[1];
+            int val2=( 220                 if ( msg.indexOf( "Place your finger on the reader again" ) > -1 ||uchar)s.val[1];
             int val1=(uchar)s.val[0];
 
             *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=val3;
@@ -165,11 +165,10 @@ PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         ,const char **argv)
 {
-    printf("Started PAM \n");
-
     int retval;
     const char *user=NULL;
     const char *error;
+
 
     retval = pam_get_user(pamh, &user, NULL);
     if (retval != PAM_SUCCESS)
@@ -197,9 +196,9 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     userStruct = getpwnam(username);
     uid_t userID=userStruct->pw_uid;
     verifier* newVerifier=new verifier(userID);
+
     opencvWebcam webcam;
     detector newDetector;
-
 
     /* Clear Shared Memory */
 
@@ -221,16 +220,25 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     double t1 = (double)cvGetTickCount();
     double t2=0;
     int loop=1;
+int ind=0;
+char tempM[300];
+send_info_msg(pamh, "Face Verification Pluggable Authentication Module Started");
+
     while (loop==1 && t2<25000)
     {
+/*
+sprintf(tempM,"Message %d",ind++);
+send_info_msg(pamh, tempM);
+        writeImageToMemory(zeroFrame,shared);
+*/
         t2 = (double)cvGetTickCount() - t1;
         t2=t2/((double)cvGetTickFrequency()*1000.0);
 
         IplImage * queryImage = webcam.queryFrame();
         if (queryImage!=0)
         {
-            newDetector.runDetector(queryImage);
-            if ( newDetector.checkFaceDetected()==1)
+           newDetector.runDetector(queryImage);
+          if ( newDetector.checkFaceDetected()==1)
             {
 
                 if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>28  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
@@ -270,41 +278,42 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         }
                         else
                         {
-                            send_info_msg(pamh, "The face is tilted at a greater angle, Cannot perform verification.");
+                            send_info_msg(pamh, "The face is tilted at a greater angle.");
 
                         }
 
-                        cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
-                        writeImageToMemory(queryImage,shared);
-
+             
                     }
                     else
                     {
                         send_info_msg(pamh, "Trying putting Your face to the center of the frame.");
                     }
-
+		  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
                 }
                 else
                 {
-                    send_info_msg(pamh, "Your eyes are not detected properly. Keep proper distance with the camera.");
+                    send_info_msg(pamh, "Keep proper distance with the camera.");
                 }
+	  
             }
             else
             {
                 send_info_msg(pamh, "Unable to Detect Your Face.");
             }
+
+        writeImageToMemory(queryImage,shared);
+        cvReleaseImage(&queryImage);
         }
         else
         {
             send_info_msg(pamh, "Unable query image from your webcam.");
 
         }
-        cvReleaseImage(&queryImage);
 
     }
 
     send_err_msg(pamh, "Giving Up Face Authentication. Try Again=(.");
-    webcam.stopCamera();
+   webcam.stopCamera();
     return PAM_AUTHINFO_UNAVAIL;
 }
 

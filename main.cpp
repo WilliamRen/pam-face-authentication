@@ -20,6 +20,8 @@
 
 #include <QtGui>
 #include <QApplication>
+#include <unistd.h>
+
 #include "cv.h"
 #include "highgui.h"
 #include "faceTrainer.h"
@@ -274,8 +276,8 @@ void faceTrainer::timerEvent( QTimerEvent * )
 
     setIbarText(newDetector.queryMessage());
 
-
-    cvWaitKey(1);
+  // sleep(1);
+ cvWaitKey(1);
 
     delete qm;
     cvReleaseImage(&queryImage);
