@@ -1,4 +1,4 @@
- 220                 if ( msg.indexOf( "Place your finger on the reader again" ) > -1 ||/*
+/*
     Rewritten
     Google Summer of Code Program 2009
     Mentoring Organization: pardus
