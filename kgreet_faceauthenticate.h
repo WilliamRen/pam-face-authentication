@@ -4,6 +4,8 @@ Conversation widget for kdm greeter
 
 Copyright (C) 1997, 1998 Steffen Hansen <hansen@kde.org>
 Copyright (C) 2000-2003 Oswald Buddenhagen <ossi@kde.org>
+Copyright (C) 2009 Jaroslav Barton <djaara@djaara.net>
+Copyright (C) 2009 Rohan Anil <rohan.anil@gmail.com>, BITS Pilani Goa Campus
 
 
 This program is free software; you can redistribute it and/or modify
@@ -23,26 +25,35 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 
-#ifndef KGREET_CLASSIC1_H
-#define KGREET_CLASSIC1_H
+#ifndef KGREET_FACEAUTHENTICATE_H
+#define KGREET_FACEAUTHENTICATE_H
 
-#include "kgreeterplugin.h"
+#include <kgreeterplugin.h>
 
 #include <QObject>
-
+#include <QGridLayout>
+#include <QTimer>
+#include <QImage>
+#include <QGraphicsView>
+//#include "webcamQLabel.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <unistd.h>
 class KLineEdit;
 class KSimpleConfig;
 class QLabel;
 
-class KClassic1Greeter : public QObject, public KGreeterPlugin {
+class KFaceAuthenticateGreeter : public QObject, public KGreeterPlugin {
 	Q_OBJECT
 
   public:
-	KClassic1Greeter( KGreeterPluginHandler *handler,
+	KFaceAuthenticateGreeter( KGreeterPluginHandler *handler,
 	                 QWidget *parent,
 	                 const QString &fixedEntitiy,
 	                 Function func, Context ctx );
-	~KClassic1Greeter();
+	~KFaceAuthenticateGreeter();
 	virtual void loadUsers( const QStringList &users );
 	virtual void presetEntity( const QString &entity, int field );
 	virtual QString getEntity() const;
@@ -60,26 +71,33 @@ class KClassic1Greeter : public QObject, public KGreeterPlugin {
 	virtual void failed();
 	virtual void revive();
 	virtual void clear();
+  protected:
+        void timerEvent(QTimerEvent *event);
 
   public Q_SLOTS:
-	void slotLoginLostFocus();
 	void slotChanged();
-
   private:
 	void setActive( bool enable );
-	void setActive2( bool enable );
 	void returnData();
+	void ipcStart();
+	//void timeout();
+		QImage image;
 
-	QLabel *loginLabel, *passwdLabel, *passwd1Label, *passwd2Label;
+	//webcamQLabel *webcamPreview;
+	QLabel *loginLabel, *faceauthenticateStatus;
+	//QTimer *webcamTimer;
+	QGraphicsView *webcamPreview;
+	QString sensor, finger;
 	KLineEdit *loginEdit;
-	KLineEdit *passwdEdit, *passwd1Edit, *passwd2Edit;
 	KSimpleConfig *stsFile;
 	QString fixedUser, curUser;
 	Function func;
 	Context ctx;
-	int exp, pExp, has;
-	bool running, authTok;
+	int has;
+	bool running, authTok, authStarted;
+     char *shared;
+	key_t ipckey;
+	int shmid;
 };
 
-#endif /* KGREET_CLASSIC1_H */
-// 
+#endif /* KGREET_FACEAUTHENTICATE_H */
