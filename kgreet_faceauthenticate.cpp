@@ -196,13 +196,6 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
 		}
 	}
 }
-/*
-void KFaceAuthenticateGreeter::timerEvent( QTimerEvent * )
-{
-
-
-}
-*/
 
 
 // virtual
