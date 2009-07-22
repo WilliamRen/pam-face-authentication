@@ -143,7 +143,7 @@ else
 			offset = iterator.ptr - (uchar*)(image->imageData);	
 			y = offset/image->widthStep;
        		x = (offset - y*image->widthStep)/(3*sizeof(uchar));
-            double rat =  .11*(((double)((countVert/2) -abs((countVert/2)-i))/(double)(countVert/2)));
+            double rat =  .08*(((double)((countVert/2) -abs((countVert/2)-i))/(double)(countVert/2)));
 		
 				
 			if(y>=0 && y<image->height && x>=0 && x<image->width)
