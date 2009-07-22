@@ -8,5 +8,6 @@
     public:
         webcamImagePaint(void);
         void paintCyclops (IplImage *,CvPoint leftEye,CvPoint rightEye);
+		void paintEllipse(IplImage *image,CvPoint leftEye,CvPoint rightEye);
     };
 #endif

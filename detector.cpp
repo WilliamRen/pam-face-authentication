@@ -351,37 +351,7 @@ int detector::runDetector(IplImage * input)
             antiRotateL.y= floor(leftEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  leftEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
             leftEyeP=antiRotateL;
             rightEyeP=antiRotateR;
-            /*
-                      CvPoint centerPoint;
-                      centerPoint=leftEyeP;
-                      IplImage* eyeDetect=0;
 
-                      IplImage *grayInput = cvCreateImage( cvSize(input->width,input->height), 8, 1 );
-                      cvCvtColor( input, grayInput, CV_BGR2GRAY );
-
-                      cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
-                      eyeDetect = cvCreateImage(cvSize(16,16),8,1);
-                      cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
-                      cvResetImageROI(grayInput);
-                       double xCordinate,yCordinate;
-                      xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
-                      yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
-
-                      leftEyeP.x=xCordinate;
-                      leftEyeP.y=yCordinate;
-
-                      centerPoint=rightEyeP;
-
-                      cvSetImageROI(grayInput,cvRect(centerPoint.x-8,centerPoint.y-8,16,16));
-                      cvResize( grayInput,eyeDetect, CV_INTER_LINEAR ) ;
-                      cvResetImageROI(grayInput);
-                      xCordinate=(centerPoint.x-8+CenterofMass(eyeDetect,0));
-                      yCordinate=(centerPoint.y-8+CenterofMass(eyeDetect,1));
-                      rightEyeP.x=xCordinate;
-                      rightEyeP.y=yCordinate;
-                      cvReleaseImage(&eyeDetect);
-                      cvReleaseImage(&grayInput);
-            */
             eyesInformation.LE.x=leftEyeP.x;
             eyesInformation.LE.y=leftEyeP.y;
             eyesInformation.RE.x=rightEyeP.x;

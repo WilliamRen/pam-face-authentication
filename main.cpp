@@ -266,7 +266,7 @@ void faceTrainer::timerEvent( QTimerEvent * )
 
 static webcamImagePaint newWebcamImagePaint;
 	newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-	
+		newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
 	//  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
    QImage * qm=QImageIplImageCvt(queryImage);
