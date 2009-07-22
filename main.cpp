@@ -25,6 +25,9 @@
 #include "cv.h"
 #include "highgui.h"
 #include "faceTrainer.h"
+
+#include "webcamImagePaint.h"
+
 #include "pam_face_defines.h"
 #include <iostream>
 #include <list>
@@ -260,7 +263,11 @@ void faceTrainer::timerEvent( QTimerEvent * )
     //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     //this works captureClick();
     //double t = (double)cvGetTickCount();
-    cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+
+static webcamImagePaint newWebcamImagePaint;
+	newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+	
+	//  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
    QImage * qm=QImageIplImageCvt(queryImage);
     if (newDetector.finishedClipFace()==1)

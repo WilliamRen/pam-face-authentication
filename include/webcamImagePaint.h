@@ -1,9 +1,12 @@
 #include "cv.h"
 #include "highgui.h"
+#ifndef _INCL_GUARD_PAINT
+#define _INCL_GUARD_PAINT
 
- class webcamImagePaint:
+ class webcamImagePaint
     {
     public:
-        webcamImagePaint();
-        void paint(IplImage *,struct *paintDescription);
+        webcamImagePaint(void);
+        void paintCyclops (IplImage *,CvPoint leftEye,CvPoint rightEye);
     };
+#endif

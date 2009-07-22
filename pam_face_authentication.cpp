@@ -57,7 +57,6 @@
 #include "detector.h"
 #include "verifier.h"
 int file_exists(const char* filename);
- 220                 if ( msg.indexOf( "Place your finger on the reader again" ) > -1 ||
 char * prevmsg=0;
 int msgPipeLiner(char *msg)
 {
@@ -151,7 +150,7 @@ void writeImageToMemory(IplImage* img,char *shared)
             CvScalar s;
             s=cvGet2D(img,n,m);
             int val3=(uchar)s.val[2];
-            int val2=( 220                 if ( msg.indexOf( "Place your finger on the reader again" ) > -1 ||uchar)s.val[1];
+            int val2=(uchar)s.val[1];
             int val1=(uchar)s.val[0];
 
             *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=val3;

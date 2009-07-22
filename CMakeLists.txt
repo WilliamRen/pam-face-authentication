@@ -17,7 +17,7 @@ SET( QT_FACEMANAGER_SRCS
       verifier.cpp
       utils.cpp
       qtUtils.cpp
-
+      webcamImagePaint.cpp
 )              
  
  SET( QT_FACEMANAGER_MOC_HDRS
