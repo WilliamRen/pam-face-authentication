@@ -229,7 +229,7 @@ if(j==2)
 			if(j==countLine-3)	
 				{rightScanLineX=x;
 				rightScanLineY=y;}
-			if(y>=0 && y<image->height && x>=0 && x<image->width)
+			if(y>0 && y<(image->height-1) && x>0 && x<(image->width-1))
 			{
 				CvScalar s;
 								s=cvGet2D(image,y-1,x);   		
