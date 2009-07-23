@@ -45,7 +45,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="first">
      <widget class="QPushButton" name="pb_next_t1">

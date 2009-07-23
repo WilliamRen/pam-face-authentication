@@ -889,6 +889,7 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMA
     cvGetSubRect( dftImage, &tmp, cvRect(0,0,SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X));
     cvCopy( complexInput, &tmp, NULL );
     cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
+  //  printf("%d %d \n",SIZE_OF_IMAGE_2X,maceFilterVisualize->width);
     cvMulSpectrums(dftImage , maceFilterVisualize, dftImage,CV_DXT_MUL_CONJ);
 
     cvDFT( dftImage, dftImage, CV_DXT_INV_SCALE,0 );
@@ -990,7 +991,7 @@ void rotatePoint(CvPoint* srcP,CvPoint* dstP,double angle,float centreX, float c
     CvMat src = cvMat( 1, 1, CV_32FC2, &p1 );
     CvMat dst = cvMat( 1, 1, CV_32FC2, &p2 );
     CvMat *translate = cvCreateMat(2, 3, CV_32FC1);
-    CvPoint2D32f centre;   
+    CvPoint2D32f centre;
     centre.x = centreX;
     centre.y = centreY;
     //printf("%e %e CENTER @p1 p2 \n", centre.x, centre.y);

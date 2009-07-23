@@ -35,7 +35,7 @@ int file_exists(const char* filename);
 
 CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE);
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE);
- void createSQI(IplImage * im,IplImage *final);
+void createSQI(IplImage * im,IplImage *final);
 
 void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
 
@@ -108,60 +108,58 @@ void verifier::createMaceFilter()
 {
     //cvNamedWindow("eyeRight",1);
 
-    allFaces* temp=getFaceImagesFromAllSet();
-    if (temp->count>0)
+    setFace* temp=getFaceSet();
+    for (int i=0;i<temp->count;i++)
     {
-        IplImage ** eye=new IplImage *[temp->count];
-        IplImage ** insideFace=new IplImage *[temp->count];
 
 
+        IplImage ** eye=new IplImage *[temp->faceImages[i].count];
+        IplImage ** insideFace=new IplImage *[temp->faceImages[i].count];
         CvMat *maceFilterVisualize;
         CvFileStorage* fs ;
         char modelname[300];
-
-
-        sprintf(modelname,"%s/.pam-face-authentication/model/face_mace.xml", userStruct->pw_dir);
-        maceFilterVisualize=computeMace( temp->faceImages,temp->count,FACE_MACE_SIZE);
+        sprintf(modelname,"%s/.pam-face-authentication/model/%s_face_mace.xml", userStruct->pw_dir,temp->setName[i]);
+        maceFilterVisualize=computeMace(temp->faceImages[i].faces,temp->faceImages[i].count,FACE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "maceFilter", maceFilterVisualize, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
         cvReleaseMat( &maceFilterVisualize );
 
-        sprintf(modelname,"%s/.pam-face-authentication/model/eye_mace.xml", userStruct->pw_dir);
+        sprintf(modelname,"%s/.pam-face-authentication/model/%s_eye_mace.xml", userStruct->pw_dir,temp->setName[i]);
         int index=0;
-        for (index=0;index<temp->count;index++)
+        for (index=0;index<temp->faceImages[i].count;index++)
         {
-            cvResetImageROI( temp->faceImages[index]);
-            eye[index]=cvCreateImage(cvSize(140,60),8, temp->faceImages[index]->nChannels);
-            cvSetImageROI( temp->faceImages[index],cvRect(0,0,140,60));
-            cvResize( temp->faceImages[index], eye[index], CV_INTER_LINEAR );
+            cvResetImageROI( temp->faceImages[i].faces[index]);
+            eye[index]=cvCreateImage(cvSize(EYE_MACE_SIZE,EYE_MACE_SIZE),8, temp->faceImages[i].faces[index]->nChannels);
+            cvSetImageROI( temp->faceImages[i].faces[index],cvRect(0,0,140,60));
+            cvResize(  temp->faceImages[i].faces[index], eye[index], CV_INTER_LINEAR );
         }
-        maceFilterVisualize=computeMace(eye,temp->count,EYE_MACE_SIZE);
+        maceFilterVisualize=computeMace(eye,temp->faceImages[i].count,EYE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "maceFilter", maceFilterVisualize, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
         cvReleaseMat( &maceFilterVisualize );
 
 
-        sprintf(modelname,"%s/.pam-face-authentication/model/inside_face_mace.xml", userStruct->pw_dir);
+        sprintf(modelname,"%s/.pam-face-authentication/model/%s_inside_face_mace.xml", userStruct->pw_dir,temp->setName[i]);
 
-        for (index=0;index<temp->count;index++)
+        for (index=0;index<temp->faceImages[i].count;index++)
         {
 
-            cvResetImageROI( temp->faceImages[index]);
-            insideFace[index]=cvCreateImage(cvSize(80,105),8, temp->faceImages[index]->nChannels);
-            cvSetImageROI( temp->faceImages[index],cvRect(30,45,80,105));
-            cvResize( temp->faceImages[index], insideFace[index], CV_INTER_LINEAR );
-            cvResetImageROI( temp->faceImages[index]);
+            cvResetImageROI( temp->faceImages[i].faces[index]);
+            insideFace[index]=cvCreateImage(cvSize(INSIDE_FACE_MACE_SIZE,INSIDE_FACE_MACE_SIZE),8, temp->faceImages[i].faces[index]->nChannels);
+            cvSetImageROI( temp->faceImages[i].faces[index],cvRect(30,45,80,105));
+            cvResize( temp->faceImages[i].faces[index], insideFace[index], CV_INTER_LINEAR );
+            cvResetImageROI( temp->faceImages[i].faces[index]);
         }
 
-        maceFilterVisualize=computeMace(insideFace,temp->count,INSIDE_FACE_MACE_SIZE);
+        maceFilterVisualize=computeMace(insideFace,temp->faceImages[i].count,INSIDE_FACE_MACE_SIZE);
         fs = cvOpenFileStorage( modelname, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "maceFilter", maceFilterVisualize, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
         cvReleaseMat( &maceFilterVisualize );
 
-        for (index=0;index<temp->count;index++)
+        for (index=0;index<temp->faceImages[i].count;index++)
         {
             cvReleaseImage(&eye[index]);
             cvReleaseImage(&insideFace[index]);
@@ -171,12 +169,7 @@ void verifier::createMaceFilter()
         delete [] insideFace;
 
     }
-    else
-    {
-        char dirname[300];
-        sprintf(dirname,"%s/face_mace.xml",modelDirectory);
-        remove(dirname);
-    }
+
 }
 void verifier::addFaceSet(IplImage **set,int size)
 {
@@ -206,14 +199,26 @@ void verifier::removeFaceSet(char* setName)
     sprintf(dirname,"%s/%s",facesDirectory,setName);
 
     d=opendir(dirname);
-    while (de = readdir(d))
+    while (de= readdir(d))
     {
+
         if (strcmp(de->d_name+strlen(de->d_name)-3, "jpg")==0)
         {
+
             sprintf(filename,"%s/%s",dirname,de->d_name);
+           // printf("%s \n",filename);
             remove(filename);
         }
     }
+    //  printf("No seggy \n");
+    char maceFilters[300];
+    sprintf(maceFilters,"%s/%s_face_mace.xml",modelDirectory,setName);
+    remove(maceFilters);
+    sprintf(maceFilters,"%s/%s_eye_mace.xml",modelDirectory,setName);
+    remove(maceFilters);
+    sprintf(maceFilters,"%s/%s_inside_face_mace.xml",modelDirectory,setName);
+    remove(maceFilters);
+
 
     remove(dirname);
     createMaceFilter();
@@ -230,10 +235,14 @@ int verifier::verifyFace(IplImage *faceMain)
     if (faceMain==0)
         return 0;
     char temp[300];
-    sprintf(temp,"%s/face_mace.xml",modelDirectory);
-    if (file_exists(temp)==0)
-        return 0;
+    //  sprintf(temp,"%s/face_mace.xml",modelDirectory);
+    //  if (file_exists(temp)==0)
+    //     return 0;
+    list<string> * mylistFace=new list<string>;
+    list<string> * mylistEye=new list<string>;
+    list<string> * mylistInsideFace=new list<string>;
 
+    list<string>::iterator it;
 
     IplImage * face= cvCreateImage( cvSize(140,150),8,faceMain->nChannels);
     cvResize( faceMain,face, CV_INTER_LINEAR ) ;
@@ -245,16 +254,26 @@ int verifier::verifyFace(IplImage *faceMain)
     {
         if (!((strcmp(de->d_name, ".")==0) || (strcmp(de->d_name, "..")==0)))
         {
-            if ((strcmp(de->d_name +strlen(de->d_name)-8, "mace.xml")==0))
+            // printf("%s \n",de->d_name);
+            if (((strcmp(de->d_name +strlen(de->d_name)-14, "_face_mace.xml")==0) && !(strcmp(de->d_name +strlen(de->d_name)-20, "inside_face_mace.xml")==0)))
             {
                 k++;
-                //  mylist->push_back (de->d_name);
+                mylistFace->push_back (de->d_name);
+            }
+            if ((strcmp(de->d_name +strlen(de->d_name)-20, "inside_face_mace.xml")==0))
+            {
+                mylistInsideFace->push_back (de->d_name);
+            }
+            if ((strcmp(de->d_name +strlen(de->d_name)-12, "eye_mace.xml")==0))
+            {
+                mylistEye->push_back (de->d_name);
             }
         }
     }
 
-    if (k<3)
+    if (k==0)
         return 0;
+
 
 
     IplImage * eye=cvCreateImage(cvSize(140,60),8,face->nChannels);
@@ -271,32 +290,65 @@ int verifier::verifyFace(IplImage *faceMain)
     char * macefilternamepath=new char[300];
     CvFileStorage * fileStorage;
     CvMat *maceFilterUser;
-    sprintf(macefilternamepath,"%s/%s",modelDirectory,"face_mace.xml");
-    fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
-    maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-    int faceValue=peakToSideLobeRatio(maceFilterUser,face,FACE_MACE_SIZE);
-    cvReleaseFileStorage( &fileStorage );
-    cvReleaseMat( &maceFilterUser );
+
+    int maxFaceValue=0,maxEyeValue=0,maxInsideFaceValue=0;
+
+    for (it=mylistFace->begin(); it!=mylistFace->end(); ++it)
+    {
+        string l=*it;
+        char *p;
+        char * fileName=new char[300];
+        p=&l[0];
+        sprintf(fileName,"%s",p);
+        sprintf(macefilternamepath,"%s/%s",modelDirectory,fileName);
+        fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
+        maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+        int faceValue=peakToSideLobeRatio(maceFilterUser,face,FACE_MACE_SIZE);
+        cvReleaseFileStorage( &fileStorage );
+        cvReleaseMat( &maceFilterUser );
+        if (maxFaceValue<faceValue)
+            maxFaceValue=faceValue;
+
+    }
 
 
-    sprintf(macefilternamepath,"%s/%s",modelDirectory,"eye_mace.xml");
-    fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
-    maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+    for (it=mylistEye->begin(); it!=mylistEye->end(); ++it)
+    {
+        string l=*it;
+        char *p;
+        char * fileName=new char[300];
+        p=&l[0];
+        sprintf(fileName,"%s",p);
+        sprintf(macefilternamepath,"%s/%s",modelDirectory,fileName);
+        fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
+        maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+        int eyeValue=peakToSideLobeRatio(maceFilterUser,eye,EYE_MACE_SIZE);
+        cvReleaseFileStorage( &fileStorage );
+        cvReleaseMat( &maceFilterUser );
+        if (maxEyeValue<eyeValue)
+            maxEyeValue=eyeValue;
+    }
 
-    int eyeValue=peakToSideLobeRatio(maceFilterUser,eye,EYE_MACE_SIZE);
+
+    for (it=mylistInsideFace->begin(); it!=mylistInsideFace->end(); ++it)
+    {
+        string l=*it;
+        char *p;
+        char * fileName=new char[300];
+        p=&l[0];
+        sprintf(fileName,"%s",p);
+        sprintf(macefilternamepath,"%s/%s",modelDirectory,fileName);
+        fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
+        maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+        int insideFaceValue=peakToSideLobeRatio(maceFilterUser,insideFace,INSIDE_FACE_MACE_SIZE);
+        //printf("%d PTSR of INSIDE FACE \n",v);
+        cvReleaseFileStorage( &fileStorage );
+        cvReleaseMat( &maceFilterUser );
+        if (maxInsideFaceValue<insideFaceValue)
+            maxInsideFaceValue=insideFaceValue;
+    }
 
 
-    cvReleaseFileStorage( &fileStorage );
-    cvReleaseMat( &maceFilterUser );
-
-    sprintf(macefilternamepath,"%s/%s",modelDirectory,"inside_face_mace.xml");
-    fileStorage = cvOpenFileStorage(macefilternamepath, 0, CV_STORAGE_READ );
-    maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-
-    int insideFaceValue=peakToSideLobeRatio(maceFilterUser,insideFace,INSIDE_FACE_MACE_SIZE);
-    //printf("%d PTSR of INSIDE FACE \n",v);
-    cvReleaseFileStorage( &fileStorage );
-    cvReleaseMat( &maceFilterUser );
     /*
       FILE* fp = fopen("/home/darksid3hack0r/value.txt", "a");
 
@@ -307,26 +359,28 @@ int verifier::verifyFace(IplImage *faceMain)
       fclose(fp);
       */
 
-printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",faceValue,eyeValue,insideFaceValue);
+    printf("The Values are  Face %d  Eye %d Nose+mouth  %d \n",maxFaceValue,maxEyeValue,maxInsideFaceValue);
 
     int count=0;
-    if (newConfig->filterMaceInsideFacePSLR<=insideFaceValue)
+    if (newConfig->filterMaceInsideFacePSLR<=maxInsideFaceValue)
         count++;
-    if (newConfig->filterMaceFacePSLR<=faceValue)
+    if (newConfig->filterMaceFacePSLR<=maxFaceValue)
         count++;
-    if (newConfig->filterMaceEyePSLR<=eyeValue)
+    if (newConfig->filterMaceEyePSLR<=maxEyeValue)
         count++;
 
 
     if (count>1)
-   {    //printf("\n YES \n");
-   return 1;}
+    {
+        //printf("\n YES \n");
+        return 1;
+    }
     else
         return 0;
 
 
 }
-
+/*
 allFaces* verifier::getFaceImagesFromAllSet()
 {
     setFace* faceSetStruct=getFaceSet();
@@ -379,6 +433,10 @@ allFaces* verifier::getFaceImagesFromAllSet()
 
     return newAllFaces;
 }
+
+*/
+
+
 setFace* verifier::getFaceSet()
 {
 
@@ -387,11 +445,14 @@ setFace* verifier::getFaceSet()
     list<string> * mylist=new list<string>;
     list<string>::iterator it;
     d=opendir(facesDirectory);
+
+    int count=0;
     while (de = readdir(d))
     {
         if (!((strcmp(de->d_name, ".")==0) || (strcmp(de->d_name, "..")==0)))
         {
             mylist->push_back (de->d_name);
+            count++;
 
         }
     }
@@ -401,6 +462,14 @@ setFace* verifier::getFaceSet()
     setFace* setFaceStruct= new setFace;
     setFaceStruct->setName =new char *[(int) mylist->size()];
     setFaceStruct->setFilePathThumbnails =new char *[(int) mylist->size()];
+    setFaceStruct->faceImages = new structFaceImages[(int) mylist->size()];
+    setFaceStruct->count=count;
+
+
+///./setFaceStruct->faceImages->count=imageK;
+
+
+
 
     int k=0;
     for (it=mylist->begin(); it!=mylist->end(); ++it)
@@ -414,8 +483,46 @@ setFace* verifier::getFaceSet()
         char * fileThumb=new char[300];
         sprintf(fileThumb,"%s/%s/1.jpg",facesDirectory,p);
         setFaceStruct->setFilePathThumbnails[k]=fileThumb;
+        char imagesDir[300];
+        sprintf(imagesDir,"%s/%s",facesDirectory,p);
+        int imageK=0;
+
+        struct dirent *de=NULL;
+        DIR *d=NULL;
+        list<string> * mylistImages=new list<string>;
+        list<string>::iterator itImages;
+        d=opendir(imagesDir);
+
+
+        while (de = readdir(d))
+        {
+            if (!((strcmp(de->d_name, ".")==0) || (strcmp(de->d_name, "..")==0)))
+            {
+                imageK++;
+                char fullPath[300];
+                sprintf(fullPath,"%s/%s",imagesDir,de->d_name);
+                mylistImages->push_back (fullPath);
+            }
+
+        }
+
+        mylistImages->sort();
+        setFaceStruct->faceImages[k].faces= new IplImage* [imageK];
+        setFaceStruct->faceImages[k].count=imageK;
+        int imageIndex=0;
+        for (itImages=mylistImages->begin(); itImages!=mylistImages->end(); ++itImages)
+        {
+            string l=*itImages;
+            char *p;
+            char * fileName=new char[300];
+            p=&l[0];
+            sprintf(fileName,"%s",p);
+            setFaceStruct->faceImages[k].faces[imageIndex]=cvLoadImage(fileName,1);
+            imageIndex++;
+        }
+
         k++;
     }
-    setFaceStruct->count=k;
+
     return setFaceStruct;
 }

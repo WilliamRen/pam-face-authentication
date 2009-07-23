@@ -450,7 +450,7 @@ char * detector::queryMessage()
     char *message2="Unable to Detect Your Face.";
     char *message3="Tracker lost, trying to reinitialize.";
     char *message4="Tracking in progress.";
-    char *message6="TCapturing Image Finished.";
+    char *message6="Capturing Image Finished.";
 
     if (messageIndex==-1)
         return 0;

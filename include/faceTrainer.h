@@ -29,6 +29,7 @@ protected:
         void showTab3();
         void showTab2();
         void showTab1();
+        void about();
         void removeSelected();
      //   void verify();
         void showAdvDialog();

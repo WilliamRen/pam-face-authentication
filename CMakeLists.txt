@@ -23,11 +23,14 @@ SET( QT_FACEMANAGER_SRCS
  SET( QT_FACEMANAGER_MOC_HDRS
         ${CMAKE_SOURCE_DIR}/include/faceTrainer.h
         ${CMAKE_SOURCE_DIR}/include/faceTrainerAdvSettings.h
+        ${CMAKE_SOURCE_DIR}/include/aboutBox.h
 )
   
  SET( QT_FACEMANAGER_UIS
        ${CMAKE_SOURCE_DIR}/data/ui/uifiles/faceTrainer.ui
        ${CMAKE_SOURCE_DIR}/data/ui/uifiles/faceTrainerAdvSettings.ui
+       ${CMAKE_SOURCE_DIR}/data/ui/uifiles/aboutDialog.ui
+       
   )
   
   SET( QT_FACEMANAGER_RCS

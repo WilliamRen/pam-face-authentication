@@ -25,7 +25,7 @@
 #include "cv.h"
 #include "highgui.h"
 #include "faceTrainer.h"
-
+#include "aboutBox.h"
 #include "webcamImagePaint.h"
 
 #include "pam_face_defines.h"
@@ -35,10 +35,11 @@
 #include <cctype>
 using namespace std;
 QImage *QImageIplImageCvt(IplImage *input);
-typedef struct{
-int filterMaceFacePSLR;
-int filterMaceEyePSLR;
-int filterMaceInsideFacePSLR;
+typedef struct
+{
+    int filterMaceFacePSLR;
+    int filterMaceEyePSLR;
+    int filterMaceInsideFacePSLR;
 }config;
 
 void setConfig(config *configuration,char * configDirectory);
@@ -116,28 +117,28 @@ void faceTrainerAdvSettings::restoreDefaults()
 
 void faceTrainerAdvSettings::sT(opencvWebcam *wc,detector *nd,verifier *nv)
 {
-     webcam=wc;
-        newDetector=nd;
-       newVerifier=nv;
+    webcam=wc;
+    newDetector=nd;
+    newVerifier=nv;
 
-        startTimer( 20 );
+    startTimer( 20 );
 }
 
 void faceTrainerAdvSettings:: testRecognition()
 {
-   IplImage * queryImage = webcam->queryFrame();
-    if(newVerifier->verifyFace(newDetector->clipFace(queryImage))==1)
-    ui.result->setText(QString("Yes"));
+    IplImage * queryImage = webcam->queryFrame();
+    if (newVerifier->verifyFace(newDetector->clipFace(queryImage))==1)
+        ui.result->setText(QString(tr("Yes")));
     else
-    ui.result->setText(QString("No"));
+        ui.result->setText(QString(tr("No")));
 }
 
 faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent, char* configDir,opencvWebcam *wc,detector *nd,verifier *nv)
         : QDialog(parent)
 {
     webcam=wc;
-        newDetector=nd;
-       newVerifier=nv;
+    newDetector=nd;
+    newVerifier=nv;
     configDirectory=configDir;
     ui.setupUi(this);
     connect(ui.pb_save,SIGNAL(clicked()), this, SLOT(saveClicked()));
@@ -152,7 +153,12 @@ faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent, char* configDir,
 
 
 }
+aboutBox::aboutBox(QWidget *parent)
+        : QDialog(parent)
+{
+    ui.setupUi(this);
 
+}
 faceTrainer::faceTrainer(QWidget *parent)
         : QMainWindow(parent)
 {
@@ -163,6 +169,7 @@ faceTrainer::faceTrainer(QWidget *parent)
     connect(ui.pb_next_t2,SIGNAL(clicked()), this, SLOT(showTab3()));
     connect(ui.pb_next_t1,SIGNAL(clicked()), this, SLOT(showTab2()));
     connect(ui.pb_back_t2,SIGNAL(clicked()), this, SLOT(showTab1()));
+    connect(ui.pb_about,SIGNAL(clicked()), this, SLOT(about()));
     connect(ui.pb_ds,SIGNAL(clicked()), this, SLOT(removeSelected()));
     connect(ui.pb_adv,SIGNAL(clicked()), this, SLOT(showAdvDialog()));
 
@@ -170,6 +177,11 @@ faceTrainer::faceTrainer(QWidget *parent)
     //connect(ui.but,SIGNAL(clicked()), this, SLOT(butClick()));
 
 
+}
+void faceTrainer::about()
+{
+    static aboutBox newAboutBox;
+    newAboutBox.exec();
 }
 void faceTrainer::showAdvDialog()
 {
@@ -192,8 +204,8 @@ void faceTrainer::verify()
             char fullPath[300];
             sprintf(fullPath,"%s/%s","/home/rohan/train",de->d_name);
             IplImage *temp=cvLoadImage(fullPath,1);
-           // printf("%s \n",fullPath);
-            if(newVerifier.verifyFace(temp)==1)
+            // printf("%s \n",fullPath);
+            if (newVerifier.verifyFace(temp)==1)
             {
             }
 
@@ -231,7 +243,7 @@ void faceTrainer::removeSelected()
 
     populateQList();
 
-verify();
+  //  verify();
 
 }
 void faceTrainer::captureClick()
@@ -240,13 +252,13 @@ void faceTrainer::captureClick()
     static int latch=0;
     if (latch==0)
     {
-        ui.pb_capture->setText("Cancel");
+        ui.pb_capture->setText(tr("Cancel"));
         latch=1;
         newDetector.startClipFace(13);
     }
     else
     {
-        ui.pb_capture->setText("Capture");
+        ui.pb_capture->setText(tr("Capture"));
         latch=0;
         newDetector.stopClipFace();
     }
@@ -259,20 +271,25 @@ void faceTrainer::timerEvent( QTimerEvent * )
 
     IplImage * queryImage = webcam.queryFrame();
     newDetector.runDetector(queryImage);
+
+    setIbarText(newDetector.queryMessage());
     //if(newDetector.checkEyeDetected()==1)
     //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     //this works captureClick();
     //double t = (double)cvGetTickCount();
 
-static webcamImagePaint newWebcamImagePaint;
-	newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-		newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-	//  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+    static webcamImagePaint newWebcamImagePaint;
+    newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+    newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+    //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
-   QImage * qm=QImageIplImageCvt(queryImage);
+    QImage * qm=QImageIplImageCvt(queryImage);
+
     if (newDetector.finishedClipFace()==1)
     {
+        setIbarText("Processing Faces, Please Wait ...");
         newVerifier.addFaceSet(newDetector.returnClipedFace(),13);
+        setIbarText("Processing Completed.");
         captureClick();
         populateQList();
 
@@ -281,10 +298,8 @@ static webcamImagePaint newWebcamImagePaint;
     setQImageWebcam(qm);
 
 
-    setIbarText(newDetector.queryMessage());
-
-  // sleep(1);
- cvWaitKey(1);
+cvWaitKey(1);
+    // sleep(1);
 
     delete qm;
     cvReleaseImage(&queryImage);
@@ -300,38 +315,37 @@ void faceTrainerAdvSettings::timerEvent( QTimerEvent * )
     //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     //this works captureClick();
     //double t = (double)cvGetTickCount();
-	static webcamImagePaint newWebcamImagePaint;
-	newWebcamImagePaint.paintCyclops(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
-		newWebcamImagePaint.paintEllipse(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
-	
- //  cvLine(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE, cvScalar(0,255,0), 4);
+    static webcamImagePaint newWebcamImagePaint;
+    newWebcamImagePaint.paintCyclops(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
+    newWebcamImagePaint.paintEllipse(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
+
+//  cvLine(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     QImage * qm=QImageIplImageCvt(queryImage);
     setQImageWebcam(qm);
-    cvWaitKey(1);
-
+cvWaitKey(1);
     delete qm;
 }
 void faceTrainer::showTab2()
 {
-    if(webcam.startCamera()==1)
+    if (webcam.startCamera()==1)
     {
-    ui.stkWg->setCurrentIndex(1);
-    populateQList();
-    startTimer( 20 );
+        ui.stkWg->setCurrentIndex(1);
+        populateQList();
+        startTimer( 20 );
     }
     else
     {
-    QMessageBox msgBox1;
-            msgBox1.setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);"));
-    msgBox1.setWindowTitle("Face Trainer");
-    msgBox1.setText("<strong>Error</strong>");
-    msgBox1.setInformativeText(
-        "Camera Not Found. <br /> "
-        "Plugin Your Camera and Try Again.");
-    msgBox1.setStandardButtons(QMessageBox::Ok);
-    msgBox1.setIconPixmap(QPixmap(":/cnc.png"));
-    msgBox1.exec();
+        QMessageBox msgBox1;
+        msgBox1.setStyleSheet(QString::fromUtf8("background-color: rgb(255, 255, 255);"));
+        msgBox1.setWindowTitle(tr("Face Trainer"));
+        msgBox1.setText(tr("<strong>Error</strong>"));
+        msgBox1.setInformativeText(
+            "Camera Not Found. <br /> "
+            "Plugin Your Camera and Try Again.");
+        msgBox1.setStandardButtons(QMessageBox::Ok);
+        msgBox1.setIconPixmap(QPixmap(":/cnc.png"));
+        msgBox1.exec();
     }
 }
 
@@ -353,9 +367,9 @@ int main(int argc, char *argv[])
     faceTrainer tab1;
     tab1.setWindowTitle("Face Trainer");
 
-     QRect r = tab1.geometry();
-     r.moveCenter(QApplication::desktop()->availableGeometry().center());
-     tab1.setGeometry(r);
+    QRect r = tab1.geometry();
+    r.moveCenter(QApplication::desktop()->availableGeometry().center());
+    tab1.setGeometry(r);
 
 
     tab1.show();
