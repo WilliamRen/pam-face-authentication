@@ -52,7 +52,7 @@ p2.y=leftEye.y;
 p2.x= floor(p2.x*CV_MAT_ELEM(*rotateMatrix, float, 0, 0) +  p2.y*CV_MAT_ELEM(*rotateMatrix, float, 0, 1) +CV_MAT_ELEM(*rotateMatrix, float, 0, 2));
 p2.y= floor(p2.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  p2.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
 
-	cvEllipse(imgDest, p2, cvSize((width/2)+ int(45*ratio),110*ratio),ang, 0, 360, cvScalar(255,255,255), -1, 8,0);
+	cvEllipse(imgDest, p2, cvSize((width/2)+ int(55*ratio),120*ratio),ang, 0, 360, cvScalar(255,255,255), -1, 8,0);
 int i,j;
 	for(i=0;i<image->height;i++)
 	{
@@ -177,6 +177,24 @@ else
 		offset = iterator2.ptr - (uchar*)(image->imageData);
    		y2 = offset/image->widthStep;
         x2 = (offset - y2*image->widthStep)/(3*sizeof(uchar));
+int yoffsetl,yoffsetr;
+int val= int(pow(((5*fabs(i-countVert/2))/countVert),2));
+		// COMMENT : VERY DIRTY HACK : EQUATION IS NOT EXACTLY RIGHT , i should be using val*cos(theta) , but who cares it works =P
+		
+		yoffsetr =int((double)(double(y2-y1)/double(x2-x1))*(double(val)));
+		yoffsetl =int((double)(double(y2-y1)/double(x2-x1))*(double(-val)));
+	//	printf("%d %d %d \n",yoffsetr,yoffsetl,val);
+		y2+=yoffsetr;
+		y1+=yoffsetl;
+		
+int realX1=x1;
+int realX2=x2;
+		x2-=val;
+		x1+=val;
+		
+
+
+		
 		if(y1>=0 && y1<image->height && x1>=0 && x1<image->width && y2>=0 && y2<image->height && x2>=0 && x2<image->width)
 		{
 
@@ -199,7 +217,11 @@ else
 			offset = iterator.ptr - (uchar*)(image->imageData);	
 			y = offset/image->widthStep;
        		x = (offset - y*image->widthStep)/(3*sizeof(uchar));
-            double rat =  .5*(((double)((countVert/2) -abs((countVert/2)-i))/(double)(countVert/2)));
+            double rat =  .06*(((double)((countVert/2) -abs((countVert/2)-i))/(double)(countVert/2)));
+
+rat=rat + fabs(double(.05*((double(double(fabs(l.x-r.x)/2) -fabs((double)x-double(fabs(l.x-r.x)/2)) ))/ (double((fabs(l.x-r.x)/2)))))) ;
+
+		
 if(j==2)
 				{		leftScanLineX=x;
 				leftScanLineY=y;}
@@ -210,7 +232,34 @@ if(j==2)
 			if(y>=0 && y<image->height && x>=0 && x<image->width)
 			{
 				CvScalar s;
+								s=cvGet2D(image,y-1,x);   		
+						s.val[1]=(s.val[1]*(1-rat)) + (255*rat);
+				cvSet2D(image,y-1,x,s);
+						s=cvGet2D(image,y,x-1);   		
+							s=cvGet2D(image,y-1,x-1);   		
+						s.val[1]=(s.val[1]*(1-rat)) + (255*rat);
+				cvSet2D(image,y-1,x-1,s);
 
+							s=cvGet2D(image,y+1,x+1);   		
+						s.val[1]=(s.val[1]*(1-rat)) + (255*rat);
+				cvSet2D(image,y+1,x+1,s);
+				
+						s=cvGet2D(image,y,x-1);   
+				s.val[1]=(s.val[1]*(1-rat)) + (255*rat);
+				cvSet2D(image,y,x-1,s);
+				
+		 
+
+
+				s=cvGet2D(image,y+1,x);   		
+
+				s.val[1]=(s.val[1]*(1-rat)) + (255*rat);
+				cvSet2D(image,y+1,x,s);
+						s=cvGet2D(image,y,x+1);   		
+
+				s.val[1]=(s.val[1]*(1-rat)) + (255*rat);
+				cvSet2D(image,y,x+1,s);
+				
 			s=cvGet2D(image,y,x);   		
 
 				s.val[1]=(s.val[1]*(1-rat)) + (255*rat);
@@ -254,8 +303,8 @@ if(j==2)
 		
 	}
 
-		 //cvLine(image,p1LeftTop, p1LeftBottom, cvScalar(0,122,0), 1); 
-	// cvLine(image,p1RightTop, p1RightBottom, cvScalar(0,122,0), 1); 
+	//cvLine(image,p1LeftTop, p1LeftBottom, cvScalar(0,122,0),1,CV_AA,0); 
+//	cvLine(image,p1RightTop, p1RightBottom, cvScalar(0,122,0),1,CV_AA,0); 
 	 
    /*// int blue_sum = 0, green_sum = 0, red_sum = LeftBottom0;
     int count = cvInitLineIterator( image, leftEye, rightEye, &iterator, 8, 0 );

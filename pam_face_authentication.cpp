@@ -52,7 +52,7 @@
 #include <ctype.h>
 #include "pam_face_authentication.h"
 #include "pam_face_defines.h"
-
+#include "webcamImagePaint.h"
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
@@ -198,6 +198,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     opencvWebcam webcam;
     detector newDetector;
+	static webcamImagePaint newWebcamImagePaint;
 
     /* Clear Shared Memory */
 
@@ -287,7 +288,10 @@ send_info_msg(pamh, tempM);
                     {
                         send_info_msg(pamh, "Trying putting Your face to the center of the frame.");
                     }
-		  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+					newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+					newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+	
+		//  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
                 }
                 else
                 {

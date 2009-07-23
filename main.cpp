@@ -120,7 +120,7 @@ void faceTrainerAdvSettings::sT(opencvWebcam *wc,detector *nd,verifier *nv)
         newDetector=nd;
        newVerifier=nv;
 
-        startTimer( 100 );
+        startTimer( 20 );
 }
 
 void faceTrainerAdvSettings:: testRecognition()
@@ -300,7 +300,11 @@ void faceTrainerAdvSettings::timerEvent( QTimerEvent * )
     //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     //this works captureClick();
     //double t = (double)cvGetTickCount();
-    cvLine(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE, cvScalar(0,255,0), 4);
+	static webcamImagePaint newWebcamImagePaint;
+	newWebcamImagePaint.paintCyclops(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
+		newWebcamImagePaint.paintEllipse(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
+	
+ //  cvLine(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     QImage * qm=QImageIplImageCvt(queryImage);
     setQImageWebcam(qm);
@@ -314,7 +318,7 @@ void faceTrainer::showTab2()
     {
     ui.stkWg->setCurrentIndex(1);
     populateQList();
-    startTimer( 100 );
+    startTimer( 20 );
     }
     else
     {
