@@ -11,11 +11,9 @@
     Google Summer of Code Program 2008
     Mentoring Organization: openSUSE
 
-
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
+    the Free Software Foundation, version 3 of the License.
 
     This program is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -282,7 +280,7 @@ send_info_msg(pamh, tempM);
 
                         }
 
-             
+
                     }
                     else
                     {
@@ -290,14 +288,14 @@ send_info_msg(pamh, tempM);
                     }
 					newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
 					newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-	
+
 		//  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
                 }
                 else
                 {
                     send_info_msg(pamh, "Keep proper distance with the camera.");
                 }
-	  
+
             }
             else
             {
