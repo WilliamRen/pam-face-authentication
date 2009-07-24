@@ -37,7 +37,7 @@ eyesDetector::eyesDetector()
     eyesInformation.LE =cvPoint(0,0);
     eyesInformation.RE =cvPoint(0,0);
     eyesInformation.Length =0;
-	bothEyesDetected=0;
+    bothEyesDetected=0;
 
 
 }
@@ -57,7 +57,7 @@ int eyesDetector::checkEyeDetected()
 void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint LT)
 
 {
-bothEyesDetected=0;
+    bothEyesDetected=0;
     //static int countR;
     //static CvPoint leftEyeP,rightEyeP;
     eyesInformation.LE =cvPoint(0,0);
@@ -89,7 +89,7 @@ bothEyesDetected=0;
     count=nested_objects ? nested_objects->total : 0;
     int Flag=0;
     if (count>1)
-     {
+    {
 
         for ( j = 0; j < (nested_objects ? nested_objects->total : 0); j++ )
         {
@@ -136,8 +136,8 @@ bothEyesDetected=0;
 
         if (leftT==1 && rightT==1)
         {
-        eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
-bothEyesDetected=1;
+            eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
+            bothEyesDetected=1;
         }
 
     }

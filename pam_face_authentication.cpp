@@ -54,8 +54,12 @@
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
-int file_exists(const char* filename);
+#include "utils.h"
+/**
+* Previous Message String
+*/
 char * prevmsg=0;
+
 int msgPipeLiner(char *msg)
 {
     if (prevmsg!=0)

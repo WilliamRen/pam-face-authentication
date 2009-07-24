@@ -27,15 +27,42 @@ Rewritten
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+/** @file */
+
+/**
+* Shared Memory Key Value for Image
+*/
 #define IPC_KEY_IMAGE 567814
+/**
+* Shared Memory Key Value for Communication
+*/
 #define IPC_KEY_STATUS 567813
+/**
+* Shared Memory Size for Image , 320X240
+*/
 #define IMAGE_SIZE 230400
+/**
+* Image Width of Webcam
+*/
 #define IMAGE_WIDTH 320
+/**
+* Image Height of Webcam
+*/
 #define IMAGE_HEIGHT 240
 
 //DEFAULT PARAMETERS FOR MACE FILTER PEAK TO SIDE LOBE RATIO
+
+/**
+* Mace Filter Face Threshold Value
+*/
 #define MACE_FACE_DEFAULT 24
+/**
+* Mace Filter Eye Threshold Value
+*/
 #define MACE_EYE_DEFAULT 25
+/**
+* Mace Filter Inside Face Threshold Value
+*/
 #define MACE_INSIDE_FACE_DEFAULT 26
 
 

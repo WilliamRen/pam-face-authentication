@@ -36,6 +36,12 @@ public:
     *Pointer to Verifier object
     */
     verifier *newVerifier;
+    /**
+    *Set Internal Variables of Face Advanced Settings Object
+    *@param wc Webcam Object Pointer
+    *@param nd Detector Object Pointer
+    *@param nv Verifier Object Pointer
+    */
     void sT(opencvWebcam *wc,detector *nd,verifier *nv);
 private:
     /**
@@ -59,7 +65,7 @@ private slots:
 public slots:
     /**
     *Sets the image of QGraphicsView which Displays the Webcam
-    *@param QImage that needs to be set.
+    *@param input that needs to be set.
     */
 
     void setQImageWebcam(QImage *);

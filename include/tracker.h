@@ -18,8 +18,8 @@ public:
 
     /**
     *This is functions runs the Tracker Algorithm
-    *@param Input Point Co-ordinates on Model Image
-    *@param Output Point Co-ordinates on Current Image
+    *@param p1 Input Point Co-ordinates on Model Image
+    *@param p2 Output Point Co-ordinates on Current Image
     */
     void findPoint(CvPoint p1,CvPoint *p2);
 

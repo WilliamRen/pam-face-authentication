@@ -93,7 +93,7 @@ private slots:
 public slots:
     /**
     *Sets the image of QGraphicsView which Displays the Webcam
-    *@param QImage that needs to be set.
+    *@param input that needs to be set.
     */
 
     void setQImageWebcam(QImage *);
