@@ -21,15 +21,13 @@
 #include "cv.h"
 #include <stdio.h>
 #include <tracker.h>
+#include "utils.h"
+#include "qtUtils.h"
 
 #define eyeSidePad 30
 #define eyeTopPad 30
 #define eyeBottomPad 120
 
-double CenterofMass(IplImage* src,int flagXY);
-
-void rotate(double angle, float centreX, float centreY,IplImage * img,IplImage * dstimg);
-void rotatePoint(CvPoint* srcP,CvPoint* dstP,double angle,float centreX, float centreY);
 
 IplImage * preprocess(IplImage * img,CvPoint plefteye,CvPoint prighteye)
 {
@@ -65,16 +63,7 @@ IplImage * preprocess(IplImage * img,CvPoint plefteye,CvPoint prighteye)
 detector::detector()
 {
     messageIndex=-1;
-    paintInformation.LT=cvPoint(0,0);
-    paintInformation.RB=cvPoint(0,0);
-    paintInformation.LB=cvPoint(0,0);
-    paintInformation.RT=cvPoint(0,0);
 
-    paintInformation.LE=cvPoint(0,0);
-    paintInformation.RE=cvPoint(0,0);
-    paintInformation.Length=0;
-    paintInformation.Width=0;
-    paintInformation.Height=0;
     clippedFace=0;
     boolClipFace=0;
     totalFaceClipNum=0;
@@ -83,7 +72,6 @@ detector::detector()
 
 IplImage * detector::clipFace(IplImage * inputImage)
 {
-    static CvPoint leftEye,rightEye;
     if (inputImage==0)
         return 0;
     if (checkFaceDetected()==1)

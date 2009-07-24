@@ -5,43 +5,97 @@
 #include "faceDetector.h"
 #include "eyesDetector.h"
 
-struct paintDescription
+/**
+* Detector Class. This Class subclasses the face and eyes detector Classes.
+@see faceDetector
+@see eyesDetector
+*/
+class detector: public faceDetector, public eyesDetector
 {
-    CvPoint LT;
-    CvPoint LB;
-    CvPoint RT;
-    CvPoint RB;
-    CvPoint LE;
-    CvPoint RE;
-    int Length;
-    int Width;
-    int Height;
-
-} ;
-
- class detector: public faceDetector, public eyesDetector
-    {
-    private:
+private:
+    /**
+    * This Class subclasses the face and eyes detector Classes. This is used in Capturing Face Images in Training.
+    @see clippedFace
+    */
     int boolClipFace;
+    /**
+    * Total Number of Faces to be Clipped.
+    */
     int totalFaceClipNum;
+    /**
+    * Number of Face Images Clipped till now.
+    */
     int clipFaceCounter;
+    /**
+    * If all the faces are Clipped 1 otherwise 0
+    *@see totalFaceClipNum
+    */
     int finishedClipFaceFlag;
 
-    public:
+public:
+    /**
+    * Array of Clipped Face Images
+    */
     IplImage**clippedFace;
+    /**
+    * Message Index corresponding to Different States
+    */
     int messageIndex;
-
-    IplImage * *returnClipedFace();
+    /**
+    * Function to return the Pointers to the Clipped Faces
+    *@return returns a set of IplImage of Clipped Faces
+    */
+    IplImage **returnClipedFace();
+    /**
+    * Starts the Clipping Detected Faces
+    *@param num total number of face images to be clipped
+    */
     void startClipFace(int num);
+    /**
+    * Stops the Clipping
+    */
     void stopClipFace();
+
+    /**
+    *function to Check if Prespecified of Faces has been Clipped
+    *@return 1 if success , 0 for failure, On Success code should do the work on the Images , otherwise it might get Lost forever
+    */
     int finishedClipFace();
-    struct paintDescription paintInformation;
+
+    /**
+    *The Constuctor
+    *Initializes internal variables
+    */
     detector(void);
-	int runDetector(IplImage * input);
+
+    /**
+    *function to run the Detection / Tracking Algorithm on param image
+    *@param input The IplImage on which the Algorithm should be run on
+    *@return 1 if success , 0 for failure
+    */
+    int runDetector(IplImage * input);
+
+    /**
+    *function to return the Current State of Detector
+    *@return the String which describes the State in Human Readable Form (english ( need to fix this, translation))
+    */
     char * queryMessage();
+
+    /**
+    *Returns the Face Image of the Detected Face
+    *@param inputImage The Input image.
+    *@result IplImage on success , 0 on failure
+    */
     IplImage * clipFace(IplImage * inputImage);
+    /**
+    *Returns the Face Image of the Detected Face
+    *@result 1 on success , 0 on failure
+    */
     int detectorSuccessful();
- private:
- char messageCaptureMessage[300];
-    };
+private:
+    /**
+    *Temp Variable used to print %d/%d message while capturing images
+    */
+    char messageCaptureMessage[300];
+};
 #endif

@@ -37,13 +37,13 @@ eyesDetector::eyesDetector()
     eyesInformation.LE =cvPoint(0,0);
     eyesInformation.RE =cvPoint(0,0);
     eyesInformation.Length =0;
-	eyesCascadeTrue=0;
+	bothEyesDetected=0;
 
 
 }
 int eyesDetector::checkEyeDetected()
 {
-    if (eyesCascadeTrue==1)
+    if (bothEyesDetected==1)
     {
         return 1;
     }
@@ -57,7 +57,7 @@ int eyesDetector::checkEyeDetected()
 void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint LT)
 
 {
-eyesCascadeTrue=0;
+bothEyesDetected=0;
     //static int countR;
     //static CvPoint leftEyeP,rightEyeP;
     eyesInformation.LE =cvPoint(0,0);
@@ -137,7 +137,7 @@ eyesCascadeTrue=0;
         if (leftT==1 && rightT==1)
         {
         eyesInformation.Length=sqrt(pow(eyesInformation.RE.y-eyesInformation.LE.y,2)+ pow(eyesInformation.RE.x-eyesInformation.LE.x,2));
-eyesCascadeTrue=1;
+bothEyesDetected=1;
         }
 
     }

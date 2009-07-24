@@ -26,23 +26,7 @@
 #include <cxcore.h>
 #include <stdio.h>
 
-
-typedef struct
-{
-    int filterMaceFacePSLR;
-    int filterMaceEyePSLR;
-    int filterMaceInsideFacePSLR;
-}config;
-
-
-
-void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
-CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE);
-int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE);
-
-int file_exists(const char* filename);
-
-
+#include "utils.h"
 
 
 

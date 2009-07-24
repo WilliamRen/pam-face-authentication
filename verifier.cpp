@@ -9,6 +9,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include "pam_face_defines.h"
+#include "utils.h"
 
 #include <iostream>
 #include <list>
@@ -22,22 +23,6 @@
 
 
 using namespace std;
-typedef struct
-{
-    int filterMaceFacePSLR;
-    int filterMaceEyePSLR;
-    int filterMaceInsideFacePSLR;
-}config;
-
-void setConfig(config *configuration,char * configDirectory);
-config * getConfig(char *configDirectory);
-int file_exists(const char* filename);
-
-CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE);
-int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE);
-void createSQI(IplImage * im,IplImage *final);
-
-void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr );
 
 char * verifier::createSetDir()
 {

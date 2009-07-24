@@ -1,5 +1,5 @@
 /*
-    QT Face Manager MAIN
+    QT Face Trainer MAIN
     Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
     http://code.google.com/p/pam-face-authentication/
 
@@ -26,6 +26,8 @@
 #include "faceTrainer.h"
 #include "aboutBox.h"
 #include "webcamImagePaint.h"
+#include "utils.h"
+#include "qtUtils.h"
 
 #include "pam_face_defines.h"
 #include <iostream>
@@ -33,16 +35,6 @@
 #include <string>
 #include <cctype>
 using namespace std;
-QImage *QImageIplImageCvt(IplImage *input);
-typedef struct
-{
-    int filterMaceFacePSLR;
-    int filterMaceEyePSLR;
-    int filterMaceInsideFacePSLR;
-}config;
-
-void setConfig(config *configuration,char * configDirectory);
-config * getConfig(char *configDirectory);
 
 
 void faceTrainer::setIbarText(char *message)

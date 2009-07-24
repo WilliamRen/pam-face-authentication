@@ -46,7 +46,6 @@ faceDetector::faceDetector()
     faceInformation.RB= cvPoint(0,0);
     faceInformation.Width=0;
     faceInformation.Height=0;
-    frameSkipNumber=0;
 
 }
 void faceDetector::runFaceDetector(IplImage *input)

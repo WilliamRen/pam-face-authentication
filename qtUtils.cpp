@@ -25,6 +25,7 @@
 #include "pam_face_defines.h"
 #include <cxcore.h>
 #include <stdio.h>
+#include "qtUtils.h"
 
 QImage *QImageIplImageCvt(IplImage *input)
 {
