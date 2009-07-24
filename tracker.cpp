@@ -184,7 +184,7 @@ double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
         return var;
 }
 
-double tracker::gridSearch(double  scaleFactor,double translateFactor,double * updatedScaleFactor,double * updatedTranslateFactor,double *feature,double *feature1,double* featureModel,double* featureModel1,int size,double scale,double translate,int anchor)
+double tracker::findParam(double  scaleFactor,double translateFactor,double * updatedScaleFactor,double * updatedTranslateFactor,double *feature,double *feature1,double* featureModel,double* featureModel1,int size,double scale,double translate,int anchor)
 {
     double val;
     double diffVal1[NUMBER_OF_GRID_POINTS];
@@ -293,7 +293,7 @@ double sd= diffVal1[GRID_SIDE_SIZE*i+j] + diffVal2[GRID_SIDE_SIZE*i+j];
 }
 
 
-double tracker::runGridSearch(IplImage *gray,int size,int flag,double *d,double* e ,double * integralTemp,double * integralTemp1,int anchor)
+double tracker::runGridSearch(IplImage *gray,int size,int flag,double *d,double* e ,double * varianceImage,double * integralImage,int anchor)
 {
 
     double v=0;
@@ -332,7 +332,7 @@ double tracker::runGridSearch(IplImage *gray,int size,int flag,double *d,double*
     int l=0;
     for (l=0;l<6;l++)
     {
-        v =  gridSearch(scaleFactor,translateFactor,&updatedScaleFactor,&updatedTranslateFactor,feature,feature1,integralTemp,integralTemp1,size,scale,translate,anchor);
+        v =  findParam(scaleFactor,translateFactor,&updatedScaleFactor,&updatedTranslateFactor,feature,feature1,varianceImage,integralImage,size,scale,translate,anchor);
 
         scale/=2;
         translate/=2;
