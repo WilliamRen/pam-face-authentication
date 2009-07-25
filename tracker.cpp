@@ -27,7 +27,7 @@ tracker::tracker(void)
     trackerModelFeatureSizeX=0;
     trackerModelFeatureVARIANCEY= 0;
     trackerModelFeatureVARIANCEX= 0;
-    trackerModelFeatureINTEGRALY= 0;
+    trackerModelFeatureINTEGRALX= 0;
     trackerModelFeatureINTEGRALY= 0;
     stateVariableScaleX=0;
     stateVariableTranslateX=0;
@@ -66,15 +66,11 @@ void tracker:: setModel(IplImage * input)
     if (trackerModelFeatureVARIANCEY!=0)
         delete [] trackerModelFeatureVARIANCEY;
     if (trackerModelFeatureVARIANCEX!=0)
-
       delete [] trackerModelFeatureVARIANCEX;
-
     if (trackerModelFeatureINTEGRALX!=0)
         delete [] trackerModelFeatureINTEGRALX;
     if (trackerModelFeatureINTEGRALY!=0)
-
       delete [] trackerModelFeatureINTEGRALY;
-
     trackerModelFeatureSizeY=input->height;
     trackerModelFeatureSizeX=input->width;
 //Variance

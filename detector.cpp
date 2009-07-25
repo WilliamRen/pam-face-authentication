@@ -68,6 +68,13 @@ detector::detector()
     boolClipFace=0;
     totalFaceClipNum=0;
     clipFaceCounter=0;
+    prevlengthEye=0;
+    inAngle=0;
+    lengthEye=0;
+    widthEyeWindow=0;
+    heightEyeWindow=0;
+
+
 }
 
 IplImage * detector::clipFace(IplImage * inputImage)
@@ -91,18 +98,7 @@ int detector::runDetector(IplImage * input)
     static int flag;
     if (input==0)
         return -1;
-    static tracker leftEye;
-    static tracker rightEye;
-    static tracker fullTracker;
-    static CvPoint leftEyeP,rightEyeP;
-    static CvPoint leftEyeP1,rightEyeP1;
-    static CvPoint leftEyeP2,rightEyeP2;
-    static double inAngle;
 
-
-    static int lengthEye,widthEyeWindow,heightEyeWindow;
-
-    static int prevlengthEye;
 
     runFaceDetector(input);
 
@@ -133,40 +129,29 @@ int detector::runDetector(IplImage * input)
                 leftEyeP.y=eyesInformation.LE.y;
                 rightEyeP.x=eyesInformation.RE.x;
                 rightEyeP.y=eyesInformation.RE.y;
-                leftEyeP2.x=eyesInformation.LE.x;
-                leftEyeP2.y=eyesInformation.LE.y;
-                rightEyeP2.x=eyesInformation.RE.x;
-                rightEyeP2.y=eyesInformation.RE.y;
-                double yvalue=rightEyeP2.y-leftEyeP2.y;
-                double xvalue=rightEyeP2.x-leftEyeP2.x;
+                double yvalue=rightEyeP.y-leftEyeP.y;
+                double xvalue=rightEyeP.x-leftEyeP.x;
                 inAngle= atan(yvalue/xvalue);
-
-
-
-                leftEyeP1.x=eyesInformation.LE.x-faceInformation.LT.x;
-                leftEyeP1.y=eyesInformation.LE.y-faceInformation.LT.y-(clipFaceImage->height)/8;
-                rightEyeP1.x=eyesInformation.RE.x-faceInformation.LT.x -((gray->width)/2);
-                rightEyeP1.y=eyesInformation.RE.y-faceInformation.LT.y-(clipFaceImage->height)/8;
-
-
-
+                leftEyePointRelative.x=eyesInformation.LE.x-faceInformation.LT.x;
+                leftEyePointRelative.y=eyesInformation.LE.y-faceInformation.LT.y-(clipFaceImage->height)/8;
+                rightEyePointRelative.x=eyesInformation.RE.x-faceInformation.LT.x -((gray->width)/2);
+                rightEyePointRelative.y=eyesInformation.RE.y-faceInformation.LT.y-(clipFaceImage->height)/8;
                 lengthEye=eyesInformation.Length;
                 prevlengthEye=eyesInformation.Length;
                 widthEyeWindow=gray->width/2;
                 heightEyeWindow=gray->height;
-
                 IplImage* grayIm1 = cvCreateImage(cvSize(gray->width/2,gray->height),8,1);
                 cvSetImageROI(gray,cvRect(0,0,(gray->width)/2,(gray->height)));
                 cvResize(gray, grayIm1, CV_INTER_LINEAR ) ;
                 cvResetImageROI(gray);
                 leftEye.setModel(grayIm1);
-                leftEye.anchorPoint=leftEyeP1;
+                leftEye.anchorPoint=leftEyePointRelative;
                 IplImage* grayIm2 = cvCreateImage(cvSize(gray->width/2,gray->height),8,1);
                 cvSetImageROI(gray,cvRect(gray->width/2,0,gray->width/2,gray->height));
                 cvResize(gray,grayIm2, CV_INTER_LINEAR ) ;
                 cvResetImageROI(gray);
                 rightEye.setModel(grayIm2);
-                rightEye.anchorPoint=rightEyeP1;
+                rightEye.anchorPoint=rightEyePointRelative;
                 cvReleaseImage(&grayIm1);
                 cvReleaseImage(&grayIm2);
                 cvReleaseImage(&gray);
@@ -211,30 +196,18 @@ int detector::runDetector(IplImage * input)
         double currentAngle = atan(yvalue/xvalue)*(180/CV_PI);
 
         currentAngle-=inAngle;
-        if (isnan(currentAngle))
-        {
-            //         printf("%e  %e ANGLEEE\n",yvalue,xvalue);
 
-        }
-        // printf("%e ANGLEEE\n",currentAngle);
         CvPoint2D32f centre;
         centre.x = leftEyeP.x;
         centre.y = leftEyeP.y;
         cv2DRotationMatrix(centre, currentAngle, 1.0, rotateMatrix);
         IplImage *dstimg = cvCreateImage( cvSize(input->width,input->height), 8, input->nChannels );
         cvWarpAffine(input,dstimg,rotateMatrix,CV_WARP_FILL_OUTLIERS,cvScalarAll(0));
-//cvNamedWindow("src",1);
         CvPoint rotatedRightP;
         rotatedRightP.x= floor( rightEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 0, 0) +  rightEyeP .y*CV_MAT_ELEM(*rotateMatrix, float, 0, 1) +CV_MAT_ELEM(*rotateMatrix, float, 0, 2));
         rotatedRightP.y= floor(rightEyeP.x*CV_MAT_ELEM(*rotateMatrix, float, 1, 0) +  rightEyeP.y*CV_MAT_ELEM(*rotateMatrix, float, 1, 1) +CV_MAT_ELEM(*rotateMatrix, float, 1, 2));
-//printf("%d %d  VAAAAAAAAA\n",rotatedRightP.x,rotatedRightP.y);
         rightEyeP.x=rotatedRightP.x;
         rightEyeP.y=rotatedRightP.y;
-        cvCircle(dstimg, rotatedRightP, 4, CV_RGB(128,128,128), 1, 8, 0 );
-
-//cvShowImage("src",dstimg);
-
-//cvWaitKey(1);
 
         int newWidthR,newHeightR,newWidthL,newHeightL;
         newWidthR=newWidth;
@@ -243,8 +216,8 @@ int detector::runDetector(IplImage * input)
         newWidthL=newWidth;
         newHeightL=newHeight;
 
-        int ly=leftEyeP.y -int(floor(((leftEyeP1.y)*newWidth)/widthEyeWindow));
-        int lx=leftEyeP.x -int(floor(((leftEyeP1.x)*newWidth)/widthEyeWindow));
+        int ly=leftEyeP.y -int(floor(((leftEyePointRelative.y)*newWidth)/widthEyeWindow));
+        int lx=leftEyeP.x -int(floor(((leftEyePointRelative.x)*newWidth)/widthEyeWindow));
 
         if (lx<0)
         {
@@ -257,24 +230,23 @@ int detector::runDetector(IplImage * input)
             ly=0;
             lydiff=-ly;
         }
-        if ((lx+newWidth)>320)
+        if ((lx+newWidth)>IMAGE_WIDTH)
         {
-            newWidthL=320-lx;
+            newWidthL=IMAGE_WIDTH-lx;
         }
 
-        if ((ly+newHeight)>240)
+        if ((ly+newHeight)>IMAGE_HEIGHT)
         {
 
-            newHeightL=240-ly;
+            newHeightL=IMAGE_HEIGHT-ly;
         }
 
         IplImage *grayIm1 = cvCreateImage( cvSize(newWidthL,newHeightL), 8, 1 );
         cvSetImageROI(dstimg,cvRect(lx,ly,newWidthL,newHeightL));
         cvCvtColor( dstimg, grayIm1, CV_BGR2GRAY );
         cvResetImageROI(dstimg);
-        int rx=rightEyeP.x -int(floor(((rightEyeP1.x)*newWidth)/widthEyeWindow));
-        int ry=rightEyeP.y -int(floor(((rightEyeP1.y)*newWidth)/widthEyeWindow));
-        //printf("%d %d %d %d   R    DOSHDIUHSIUDSHIUDSSIUDHISDHSIUDH \n",rx,ry,newHeight,newWidth);
+        int rx=rightEyeP.x -int(floor(((rightEyePointRelative.x)*newWidth)/widthEyeWindow));
+        int ry=rightEyeP.y -int(floor(((rightEyePointRelative.y)*newWidth)/widthEyeWindow));
 
 
         if (ry<0)
@@ -287,15 +259,15 @@ int detector::runDetector(IplImage * input)
             rxdiff=-rx;
             rx=0;
         }
-        if ((rx+newWidth)>320)
+        if ((rx+newWidth)>IMAGE_WIDTH)
         {
-            newWidthR=320-rx;
+            newWidthR=IMAGE_WIDTH-rx;
         }
 
-        if ((ry+newHeight)>240)
+        if ((ry+newHeight)>IMAGE_HEIGHT)
         {
 
-            newHeightR=240-ry;
+            newHeightR=IMAGE_HEIGHT-ry;
         }
 
         IplImage *grayIm2 = cvCreateImage( cvSize(newWidthR,newHeightR), 8, 1 );
@@ -306,17 +278,17 @@ int detector::runDetector(IplImage * input)
         leftEye.trackImage(grayIm1);
         rightEye.trackImage(grayIm2);
         CvPoint temp;
-        leftEye.findPoint(leftEyeP1,&temp);
-        CvPoint leftEyePTemp,leftEyeP1Temp,rightEyePTemp,rightEyeP1Temp;
-        leftEyePTemp.y=leftEyeP.y -(((leftEyeP1.y)*newWidth)/widthEyeWindow)+ lydiff + temp.y;
-        leftEyePTemp.x=leftEyeP.x -(((leftEyeP1.x)*newWidth)/widthEyeWindow)+ lxdiff +temp.x;
-        leftEyeP1Temp.x=temp.x;
-        leftEyeP1Temp.y=temp.y;
-        rightEye.findPoint(rightEyeP1,&temp);
-        rightEyePTemp.y=rightEyeP.y -(((rightEyeP1.y)*newWidth)/widthEyeWindow)+ rydiff+ temp.y;
-        rightEyePTemp.x=rightEyeP.x -(((rightEyeP1.x)*newWidth)/widthEyeWindow)+ rxdiff+temp.x;
-        rightEyeP1Temp.x=temp.x;
-        rightEyeP1Temp.y=temp.y;
+        leftEye.findPoint(leftEyePointRelative,&temp);
+        CvPoint leftEyePTemp,leftEyePointRelativeTemp,rightEyePTemp,rightEyePointRelativeTemp;
+        leftEyePTemp.y=leftEyeP.y -(((leftEyePointRelative.y)*newWidth)/widthEyeWindow)+ lydiff + temp.y;
+        leftEyePTemp.x=leftEyeP.x -(((leftEyePointRelative.x)*newWidth)/widthEyeWindow)+ lxdiff +temp.x;
+        leftEyePointRelativeTemp.x=temp.x;
+        leftEyePointRelativeTemp.y=temp.y;
+        rightEye.findPoint(rightEyePointRelative,&temp);
+        rightEyePTemp.y=rightEyeP.y -(((rightEyePointRelative.y)*newWidth)/widthEyeWindow)+ rydiff+ temp.y;
+        rightEyePTemp.x=rightEyeP.x -(((rightEyePointRelative.x)*newWidth)/widthEyeWindow)+ rxdiff+temp.x;
+        rightEyePointRelativeTemp.x=temp.x;
+        rightEyePointRelativeTemp.y=temp.y;
         double angle=atan(double(rightEyePTemp.y-leftEyePTemp.y)/double(rightEyePTemp.x-leftEyePTemp.x))*180/CV_PI;
         double angle2=atan(double(rightEyeP.y-leftEyeP.y)/double(rightEyeP.x-leftEyeP.x))*180/CV_PI;
         double v1,v2;
@@ -364,7 +336,7 @@ int detector::runDetector(IplImage * input)
             clipFaceCounter--;
             messageIndex=5;
             sprintf(messageCaptureMessage,"Varied Expression. Better Recognition. Captured %d/%d faces.",totalFaceClipNum-clipFaceCounter+1,totalFaceClipNum);
-            if(clipFaceCounter==0)
+            if (clipFaceCounter==0)
             {
                 messageIndex=6;
                 finishedClipFaceFlag=1;
@@ -381,14 +353,14 @@ int detector::runDetector(IplImage * input)
 }
 int detector::finishedClipFace()
 {
-  if(totalFaceClipNum>0 && finishedClipFaceFlag==1)
-  {
-    finishedClipFaceFlag=0;
-       return 1;
+    if (totalFaceClipNum>0 && finishedClipFaceFlag==1)
+    {
+        finishedClipFaceFlag=0;
+        return 1;
 
-  }
-   else
-   return 0;
+    }
+    else
+        return 0;
 }
 
 IplImage ** detector::returnClipedFace()
@@ -410,8 +382,8 @@ void detector::stopClipFace()
 {
     totalFaceClipNum=0;
     clipFaceCounter=0;
- boolClipFace=0;
-finishedClipFaceFlag=0;
+    boolClipFace=0;
+    finishedClipFaceFlag=0;
     int i=0;
     for (i=0;i<totalFaceClipNum;i++)
     {
@@ -452,9 +424,11 @@ char * detector::queryMessage()
     else if (messageIndex==4)
         return message4;
     else if (messageIndex==5)
-    return messageCaptureMessage;
+        return messageCaptureMessage;
     else if (messageIndex==6)
-    return message6;
+        return message6;
+    return 0;
+
 }
 
 

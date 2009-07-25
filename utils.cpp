@@ -102,14 +102,14 @@ IplImage * SQI(CvMat * filter,IplImage *  image,int size)
             int countGreater=0;
             int countLower=0;
             int flag=0;
-                    CvScalar sxy;
-                    sxy=cvGet2D( integralImage,  indexl, indexm);
-                    CvScalar sx1y;
-                    sx1y=cvGet2D( integralImage,  indexl1, indexm);
-                    CvScalar sxy1;
-                    sxy1=cvGet2D( integralImage,  indexl, indexm1);
-                    CvScalar sx1y1;
-                    sx1y1=cvGet2D( integralImage,  indexl1, indexm1);
+            CvScalar sxy;
+            sxy=cvGet2D( integralImage,  indexl, indexm);
+            CvScalar sx1y;
+            sx1y=cvGet2D( integralImage,  indexl1, indexm);
+            CvScalar sxy1;
+            sxy1=cvGet2D( integralImage,  indexl, indexm1);
+            CvScalar sx1y1;
+            sx1y1=cvGet2D( integralImage,  indexl1, indexm1);
 
 
             mean= double(sx1y1.val[0] -  sxy1.val[0] - sx1y.val[0] +sxy.val[0])/double((indexm1-indexm+1)*(indexl1-indexl+1));
@@ -303,9 +303,12 @@ void setConfig(config *configuration,char * configDirectory)
     sprintf(maceConfig,"%s/mace.xml", configDirectory);
     CvFileStorage* fs ;
     fs = cvOpenFileStorage( maceConfig, 0, CV_STORAGE_WRITE );
-    cvWriteInt( fs, "faceThreshold", configuration->filterMaceFacePSLR );
-    cvWriteInt( fs, "eyeThreshold", configuration->filterMaceEyePSLR );
-    cvWriteInt( fs, "insideFaceThreshold", configuration->filterMaceInsideFacePSLR );
+    cvWriteReal( fs, "faceThreshold_PCER", configuration->filterMaceFacePCER );
+    cvWriteReal( fs, "eyeThreshold_PCER", configuration->filterMaceEyePCER );
+    cvWriteReal( fs, "insideFaceThreshold_PCER", configuration->filterMaceInsideFacePCER );
+    cvWriteInt( fs, "faceThreshold_PSLR", configuration->filterMaceFacePSLR );
+    cvWriteInt( fs, "eyeThreshold_PSLR", configuration->filterMaceEyePSLR );
+    cvWriteInt( fs, "insideFaceThreshold_PSLR", configuration->filterMaceInsideFacePSLR );
     cvReleaseFileStorage( &fs );
 }
 
@@ -316,9 +319,15 @@ config * getConfig(char *configDirectory)
     sprintf(maceConig,"%s/mace.xml", configDirectory);
     CvFileStorage * fileStorage;
     fileStorage = cvOpenFileStorage(maceConig, 0, CV_STORAGE_READ );
-    newConfig->filterMaceFacePSLR=cvReadIntByName( fileStorage, 0, "faceThreshold", 17);
-    newConfig->filterMaceEyePSLR=cvReadIntByName( fileStorage, 0, "eyeThreshold", 25);
-    newConfig->filterMaceInsideFacePSLR=cvReadIntByName( fileStorage, 0, "insideFaceThreshold", 25);
+    newConfig->filterMaceFacePCER=cvReadRealByName( fileStorage, 0, "faceThreshold_PCER", MACE_FACE_DEFAULT);
+    newConfig->filterMaceEyePCER=cvReadRealByName( fileStorage, 0, "eyeThreshold_PCER", MACE_EYE_DEFAULT);
+    newConfig->filterMaceInsideFacePCER=cvReadRealByName( fileStorage, 0, "insideFaceThreshold_PCER", MACE_INSIDE_FACE_DEFAULT);
+    newConfig->filterMaceFacePSLR=cvReadIntByName( fileStorage, 0, "faceThreshold_PSLR", 0);
+    newConfig->filterMaceEyePSLR=cvReadIntByName( fileStorage, 0, "eyeThreshold_PSLR", 0);
+    newConfig->filterMaceInsideFacePSLR=cvReadIntByName( fileStorage, 0, "insideFaceThreshold_PSLR", 0);
+
+
+  //  printf("%e %e %e \n", newConfig->filterMaceFacePCER,newConfig->filterMaceEyePCER,newConfig->filterMaceInsideFacePCER);
     cvReleaseFileStorage( &fileStorage );
     return newConfig;
 }
@@ -326,9 +335,6 @@ config * getConfig(char *configDirectory)
 void logOfImage(IplImage * img,IplImage *logImage)
 {
 
-    double a=5.0;
-    double b=0.01;
-    double c=10;
     int i=0;
     int j=0;
     for (i=0;i<img->height;i++)
@@ -340,9 +346,9 @@ void logOfImage(IplImage * img,IplImage *logImage)
             CvScalar s;
             s=cvGet2D(img,i,j);
             CvScalar s1;
-            s1.val[0]=a + log((uchar)s.val[0] + 1) / (b * log(c));
-            s1.val[1]=a + log((uchar)s.val[1] + 1) / (b * log(c));
-            s1.val[2]=a + log((uchar)s.val[2] + 1) / (b * log(c));
+            s1.val[0]=log(s.val[0] + 1);
+            s1.val[1]=log(s.val[1] + 1);
+            s1.val[2]=log(s.val[2] + 1);
             cvSet2D(logImage,i,j,s1);
         }
     }
@@ -392,6 +398,7 @@ void cvShiftDFT(CvArr * src_arr, CvArr * dst_arr )
         {
             cvError( CV_StsUnmatchedFormats, "cvShiftDFT", "Source and Destination arrays must have the same format", __FILE__, __LINE__ );
         }
+
         cvCopy(q3, d1, 0);
         cvCopy(q4, d2, 0);
         cvCopy(q1, d3, 0);
@@ -576,51 +583,7 @@ int i=0,j=0;
 
     cvMatMul(DINV_S,SPLUS_DINV_S_INV,Hmace);
 
-    for (l=0;l<size;l++)
-    {
-        CvScalar s3;
-        s3.val[0]=1;
-        s3.val[1]=0;
-
-        cvSet2D(Cvalue, l, 0,s3);
-
-
-    }
-    cvMatMul(Hmace,Cvalue,Hmace_FIN);
-    CvMat *  maceFilterVisualize = cvCreateMat( SIZE_OF_IMAGE, SIZE_OF_IMAGE, CV_64FC2 );
-    for (l=0;l<SIZE_OF_IMAGE;l++)
-    {
-        for (m=0;m<SIZE_OF_IMAGE;m++)
-        {
-            CvScalar s1= cvGet2D(M_UMACE,(l*SIZE_OF_IMAGE +m),0);
-            cvSet2D(maceFilterVisualize, l, m,s1);
-        }
-
-    }
-
-    cvReleaseMat(&Hmace_FIN);
-    cvReleaseMat(&Hmace);
-    cvReleaseMat(&Cvalue);
-    cvReleaseMat(&SPLUS_DINV_S_INV_1_INV);
-    cvReleaseMat(&SPLUS_DINV_S_INV_1);
-    cvReleaseMat(&SPLUS_DINV_S_INV);
-    cvReleaseMat(&SPLUS_DINV_S);
-    cvReleaseMat(&DINV_S);
-    cvReleaseMat(&SPLUS_DINV);
-    cvReleaseMat(&SPLUS);
-    cvReleaseMat(&S);
-    cvReleaseMat(&DINV);
-    cvReleaseMat(&D);
-
-return maceFilterVisualize;
-
-
-}
-*/
-
-CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE)
-{
-    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+    for (l=0;l<size;l++)    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
     int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
     ////printf("%d size =",size);
     IplImage ** faces=new IplImage *[size];
@@ -833,14 +796,593 @@ CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE)
     return maceFilterVisualize;
 
 
+    {
+        CvScalar s3;
+        s3.val[0]=1;
+        s3.val[1]=0;
+
+        cvSet2D(Cvalue, l, 0,s3);
+
+
+    }
+    cvMatMul(Hmace,Cvalue,Hmace_FIN);
+    CvMat *  maceFilterVisualize = cvCreateMat( SIZE_OF_IMAGE, SIZE_OF_IMAGE, CV_64FC2 );
+    for (l=0;l<SIZE_OF_IMAGE;l++)
+    {
+        for (m=0;m<SIZE_OF_IMAGE;m++)
+        {
+            CvScalar s1= cvGet2D(M_UMACE,(l*SIZE_OF_IMAGE +m),0);
+            cvSet2D(maceFilterVisualize, l, m,s1);
+        }
+
+    }
+
+    cvReleaseMat(&Hmace_FIN);
+    cvReleaseMat(&Hmace);
+    cvReleaseMat(&Cvalue);
+    cvReleaseMat(&SPLUS_DINV_S_INV_1_INV);
+    cvReleaseMat(&SPLUS_DINV_S_INV_1);
+    cvReleaseMat(&SPLUS_DINV_S_INV);
+    cvReleaseMat(&SPLUS_DINV_S);
+    cvReleaseMat(&DINV_S);
+    cvReleaseMat(&SPLUS_DINV);
+    cvReleaseMat(&SPLUS);
+    cvReleaseMat(&S);
+    cvReleaseMat(&DINV);
+    cvReleaseMat(&D);
+
+return maceFilterVisualize;
+
+
 }
+*/
+
+CvMat *computeMace(IplImage **img,int size,int SIZE_OF_IMAGE)
+
+{    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+    int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
+    ////printf("%d size =",size);
+    IplImage ** faces=new IplImage *[size];
+    IplImage ** grayfaces=new IplImage *[size];
+    int index=0;
+    for (index=0;index<size;index++)
+    {
+
+        faces[index]=cvCreateImage( cvSize(img[index]->width,img[index]->height), 8, 1 );
+      //  cvResize(img[index], faces[index], CV_INTER_LINEAR );
+         cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
+//          faces[index]=featureLBPSum(faces[index]);
+
+        //  logOfImage(faces[index],faces[index]);
+        // cvEqualizeHist(faces[index],faces[index]);
+
+    }
+
+    CvMat * D = cvCreateMat(TOTALPIXEL,1, CV_64FC2 );
+    CvMat * DINV = cvCreateMat(TOTALPIXEL,1, CV_64FC2 );
+    CvMat * S = cvCreateMat(TOTALPIXEL,size, CV_64FC2 );
+    CvMat * SPLUS = cvCreateMat(size,TOTALPIXEL, CV_64FC2 );
+    CvMat * SPLUS_DINV = cvCreateMat(size,TOTALPIXEL, CV_64FC2 );
+    CvMat * DINV_S = cvCreateMat(TOTALPIXEL,size, CV_64FC2 );
+    CvMat * SPLUS_DINV_S = cvCreateMat(size,size, CV_64FC2 );
+    CvMat * SPLUS_DINV_S_INV = cvCreateMat(size,size, CV_64FC2 );
+    CvMat * SPLUS_DINV_S_INV_1 = cvCreateMat(2*size,2*size, CV_64FC1 );
+    CvMat * SPLUS_DINV_S_INV_1_INV = cvCreateMat(2*size,2*size, CV_64FC1 );
+    CvMat * Hmace = cvCreateMat(TOTALPIXEL,size, CV_64FC2 );
+    CvMat * Cvalue = cvCreateMat(size,1, CV_64FC2 );
+    CvMat * Hmace_FIN = cvCreateMat(TOTALPIXEL,1, CV_64FC2 );
+    int i=0,j=0;
+    for (i=0;i<TOTALPIXEL;i++)
+    {
+        CvScalar s;
+        s.val[0]=0;
+        s.val[1]=0;
+        cvSet2D(  D, i, 0,s);
+        cvSet2D(  DINV, i, 0, s);
+    }
+
+
+
+    for (i=0;i<size;i++)
+    {
+        IplImage *gray = cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE), 8, 1 );
+        cvResize(faces[i], gray, CV_INTER_LINEAR ) ;
+	cvEqualizeHist( gray,gray);
+        grayfaces[i]=gray;
+        CvMat tmp;
+
+        IplImage *  realInput = cvCreateImage( cvGetSize(gray), IPL_DEPTH_64F, 1);
+        IplImage *  realInputDouble = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+        IplImage *  imaginaryInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+        IplImage *  complexInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 2);
+        cvScale(grayfaces[i], realInput, 1.0, 0.0);
+        cvZero(realInputDouble);
+        cvZero(imaginaryInput);
+        cvGetSubRect( realInputDouble, &tmp, cvRect(0,0,SIZE_OF_IMAGE,SIZE_OF_IMAGE));
+        cvCopy(realInput,&tmp);
+        cvMerge(realInputDouble, imaginaryInput, NULL, NULL, complexInput);
+
+        CvMat * dftImage = cvCreateMat( SIZE_OF_IMAGE_2X, SIZE_OF_IMAGE_2X, CV_64FC2 );
+        cvGetSubRect( dftImage, &tmp, cvRect(0,0,SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X));
+        cvCopy( complexInput, &tmp, NULL );
+        cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
+        int l=0,m=0;
+        for (l=0;l<SIZE_OF_IMAGE_2X;l++)
+        {
+            for (m=0;m<SIZE_OF_IMAGE_2X;m++)
+            {
+
+                CvScalar scalar = cvGet2D( dftImage, l, m );
+                cvSet2D(S,(l*SIZE_OF_IMAGE_2X + m), i,scalar);
+
+                //   if(i==0)
+                ////printf("%e %e VAL of S1 and S2 \n",scalar.val[0],scalar.val[1]);
+
+                CvScalar scalarConj;
+                scalarConj.val[0]=scalar.val[0];
+                scalarConj.val[1]=-scalar.val[1];
+                cvSet2D(SPLUS,i,(l*SIZE_OF_IMAGE_2X + m),scalarConj);
+                double val=((pow(scalar.val[0],2)+pow(scalar.val[1],2)));
+
+                CvScalar s= cvGet2D(D,(l*SIZE_OF_IMAGE_2X + m),0);
+                s.val[0]=s.val[0]+val;
+                s.val[1]=0;
+                cvSet2D(  D, (l*SIZE_OF_IMAGE_2X + m), 0,s);
+
+            }
+        }
+        cvReleaseImage(&realInput);
+        cvReleaseImage(&realInputDouble);
+        cvReleaseImage(&imaginaryInput);
+        cvReleaseImage(&complexInput);
+        cvReleaseImage(&gray);
+    }
+
+
+    for (i=0;i<TOTALPIXEL;i++)
+    {
+
+        CvScalar s= cvGet2D(D,i,0);
+        //  //printf("%e %e   VAL of S1 and S2 \n",s.val[0],s.val[1]);
+
+        s.val[0]=((SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X*size)/sqrt(s.val[0]));
+        s.val[1]=0;
+        // //printf("%e %e   VAL of S1 and S2 \n",s.val[0],s.val[1]);
+
+        cvSet2D(  DINV, i, 0, s);
+    }
+    int l=0,m=0;
+    for (l=0;l<size;l++)
+    {
+        for (m=0;m<TOTALPIXEL;m++)
+        {
+
+            CvScalar s1= cvGet2D(DINV,m,0);
+            CvScalar s2= cvGet2D(SPLUS,l,m);
+            CvScalar s3= cvGet2D(S,m,l);
+            ////printf("%e %e   VAL of S1 and S2 \n",s2.val[0],s2.val[1]);
+            s2.val[0]*=s1.val[0];
+            s2.val[1]*=s1.val[0];
+            ////printf("%e %e   VAL of S1 and S2 \n",s2.val[0],s2.val[1]);
+            s3.val[0]*=s1.val[0];
+            s3.val[1]*=s1.val[0];
+            //if(l==0)
+            ////printf("%e %e %e %e  VAL of S1 and S2 \n",s2.val[0],s2.val[1],s3.val[0],s3.val[1]);
+            cvSet2D(SPLUS_DINV, l, m,s2);
+            cvSet2D(DINV_S, m, l,s3);
+        }
+    }
+// ?
+    cvMatMul(SPLUS_DINV,S,SPLUS_DINV_S);
+
+    for (l=0;l<size;l++)
+    {
+        for (m=0;m<size;m++)
+        {
+
+            CvScalar s1= cvGet2D(SPLUS_DINV_S,l,m);
+            CvScalar s2;
+            // if(l!=m)
+            ////printf("%e %e %d %d l , m VAL of S1 and S2 \n",s1.val[0],s1.val[1],l,m);
+            s2.val[0]=s1.val[0];
+            s2.val[1]=0;
+            cvSet2D(SPLUS_DINV_S_INV_1, l, m,s2);
+            cvSet2D(SPLUS_DINV_S_INV_1, l+size, m+size,s2);
+            s2.val[0]=s1.val[1];
+            s2.val[1]=0;
+            cvSet2D(SPLUS_DINV_S_INV_1, l, m+size,s2);
+            s2.val[0]=-s1.val[1];
+            s2.val[1]=0;
+            cvSet2D(SPLUS_DINV_S_INV_1, l+size, m,s2);
+        }
+    }
+    cvInvert(SPLUS_DINV_S_INV_1,SPLUS_DINV_S_INV_1_INV);
+    for (l=0;l<size;l++)
+    {
+        for (m=0;m<size;m++)
+        {
+
+            CvScalar s1= cvGet2D(SPLUS_DINV_S_INV_1_INV,l,m);
+            CvScalar s2= cvGet2D(SPLUS_DINV_S_INV_1_INV,l,m+size);
+            CvScalar s3;
+            s3.val[0]=s1.val[0];
+            s3.val[1]=s2.val[0];
+            cvSet2D(SPLUS_DINV_S_INV, l, m,s3);
+            //   //printf("%e %e  S3 values\n",s3.val[0],s3.val[1]);
+        }
+    }
+
+    cvMatMul(DINV_S,SPLUS_DINV_S_INV,Hmace);
+
+    for (l=0;l<size;l++)
+    {
+        CvScalar s3;
+        s3.val[0]=1;
+        s3.val[1]=0;
+        cvSet2D(Cvalue, l, 0,s3);
+    }
+    cvMatMul(Hmace,Cvalue,Hmace_FIN);
+    CvMat *  maceFilterVisualize = cvCreateMat( SIZE_OF_IMAGE_2X, SIZE_OF_IMAGE_2X, CV_64FC2 );
+    for (l=0;l<SIZE_OF_IMAGE_2X;l++)
+    {
+        for (m=0;m<SIZE_OF_IMAGE_2X;m++)
+        {
+            CvScalar s1= cvGet2D(Hmace_FIN,(l*SIZE_OF_IMAGE_2X +m),0);
+            cvSet2D(maceFilterVisualize, l, m,s1);
+        }
+
+    }
+    CvScalar s1= cvGet2D(Hmace_FIN,0,0);
+
+
+    cvReleaseMat(&Hmace_FIN);
+    cvReleaseMat(&Hmace);
+    cvReleaseMat(&Cvalue);
+    cvReleaseMat(&SPLUS_DINV_S_INV_1_INV);
+    cvReleaseMat(&SPLUS_DINV_S_INV_1);
+    cvReleaseMat(&SPLUS_DINV_S_INV);
+    cvReleaseMat(&SPLUS_DINV_S);
+    cvReleaseMat(&DINV_S);
+    cvReleaseMat(&SPLUS_DINV);
+    cvReleaseMat(&SPLUS);
+    cvReleaseMat(&S);
+    cvReleaseMat(&DINV);
+    cvReleaseMat(&D);
+
+    return maceFilterVisualize;
+}
+
+/*
+CvMat *computeMace(IplImage **img,int size,int  SIZE_OF_IMAGE)
+{
+    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+    int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
+    ////printf("%d size =",size);
+    IplImage ** faces=new IplImage *[size];
+    IplImage ** grayfaces=new IplImage *[size];
+    int index=0;
+    for (index=0;index<size;index++)
+    {
+
+        faces[index]=cvCreateImage( cvSize(img[index]->width,img[index]->height), 8, 1 );
+        //  cvResize(img[index], faces[index], CV_INTER_LINEAR );
+        cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
+//          faces[index]=featureLBPSum(faces[index]);
+
+        // cvEqualizeHist(faces[index],faces[index]);
+
+    }
+    CvMat * maxEnergy = cvCreateMat(TOTALPIXEL,1, CV_64FC2 );
+    CvMat * D = cvCreateMat(TOTALPIXEL,1, CV_64FC2 );
+    CvMat * DINV = cvCreateMat(TOTALPIXEL,1, CV_64FC2 );
+    CvMat * S = cvCreateMat(TOTALPIXEL,size, CV_64FC2 );
+    CvMat * SPLUS = cvCreateMat(size,TOTALPIXEL, CV_64FC2 );
+    CvMat * SPLUS_DINV = cvCreateMat(size,TOTALPIXEL, CV_64FC2 );
+    CvMat * DINV_S = cvCreateMat(TOTALPIXEL,size, CV_64FC2 );
+    CvMat * SPLUS_DINV_S = cvCreateMat(size,size, CV_64FC2 );
+    CvMat * SPLUS_DINV_S_INV = cvCreateMat(size,size, CV_64FC2 );
+    CvMat * SPLUS_DINV_S_INV_1 = cvCreateMat(2*size,2*size, CV_64FC1 );
+    CvMat * SPLUS_DINV_S_INV_1_INV = cvCreateMat(2*size,2*size, CV_64FC1 );
+    CvMat * Hmace = cvCreateMat(TOTALPIXEL,size, CV_64FC2 );
+    CvMat * Cvalue = cvCreateMat(size,1, CV_64FC2 );
+    CvMat * Hmace_FIN = cvCreateMat(TOTALPIXEL,1, CV_64FC2 );
+    int i=0,j=0;
+    for (i=0;i<TOTALPIXEL;i++)
+    {
+        CvScalar s;
+        s.val[0]=0;
+        s.val[1]=0;
+        cvSet2D(  maxEnergy, i, 0,s);
+        cvSet2D(  D, i, 0,s);
+        cvSet2D(  DINV, i, 0, s);
+    }
+
+
+    for (i=0;i<size;i++)
+    {
+        IplImage *gray = cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE), 8, 1 );
+        cvResize(faces[i], gray, CV_INTER_LINEAR ) ;
+        cvEqualizeHist(gray,gray);
+
+        grayfaces[i]=gray;
+        CvMat tmp;
+
+        IplImage *  realInput = cvCreateImage( cvGetSize(gray), IPL_DEPTH_64F, 1);
+        IplImage *  realInputDouble = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+        IplImage *  imaginaryInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+        IplImage *  complexInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 2);
+        cvScale(grayfaces[i], realInput, 1.0, 0.0);
+        cvZero(realInputDouble);
+        cvZero(imaginaryInput);
+        cvGetSubRect( realInputDouble, &tmp, cvRect(0,0,SIZE_OF_IMAGE,SIZE_OF_IMAGE));
+        cvCopy(realInput,&tmp);
+        cvMerge(realInputDouble, imaginaryInput, NULL, NULL, complexInput);
+
+        CvMat * dftImage = cvCreateMat( SIZE_OF_IMAGE_2X, SIZE_OF_IMAGE_2X, CV_64FC2 );
+        cvGetSubRect( dftImage, &tmp, cvRect(0,0,SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X));
+        cvCopy( complexInput, &tmp, NULL );
+        cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
+        CvScalar s1;
+        s1=cvGet2D(dftImage,0,0);
+        // printf("%e \n",s1.val[0]);
+        int l=0,m=0;
+        for (l=0;l<SIZE_OF_IMAGE_2X;l++)
+        {
+            for (m=0;m<SIZE_OF_IMAGE_2X;m++)
+            {
+
+                CvScalar scalar = cvGet2D( dftImage, l, m );
+                scalar.val[0]/=s1.val[0];
+                scalar.val[1]/=s1.val[0];
+
+                cvSet2D(S,(l*SIZE_OF_IMAGE_2X + m), i,scalar);
+
+                //   if(i==0)
+                ////printf("%e %e VAL of S1 and S2 \n",scalar.val[0],scalar.val[1]);
+
+                CvScalar scalarConj;
+                scalarConj.val[0]=scalar.val[0];
+                scalarConj.val[1]=-scalar.val[1];
+                cvSet2D(SPLUS,i,(l*SIZE_OF_IMAGE_2X + m),scalarConj);
+                double val=((pow(scalar.val[0],2)+pow(scalar.val[1],2)));
+
+                CvScalar s1= cvGet2D(maxEnergy,(l*SIZE_OF_IMAGE_2X + m),0);
+                if (s1.val[0]<val)
+                    s1.val[0]=val;
+                cvSet2D(maxEnergy,(l*SIZE_OF_IMAGE_2X + m),0,s1);
+
+                CvScalar s= cvGet2D(D,(l*SIZE_OF_IMAGE_2X + m),0);
+                s.val[0]=s.val[0]+val;
+                s.val[1]=0;
+                cvSet2D(  D, (l*SIZE_OF_IMAGE_2X + m), 0,s);
+
+            }
+        }
+        cvReleaseImage(&realInput);
+        cvReleaseImage(&realInputDouble);
+        cvReleaseImage(&imaginaryInput);
+        cvReleaseImage(&complexInput);
+        cvReleaseImage(&gray);
+    }
+
+
+    for (i=0;i<TOTALPIXEL;i++)
+    {
+
+        CvScalar s= cvGet2D(D,i,0);
+        CvScalar s1= cvGet2D(maxEnergy,i,0);
+        if (s1.val[0]==0)
+            s1.val[0]=1;
+        //  //printf("%e %e   VAL of S1 and S2 \n",s.val[0],s.val[1]);
+
+        s.val[0]=(s1.val[0]*size/(s.val[0]));
+        s.val[1]=0;
+        // //printf("%e %e   VAL of S1 and S2 \n",s.val[0],s.val[1]);
+
+        cvSet2D(  DINV, i, 0, s);
+    }
+    int l=0,m=0;
+    for (l=0;l<size;l++)
+    {
+        for (m=0;m<TOTALPIXEL;m++)
+        {
+
+            CvScalar s1= cvGet2D(DINV,m,0);
+            CvScalar s2= cvGet2D(SPLUS,l,m);
+            CvScalar s3= cvGet2D(S,m,l);
+            ////printf("%e %e   VAL of S1 and S2 \n",s2.val[0],s2.val[1]);
+            s2.val[0]*=s1.val[0];
+            s2.val[1]*=s1.val[0];
+            ////printf("%e %e   VAL of S1 and S2 \n",s2.val[0],s2.val[1]);
+            s3.val[0]*=s1.val[0];
+            s3.val[1]*=s1.val[0];
+            //if(l==0)
+            ////printf("%e %e %e %e  VAL of S1 and S2 \n",s2.val[0],s2.val[1],s3.val[0],s3.val[1]);
+            cvSet2D(SPLUS_DINV, l, m,s2);
+            cvSet2D(DINV_S, m, l,s3);
+        }
+    }
+// ?
+    cvMatMul(SPLUS_DINV,S,SPLUS_DINV_S);
+
+    for (l=0;l<size;l++)
+    {
+        for (m=0;m<size;m++)
+        {
+
+            CvScalar s1= cvGet2D(SPLUS_DINV_S,l,m);
+            CvScalar s2;
+            // if(l!=m)
+            ////printf("%e %e %d %d l , m VAL of S1 and S2 \n",s1.val[0],s1.val[1],l,m);
+            s2.val[0]=s1.val[0];
+            s2.val[1]=0;
+            cvSet2D(SPLUS_DINV_S_INV_1, l, m,s2);
+            cvSet2D(SPLUS_DINV_S_INV_1, l+size, m+size,s2);
+            s2.val[0]=s1.val[1];
+            s2.val[1]=0;
+            cvSet2D(SPLUS_DINV_S_INV_1, l, m+size,s2);
+            s2.val[0]=-s1.val[1];
+            s2.val[1]=0;
+            cvSet2D(SPLUS_DINV_S_INV_1, l+size, m,s2);
+        }
+    }
+    cvInvert(SPLUS_DINV_S_INV_1,SPLUS_DINV_S_INV_1_INV);
+    for (l=0;l<size;l++)
+    {
+        for (m=0;m<size;m++)
+        {
+
+            CvScalar s1= cvGet2D(SPLUS_DINV_S_INV_1_INV,l,m);
+            CvScalar s2= cvGet2D(SPLUS_DINV_S_INV_1_INV,l,m+size);
+            CvScalar s3;
+            s3.val[0]=s1.val[0];
+            s3.val[1]=s2.val[0];
+            cvSet2D(SPLUS_DINV_S_INV, l, m,s3);
+            //   //printf("%e %e  S3 values\n",s3.val[0],s3.val[1]);
+        }
+    }
+
+    cvMatMul(DINV_S,SPLUS_DINV_S_INV,Hmace);
+
+    for (l=0;l<size;l++)
+    {
+        CvScalar s3;
+        s3.val[0]=1;
+        s3.val[1]=0;
+        cvSet2D(Cvalue, l, 0,s3);
+    }
+    cvMatMul(Hmace,Cvalue,Hmace_FIN);
+    CvMat *  maceFilterVisualize = cvCreateMat( SIZE_OF_IMAGE_2X, SIZE_OF_IMAGE_2X, CV_64FC2 );
+    for (l=0;l<SIZE_OF_IMAGE_2X;l++)
+    {
+        for (m=0;m<SIZE_OF_IMAGE_2X;m++)
+        {
+            CvScalar s1= cvGet2D(Hmace_FIN,(l*SIZE_OF_IMAGE_2X +m),0);
+            cvSet2D(maceFilterVisualize, l, m,s1);
+        }
+
+    }
+    //CvScalar s1= cvGet2D(Hmace_FIN,0,0);
+
+
+    cvReleaseMat(&Hmace_FIN);
+    cvReleaseMat(&Hmace);
+    cvReleaseMat(&Cvalue);
+    cvReleaseMat(&SPLUS_DINV_S_INV_1_INV);
+    cvReleaseMat(&SPLUS_DINV_S_INV_1);
+    cvReleaseMat(&SPLUS_DINV_S_INV);
+    cvReleaseMat(&SPLUS_DINV_S);
+    cvReleaseMat(&DINV_S);
+    cvReleaseMat(&SPLUS_DINV);
+    cvReleaseMat(&SPLUS);
+    cvReleaseMat(&S);
+    cvReleaseMat(&DINV);
+    cvReleaseMat(&D);
+
+    return maceFilterVisualize;
+
+
+}
+*/
+double peakCorrPlaneEnergy(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE)
+{
+    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+    int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
+
+
+    IplImage* face=cvCreateImage( cvSize(img->width,img->height), 8, 1 );
+    cvCvtColor( img, face, CV_BGR2GRAY );
+
+    IplImage * grayImage= cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE),8,1);
+    cvResize(face, grayImage, CV_INTER_LINEAR ) ;
+    cvEqualizeHist( grayImage,grayImage);
+    IplImage *  realInput = cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE), IPL_DEPTH_64F, 1);
+    IplImage *  realInputDouble = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+    IplImage *  imaginaryInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+    IplImage *  complexInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 2);
+
+    cvScale(grayImage, realInput, 1.0, 0.0);
+
+
+    cvZero(imaginaryInput);
+    cvZero(realInputDouble);
+
+    CvMat tmp;
+    cvGetSubRect( realInputDouble, &tmp, cvRect(0,0,SIZE_OF_IMAGE,SIZE_OF_IMAGE));
+    cvCopy(realInput,&tmp);
+    cvMerge(realInputDouble, imaginaryInput, NULL, NULL, complexInput);
+    CvMat * dftImage = cvCreateMat( SIZE_OF_IMAGE_2X, SIZE_OF_IMAGE_2X, CV_64FC2 );
+    cvGetSubRect( dftImage, &tmp, cvRect(0,0,SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X));
+    cvCopy( complexInput, &tmp, NULL );
+    cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
+    int l=0,m=0;
+   /*
+    CvScalar s1;
+    s1=cvGet2D(dftImage,0,0);
+    for (l=0;l<SIZE_OF_IMAGE_2X;l++)
+    {
+        for (m=0;m<SIZE_OF_IMAGE_2X;m++)
+        {
+
+            CvScalar scalar = cvGet2D( dftImage, l, m );
+            scalar.val[0]/=s1.val[0];
+            scalar.val[1]/=s1.val[0];
+            cvSet2D( dftImage, l, m,scalar );
+        }
+   }
+   */
+    cvMulSpectrums(dftImage , maceFilterVisualize, dftImage,CV_DXT_MUL_CONJ);
+    cvDFT( dftImage, dftImage ,CV_DXT_INV_SCALE,0 );
+    IplImage * image_Re = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+    IplImage * image_Im = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
+    cvSplit( dftImage, image_Re, image_Im, 0, 0 );
+    cvShiftDFT(image_Re,image_Re);
+    double m1,M1;
+    CvPoint p1,p2;
+    cvMinMaxLoc(image_Re, &m1, &M1, &p1, &p2, NULL);
+    double valueOfPCER=0;
+    for (l=0;l<SIZE_OF_IMAGE_2X;l++)
+    {
+        for (m=0;m<SIZE_OF_IMAGE_2X;m++)
+        {
+            CvScalar scalar = cvGet2D( image_Re, l, m );
+            valueOfPCER+=scalar.val[0];
+        }
+
+    }
+   // static int namedw=0;
+   //// namedw++;
+  // /// char namedwin[300];
+   // sprintf(namedwin,"win %d\n",namedw);
+   // cvNamedWindow(namedwin,0);
+  // //     cvScale(image_Re, image_Re, 1.0/(M1-m1), 1.0*(-m1)/(M1-m1));
+  //  printf("%e MAX  %e MIN \n",M1,m1);
+
+    //cvShowImage(namedwin,image_Re);
+
+    cvReleaseImage(&face);
+    cvReleaseImage(&grayImage);
+    cvReleaseMat(&dftImage);
+    cvReleaseImage(&image_Re);
+    cvReleaseImage(&image_Im);
+    cvReleaseImage(&realInput);
+    cvReleaseImage(&realInputDouble);
+    cvReleaseImage(&imaginaryInput);
+    cvReleaseImage(&complexInput);
+    double PCER=0;
+    PCER=M1/sqrt(valueOfPCER);
+    //printf("%e \n",PCER);
+    return PCER;
+
+}
+
 int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMAGE)
 {
     int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
     int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
 
     int radius1=int(floor((double)(45.0/64.0)*(double)SIZE_OF_IMAGE));
-    int radius2=int(floor((double)(30.0/64.0)*(double)SIZE_OF_IMAGE));
+    int radius2=int(floor((double)(33.0/64.0)*(double)SIZE_OF_IMAGE));
 
     int rad1=radius1;
     int rad2=radius2;
@@ -872,7 +1414,6 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMA
     cvGetSubRect( dftImage, &tmp, cvRect(0,0,SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X));
     cvCopy( complexInput, &tmp, NULL );
     cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
-  //  printf("%d %d \n",SIZE_OF_IMAGE_2X,maceFilterVisualize->width);
     cvMulSpectrums(dftImage , maceFilterVisualize, dftImage,CV_DXT_MUL_CONJ);
 
     cvDFT( dftImage, dftImage, CV_DXT_INV_SCALE,0 );
@@ -960,6 +1501,7 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMA
     cvReleaseImage(&complexInput);
     int val=(int)floor(v);
     return v;
+
 }
 
 void rotatePoint(CvPoint* srcP,CvPoint* dstP,double angle,float centreX, float centreY)

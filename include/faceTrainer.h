@@ -101,6 +101,6 @@ public slots:
     *Sets the information bar with Message of the current state
     *@param message The Message that needs to be Set.
     */
-    void setIbarText(char *message);
+    void setIbarText(QString message);
 
 };

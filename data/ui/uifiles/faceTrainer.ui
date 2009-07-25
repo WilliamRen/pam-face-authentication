@@ -26,7 +26,7 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>faceTrainer</string>
+   <string>Face Trainer</string>
   </property>
   <property name="styleSheet">
    <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -45,7 +45,7 @@
      <string notr="true">background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="first">
      <widget class="QPushButton" name="pb_next_t1">
@@ -86,10 +86,10 @@
       </property>
       <property name="font">
        <font>
-        <family>Sans Serif</family>
-        <pointsize>14</pointsize>
+        <family>Serif</family>
+        <pointsize>28</pointsize>
         <weight>50</weight>
-        <italic>false</italic>
+        <italic>true</italic>
         <bold>false</bold>
        </font>
       </property>
@@ -97,15 +97,14 @@
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: 14pt &quot;Sans Serif&quot;;
-</string>
+       <string notr="true">font: italic 28pt &quot;Serif&quot;;
+color: rgb(76, 76, 76);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:14pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:48pt; font-weight:600; color:#505050; vertical-align:super;&quot;&gt;For Your Information&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>For Your Information</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -142,19 +141,15 @@ p, li { white-space: pre-wrap; }
        <string notr="true">background-color: rgb(87, 141, 29);
 border-width:5px;
 border-radius:9px;
-
+color: rgb(255,255,255);
 font: 75 36pt &quot;Serif&quot;;
 </string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:36pt; font-weight:72; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:48pt; font-weight:600; color:#ffffff;&quot;&gt;1&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>1</string>
       </property>
       <property name="textFormat">
-       <enum>Qt::RichText</enum>
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -188,14 +183,14 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: italic 16pt &quot;Serif&quot;;</string>
+       <string notr="true">font: italic 16pt &quot;Serif&quot;;
+color: rgb(166, 166, 166);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:16pt; font-weight:400; font-style:italic;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#828282;&quot;&gt;To ensure high efficiency please keep proper distance between head and camera&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>To ensure high efficiency please keep proper distance between head and camera</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -228,8 +223,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_instructions_4">
       <property name="geometry">
        <rect>
-        <x>91</x>
-        <y>326</y>
+        <x>100</x>
+        <y>337</y>
         <width>521</width>
         <height>27</height>
        </rect>
@@ -253,14 +248,14 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: italic 16pt &quot;Serif&quot;;</string>
+       <string notr="true">font: italic 16pt &quot;Serif&quot;;
+color: rgb(166, 166, 166);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:16pt; font-weight:400; font-style:italic;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#828282;&quot;&gt;Please try to sit where there is ample lighting&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Please try to sit where there is ample lighting</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -294,14 +289,14 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: italic 16pt &quot;Serif&quot;;</string>
+       <string notr="true">font: italic 16pt &quot;Serif&quot;;
+color: rgb(166, 166, 166);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:16pt; font-weight:400; font-style:italic;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#828282;&quot;&gt;No glass or hat as it might affect the recognition rate&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>No glass or hat as it might affect the recognition rate</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -335,14 +330,14 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: italic 16pt &quot;Serif&quot;;</string>
+       <string notr="true">font: italic 16pt &quot;Serif&quot;;
+color: rgb(126, 126, 126);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:16pt; font-weight:400; font-style:italic;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#828282;&quot;&gt;Read the instructions for High Efficiency&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Read the instructions for High Efficiency</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -381,19 +376,16 @@ p, li { white-space: pre-wrap; }
        <string notr="true">background-color: rgb(87, 141, 29);
 border-width:5px;
 border-radius:9px;
+color: rgb(255,255,255);
 
 font: 75 36pt &quot;Serif&quot;;
 </string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:36pt; font-weight:72; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:48pt; font-weight:600; color:#ffffff;&quot;&gt;2&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>2</string>
       </property>
       <property name="textFormat">
-       <enum>Qt::RichText</enum>
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -442,10 +434,10 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="font">
        <font>
-        <family>Sans Serif</family>
-        <pointsize>14</pointsize>
+        <family>Serif</family>
+        <pointsize>28</pointsize>
         <weight>50</weight>
-        <italic>false</italic>
+        <italic>true</italic>
         <bold>false</bold>
        </font>
       </property>
@@ -453,15 +445,14 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: 14pt &quot;Sans Serif&quot;;
-</string>
+       <string notr="true">font: italic 28pt &quot;Serif&quot;;
+color: rgb(76, 76, 76);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:14pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:48pt; font-weight:600; color:#505050; vertical-align:super;&quot;&gt;Train Your Face&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Train Your Face</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -501,11 +492,7 @@ border-radius:8px;
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 255, 230, 255), stop:1 rgba(255, 255, 255, 255));</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:16pt; font-weight:400; font-style:italic;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Information Bar&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string/>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -751,19 +738,16 @@ p, li { white-space: pre-wrap; }
        <string notr="true">background-color: rgb(87, 141, 29);
 border-width:5px;
 border-radius:9px;
+color: rgb(255,255,255);
 
 font: 75 36pt &quot;Serif&quot;;
 </string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:36pt; font-weight:72; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:48pt; font-weight:600; color:#ffffff;&quot;&gt;3&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>3</string>
       </property>
       <property name="textFormat">
-       <enum>Qt::RichText</enum>
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -786,10 +770,10 @@ p, li { white-space: pre-wrap; }
       </property>
       <property name="font">
        <font>
-        <family>Sans Serif</family>
-        <pointsize>14</pointsize>
+        <family>Serif</family>
+        <pointsize>28</pointsize>
         <weight>50</weight>
-        <italic>false</italic>
+        <italic>true</italic>
         <bold>false</bold>
        </font>
       </property>
@@ -797,15 +781,14 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: 14pt &quot;Sans Serif&quot;;
-</string>
+       <string notr="true">font: italic 28pt &quot;Serif&quot;;
+color: rgb(76, 76, 76);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:14pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p align=&quot;justify&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:48pt; font-weight:600; color:#505050; vertical-align:super;&quot;&gt;Congratulations!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Congratulations</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -814,8 +797,8 @@ p, li { white-space: pre-wrap; }
      <widget class="QLabel" name="lbl_subheading">
       <property name="geometry">
        <rect>
-        <x>216</x>
-        <y>126</y>
+        <x>221</x>
+        <y>127</y>
         <width>436</width>
         <height>27</height>
        </rect>
@@ -839,14 +822,14 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: italic 16pt &quot;Serif&quot;;</string>
+       <string notr="true">font: italic 16pt &quot;Serif&quot;;
+color: rgb(126, 126, 126);</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:16pt; font-weight:400; font-style:italic;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; color:#828282;&quot;&gt;Get ready to be dazzled!&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Get ready to be dazzled!</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -891,7 +874,7 @@ p, li { white-space: pre-wrap; }
       <property name="font">
        <font>
         <family>Serif</family>
-        <pointsize>16</pointsize>
+        <pointsize>13</pointsize>
         <weight>50</weight>
         <italic>true</italic>
         <bold>false</bold>
@@ -901,21 +884,20 @@ p, li { white-space: pre-wrap; }
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: italic 16pt &quot;Serif&quot;;
+       <string notr="true">font: italic 13pt &quot;Serif&quot;;
 border-width:14px;
 border-radius:8px;
 background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(232, 255, 230, 255), stop:1 rgba(255, 255, 255, 255));</string>
       </property>
       <property name="text">
-       <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
-&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
-p, li { white-space: pre-wrap; }
-&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Serif'; font-size:16pt; font-weight:400; font-style:italic;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:14pt; color:#3f3f3f;&quot;&gt;Thank you for using our application, to be a part of this phenomena visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!&lt;/span&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:14pt; color:#3f3f3f;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:14pt; color:#3f3f3f;&quot;&gt;&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:14pt; color:#3f3f3f;&quot;&gt;regards&lt;/p&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px; font-size:14pt; color:#3f3f3f;&quot;&gt;Developers&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       <string>Thank you for using our application, to be a part of this phenomena visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!
+
+
+regards
+Developers</string>
+      </property>
+      <property name="textFormat">
+       <enum>Qt::PlainText</enum>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

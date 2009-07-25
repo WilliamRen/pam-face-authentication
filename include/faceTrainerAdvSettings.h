@@ -25,6 +25,10 @@ public:
     */
     char *configDirectory;
     /**
+    *Initializes the Ui with Config Data
+    */
+    void initConfig();
+    /**
     *Pointer to OpenCV Webcam object
     */
     opencvWebcam *webcam;
@@ -50,6 +54,7 @@ private:
     Ui::faceTrainerAdvSettings ui;
 
 private slots:
+
     /**
     *SLOT -Saves the Config Values
     */

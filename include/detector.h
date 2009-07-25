@@ -1,6 +1,8 @@
 #include "cv.h"
 #ifndef _INCL_GUARD_DET
 #define _INCL_GUARD_DET
+#include "tracker.h"
+#include "pam_face_defines.h"
 
 #include "faceDetector.h"
 #include "eyesDetector.h"
@@ -93,6 +95,37 @@ public:
     */
     int detectorSuccessful();
 private:
+
+    /**
+    *Eye tracker object for Left eye
+    */
+    tracker leftEye;
+
+    /**
+    *Eye tracker object for Right eye
+    */
+    tracker rightEye;
+    /**
+    *Eye Cordinates
+    */
+    CvPoint leftEyeP,rightEyeP;
+    /**
+    *Relative to Face ,Eye Cordinates
+    */
+    CvPoint leftEyePointRelative,rightEyePointRelative;
+    /**
+    *Angle of Face
+    */
+    double inAngle;
+    /**
+    *Length Of Eye
+    */
+    int lengthEye,widthEyeWindow,heightEyeWindow;
+     /**
+    *Length Of Eye in Last Frame
+    */
+    int prevlengthEye;
+
     /**
     *Temp Variable used to print %d/%d message while capturing images
     */

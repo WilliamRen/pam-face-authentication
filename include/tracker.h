@@ -1,4 +1,6 @@
 #include "cv.h"
+#ifndef _INCL_GUARD_TRACK
+#define _INCL_GUARD_TRACK
 /**
 * Tracker Class. This Class implements a Experimental Object Tracker, I use Variance and Integral Projection in X and Y directions as Features and uses Grid Search Algorithm To Fit the Model Feature to The input Feature.
 */
@@ -145,3 +147,4 @@ private:
     */
     double difference(double * feature,double * featureModel,int size, double px,double py,int anchor);
 };
+#endif
