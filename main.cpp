@@ -305,11 +305,14 @@ cvWaitKey(1);
 void faceTrainerAdvSettings::timerEvent( QTimerEvent * )
 {
     IplImage * queryImage = webcam->queryFrame();
+       double t = (double)cvGetTickCount();
     newDetector->runDetector(queryImage);
+       double t1 = (double)cvGetTickCount();
+printf("%e \n",t1-t);
     //if(newDetector->checkEyeDetected()==1)
     //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     //this works captureClick();
-    //double t = (double)cvGetTickCount();
+   double t = (double)cvGetTickCount();
     static webcamImagePaint newWebcamImagePaint;
     newWebcamImagePaint.paintCyclops(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
     newWebcamImagePaint.paintEllipse(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
