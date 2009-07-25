@@ -57,6 +57,7 @@ int eyesDetector::checkEyeDetected()
 void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint LT)
 
 {
+
     bothEyesDetected=0;
     //static int countR;
     //static CvPoint leftEyeP,rightEyeP;
@@ -66,24 +67,29 @@ void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint
     if (input==0)
         return;
 
-    IplImage *gray = cvCreateImage( cvSize(input->width,input->height/2), 8, 1 );
+    double scale=1,i=0,j=0;
+    //  //printf("%e SCALE \n\n",scale);
+
+    IplImage *gray = cvCreateImage( cvSize(input->width,input->height/(2)), 8, 1 );
     IplImage *gray_fullimage = cvCreateImage( cvSize(fullImage->width,fullImage->height), 8, 1 );
-    cvSetImageROI(input,cvRect(0,(input->height)/8,input->width,(input->height)/2));
+
+    IplImage *gray_scale = cvCreateImage( cvSize(input->width/scale,input->height/(2*scale)), 8, 1 );
+
+    cvSetImageROI(input,cvRect(0,(input->height)/(8),input->width,(input->height)/(2)));
     cvCvtColor( input, gray, CV_BGR2GRAY );
     cvResetImageROI(input);
 
 
     cvCvtColor( fullImage, gray_fullimage, CV_BGR2GRAY );
+    cvResize(gray,gray_scale,CV_INTER_LINEAR);
 
 
-    double scale=1,i=0,j=0;
-    //  //printf("%e SCALE \n\n",scale);
     cvClearMemStorage( storage );
-    CvSeq* nested_objects = cvHaarDetectObjects(gray, nested_cascade, storage,1.4, 2, 0,cvSize(0,0) );
+    CvSeq* nested_objects = cvHaarDetectObjects(gray_scale, nested_cascade, storage,1.4, 2, 0,cvSize(0,0) );
     int count=nested_objects ? nested_objects->total : 0;
     if (count==0)
     {
-        nested_objects = cvHaarDetectObjects( gray, nested_cascade_2, storage,1.4, 2, 0,cvSize(0,0) );
+        nested_objects = cvHaarDetectObjects( gray_scale, nested_cascade_2, storage,1.4, 2, 0,cvSize(0,0) );
     }
     int leftT=0,rightT=0;
     count=nested_objects ? nested_objects->total : 0;
@@ -95,8 +101,8 @@ void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint
         {
             CvPoint center;
             CvRect* nr = (CvRect*)cvGetSeqElem( nested_objects, j );
-            center.x = cvRound((LT.x+ nr->x + nr->width*0.5)*scale);
-            center.y = cvRound((LT.y + (input->height)/8+nr->y + nr->height*0.5)*scale);
+            center.x = cvRound((LT.x+ (nr->x + nr->width*0.5)*scale));
+            center.y = cvRound((LT.y + (input->height)/8 + (nr->y + nr->height*0.5)*scale));
 
             if ((center.x-4)>0 && (center.x-4)<(IMAGE_WIDTH-8) && (center.y-4)>0  && (center.y-4)<(IMAGE_HEIGHT-8))
             {
@@ -105,11 +111,11 @@ void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint
                 cvResize( gray_fullimage,eyeDetect, CV_INTER_LINEAR ) ;
                 cvResetImageROI(gray_fullimage);
 
-                double xCordinate=(center.x-4+CenterofMass(eyeDetect,0))*scale;
-                double yCordinate=(center.y-4+CenterofMass(eyeDetect,1))*scale;
+                double xCordinate=(center.x-4+CenterofMass(eyeDetect,0));
+                double yCordinate=(center.y-4+CenterofMass(eyeDetect,1));
 
                 cvReleaseImage( &eyeDetect );
-                if (center.x<cvRound((LT.x + input->width*0.5)*scale))
+                if (center.x<cvRound((LT.x + input->width*0.5)))
                 {
                     eyesInformation.LE.x=xCordinate;
                     eyesInformation.LE.y=yCordinate;
@@ -143,6 +149,6 @@ void eyesDetector::runEyesDetector(IplImage * input,IplImage * fullImage,CvPoint
     }
     cvReleaseImage(&gray_fullimage);
     cvReleaseImage(&gray);
-
+    cvReleaseImage(&gray_scale);
 
 }

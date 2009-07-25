@@ -277,6 +277,8 @@ int detector::runDetector(IplImage * input)
 
         leftEye.trackImage(grayIm1);
         rightEye.trackImage(grayIm2);
+
+
         CvPoint temp;
         leftEye.findPoint(leftEyePointRelative,&temp);
         CvPoint leftEyePTemp,leftEyePointRelativeTemp,rightEyePTemp,rightEyePointRelativeTemp;

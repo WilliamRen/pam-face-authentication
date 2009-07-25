@@ -50,6 +50,7 @@ faceDetector::faceDetector()
 }
 void faceDetector::runFaceDetector(IplImage *input)
 {
+             double t = (double)cvGetTickCount();
 
     static tracker faceTracker;
     static CvPoint fp1,fp2;
@@ -62,7 +63,8 @@ void faceDetector::runFaceDetector(IplImage *input)
 
     IplImage *gray, *small_img;
     int i, j;
-    int scale=1;
+    int scale=2;
+
     gray = cvCreateImage( cvSize(input->width,input->height), 8, 1 );
     small_img = cvCreateImage( cvSize( cvRound (input->width/scale),
                                        cvRound (input->height/scale)), 8, 1 );
@@ -73,6 +75,7 @@ void faceDetector::runFaceDetector(IplImage *input)
 
     if ( cascade )
     {
+
         CvSeq* faces = cvHaarDetectObjects( small_img, cascade, storage,
                                             1.4, 2, 0
                                             // |CV_HAAR_FIND_BIGGEST_OBJECT
@@ -81,7 +84,7 @@ void faceDetector::runFaceDetector(IplImage *input)
                                             |CV_HAAR_DO_CANNY_PRUNING
                                             //|CV_HAAR_SCALE_IMAGE
                                             ,
-                                            cvSize(80, 80) );
+                                            cvSize(80/scale, 80/scale) );
         int maxI=-1;
         int max0=0;
 
@@ -97,6 +100,8 @@ void faceDetector::runFaceDetector(IplImage *input)
 
 
         }
+
+
         if (maxI!=-1)
         {
             CvRect* r = (CvRect*)cvGetSeqElem( faces, maxI);
@@ -120,6 +125,9 @@ void faceDetector::runFaceDetector(IplImage *input)
 
     cvReleaseImage(&gray);
     cvReleaseImage(&small_img);
+     double t1 = (double)cvGetTickCount();
+
+ //printf( "detection time = %gms\n",(t1-t)/((double)cvGetTickFrequency()*1000.));
 
 }
 

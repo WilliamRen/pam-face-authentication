@@ -100,9 +100,11 @@ void faceTrainerAdvSettings::saveClicked()
 void faceTrainerAdvSettings::restoreDefaults()
 {
     newVerifier->createMaceFilter();
-    ui.sb_face->setValue(MACE_FACE_DEFAULT);
-    ui.sb_eye->setValue(MACE_EYE_DEFAULT);
-    ui.sb_insideFace->setValue(MACE_INSIDE_FACE_DEFAULT);
+    initConfig();
+
+   // ui.sb_face->setValue(MACE_FACE_DEFAULT);
+  //  ui.sb_eye->setValue(MACE_EYE_DEFAULT);
+   // ui.sb_insideFace->setValue(MACE_INSIDE_FACE_DEFAULT);
     saveClicked();
 
 }
@@ -177,7 +179,7 @@ faceTrainer::faceTrainer(QWidget *parent)
 }
 void faceTrainer::about()
 {
-    static aboutBox newAboutBox;
+    aboutBox newAboutBox;
     newAboutBox.exec();
 }
 void faceTrainer::showAdvDialog()
@@ -263,7 +265,6 @@ void faceTrainer::captureClick()
 }
 void faceTrainer::timerEvent( QTimerEvent * )
 {
-
     IplImage * queryImage = webcam.queryFrame();
     newDetector.runDetector(queryImage);
 
@@ -305,14 +306,11 @@ cvWaitKey(1);
 void faceTrainerAdvSettings::timerEvent( QTimerEvent * )
 {
     IplImage * queryImage = webcam->queryFrame();
-       double t = (double)cvGetTickCount();
     newDetector->runDetector(queryImage);
-       double t1 = (double)cvGetTickCount();
-printf("%e \n",t1-t);
     //if(newDetector->checkEyeDetected()==1)
     //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     //this works captureClick();
-   double t = (double)cvGetTickCount();
+   //double t = (double)cvGetTickCount();
     static webcamImagePaint newWebcamImagePaint;
     newWebcamImagePaint.paintCyclops(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
     newWebcamImagePaint.paintEllipse(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);

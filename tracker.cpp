@@ -83,7 +83,7 @@ void tracker:: setModel(IplImage * input)
 double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
 {
 
-  cvEqualizeHist( input,input);
+  //cvEqualizeHist( input,input);
     //  IplImage * input =cvCreateImage( cvSize(in->width,in->height), 8, 1 );
     //cvThreshold(in,input,100,255,CV_THRESH_TRUNC);
 
@@ -182,6 +182,7 @@ double * tracker::calculateFeature(IplImage * input,int flag,int varorintegral)
 
 double tracker::findParam(double  scaleFactor,double translateFactor,double * updatedScaleFactor,double * updatedTranslateFactor,double *feature,double *feature1,double* featureModel,double* featureModel1,int size,double scale,double translate,int anchor)
 {
+
     double val;
     double diffVal1[NUMBER_OF_GRID_POINTS];
     double diffVal2[NUMBER_OF_GRID_POINTS];

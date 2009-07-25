@@ -223,8 +223,8 @@ void  webcamImagePaint::paintCyclops(IplImage *image,CvPoint leftEye,CvPoint rig
                 offset = iterator.ptr - (uchar*)(image->imageData);
                 y = offset/image->widthStep;
                 x = (offset - y*image->widthStep)/(3*sizeof(uchar));
-                double rat =  .07*(((double)((countVert/2) -abs((countVert/2)-i))/(double)(countVert/2)));
-                rat=rat + fabs(double(.05*((double(double(fabs(l.x-r.x)/2) -fabs((double)(x)-double(fabs(l.x+r.x)/2)) ))/ (double((fabs(l.x-r.x)/2)))))) ;
+                double rat =  .05*(((double)((countVert/2) -abs((countVert/2)-i))/(double)(countVert/2)));
+                rat=rat + fabs(double(.03*((double(double(fabs(l.x-r.x)/2) -fabs((double)(x)-double(fabs(l.x+r.x)/2)) ))/ (double((fabs(l.x-r.x)/2)))))) ;
                 if (j==2)
                 {
                     leftScanLineX=x;

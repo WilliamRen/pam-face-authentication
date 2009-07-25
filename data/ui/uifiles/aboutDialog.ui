@@ -13,8 +13,20 @@
     <height>374</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>550</width>
+    <height>374</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>550</width>
+    <height>374</height>
+   </size>
+  </property>
   <property name="windowTitle">
-   <string>About</string>
+   <string>About the Software \m/</string>
   </property>
   <property name="styleSheet">
    <string>background-color: rgb(255, 255, 255);</string>
