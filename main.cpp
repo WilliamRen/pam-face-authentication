@@ -91,15 +91,15 @@ void faceTrainerAdvSettings::setQImageWebcam(QImage *input)
 void faceTrainerAdvSettings::saveClicked()
 {
     config newConfig;
-    newConfig.filterMaceEyePSLR= ui.sb_eye->value();
-    newConfig.filterMaceFacePSLR= ui.sb_face->value();
-    newConfig.filterMaceInsideFacePSLR= ui.sb_insideFace->value();
+   newConfig.percentage=.76;
+  //  newConfig.filterMaceFacePSLR= ui.sb_face->value();
+ //   newConfig.filterMaceInsideFacePSLR= ui.sb_insideFace->value();
     setConfig(&newConfig,configDirectory);
 }
 
 void faceTrainerAdvSettings::restoreDefaults()
 {
-    newVerifier->createMaceFilter();
+    newVerifier->createBiometricModels();
     initConfig();
 
    // ui.sb_face->setValue(MACE_FACE_DEFAULT);
@@ -147,9 +147,9 @@ void faceTrainerAdvSettings::initConfig()
 {
     config* newConfig;
     newConfig=getConfig(configDirectory);
-    ui.sb_face->setValue(newConfig->filterMaceFacePSLR);
-    ui.sb_eye->setValue(newConfig->filterMaceEyePSLR);
-    ui.sb_insideFace->setValue(newConfig->filterMaceInsideFacePSLR);
+  //  ui.sb_face->setValue(newConfig->filterMaceFacePSLR);
+  ////  ui.sb_eye->setValue(newConfig->filterMaceEyePSLR);
+  //  ui.sb_insideFace->setValue(newConfig->filterMaceInsideFacePSLR);
 }
 
 aboutBox::aboutBox(QWidget *parent)
@@ -179,6 +179,8 @@ faceTrainer::faceTrainer(QWidget *parent)
 }
 void faceTrainer::about()
 {
+    verify();
+
     aboutBox newAboutBox;
     newAboutBox.exec();
 }

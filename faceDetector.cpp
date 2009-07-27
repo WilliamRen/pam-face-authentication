@@ -63,7 +63,7 @@ void faceDetector::runFaceDetector(IplImage *input)
 
     IplImage *gray, *small_img;
     int i, j;
-    int scale=2;
+    int scale=1;
 
     gray = cvCreateImage( cvSize(input->width,input->height), 8, 1 );
     small_img = cvCreateImage( cvSize( cvRound (input->width/scale),

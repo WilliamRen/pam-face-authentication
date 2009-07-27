@@ -51,7 +51,7 @@ public:
     *Creates the MACE Filter , it Creates $HOME/.pam-face-authentication/model/$SETNAME_(FACE | EYE | INSIDE_FACE).XML
     */
 
-    void createMaceFilter();
+    void createBiometricModels();
 //Done
 
     /**

@@ -44,7 +44,7 @@ SET( QT_FACETRAINER_SRCS
                  detector.cpp             
                  faceDetector.cpp       
                  eyesDetector.cpp
-
+                 webcamImagePaint.cpp
                  tracker.cpp              
                  verifier.cpp           
                  utils.cpp                

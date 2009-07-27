@@ -29,6 +29,155 @@
 #include "utils.h"
 
 
+int checkBit(int i)
+{
+// Well Removing patterns with bits changing consecutively  more than twice
+    int j=i;
+    int bit8=(i%2);
+    int bit7=((i/2)%2);
+    int bit6=((i/4)%2);
+    int bit5=((i/8)%2);
+    int bit4=((i/16)%2);
+    int bit3=((i/32)%2);
+    int bit2=((i/64)%2);
+    int bit1=((i/128)%2);
+    int bitVector[9]  =   {bit1,bit8,bit7, bit6, bit5,bit4, bit3,bit2,bit1};
+    int current=bitVector[0];
+    int count=0;
+    for (i=0;i<9;i++)
+    {
+        if (current!=bitVector[i])
+            count++;
+        current=bitVector[i];
+    }
+    if (count>2)
+        return -1;
+    else
+        return 0;
+}
+
+double getBIT(IplImage* img,double px,double py,double threshold)
+{
+    if (px<0 || py<0 || px>=img->width || py>=img->height)
+        return 0;
+    else
+    {
+        CvScalar s;
+        s=cvGet2D(img,py,px);
+        if (s.val[0]>=threshold)
+            return 1;
+        else
+            return 0;
+    }
+}
+
+void  featureLBPHist(IplImage * img,CvMat *features_final)
+{
+    int lbpArry[256];
+
+    IplImage* imgLBP=cvCreateImage( cvSize(img->width,img->height), 8,1 );
+    int Nx = floor((img->width )/35);
+    int Ny= floor((img->height)/30);
+
+    int i,j=0;
+
+    cvZero(imgLBP);
+    for (i=0;i<img->height;i++)
+    {
+
+        for (j=0;j<img->width;j++)
+        {
+            int p1x,p2x,p3x,p4x,p5x,p6x,p7x,p8x;
+            int p1y,p2y,p3y,p4y,p5y,p6y,p7y,p8y;
+
+            p1x=j-1;
+            p1y=i-1;
+            p2x=j;
+            p2y=i-1;
+            p3x=j+1;
+            p3y=i-1;
+            p4x=j+1;
+            p4y=i;
+            p5x=j+1;
+            p5y=i+1;
+            p6x=j;
+            p6y=i+1;
+            p7x=j-1;
+            p7y=i+1;
+            p8x=j-1;
+            p8y=i;
+            CvScalar s;
+            s=cvGet2D(img,i,j);
+            double bit1=128*getBIT(img,p1x,p1y,s.val[0]);
+            double bit2=64*getBIT(img,p2x,p2y,s.val[0]);
+            double bit3=32*getBIT(img,p3x,p3y,s.val[0]);
+            double bit4=16*getBIT(img,p4x,p4y,s.val[0]);
+            double bit5=8*getBIT(img,p5x,p5y,s.val[0]);
+            double bit6=4*getBIT(img,p6x,p6y,s.val[0]);
+            double bit7=2*getBIT(img,p7x,p7y,s.val[0]);
+            double bit8=1*getBIT(img,p8x,p8y,s.val[0]);
+            CvScalar s1;
+            s1.val[0]=bit1+bit2+bit3+bit4+bit5+bit6+bit7+bit8;
+            s1.val[1]=0;
+            s1.val[2]=0;
+            // printf("%d A\n",int(s1.val[0]));
+            cvSet2D(imgLBP,i,j,s1);
+        }
+    }
+    int l,m,k=0;
+
+
+    for (i=0;i<Ny;i++)
+    {
+        for (j=0;j<Nx;j++)
+        {
+            int count=0;
+            CvScalar s;
+            s.val[0]=0;
+            for (k=0;k<256;k++)
+            {
+                if (checkBit(k)==0)
+                {
+                    cvSet2D(features_final,i*Nx*59 + j*59 +count,0,s);
+                    lbpArry[k]=count;
+                    count++;
+                }
+                else
+                {
+                    cvSet2D(features_final,i*Nx*59 + j*59 +58,0,s);
+                    lbpArry[k]=58;
+                }
+            }
+            int startX=35*j;
+            int startY=30*i;
+
+//printf("%d \n",count);
+            for (l=0;l<30;l++)
+            {
+
+                for (m=0;m<35;m++)
+                {
+                    CvScalar s;
+                    s=cvGet2D(imgLBP,startY+l,startX+m);
+                    int val=s.val[0];
+
+                    // printf("%d \n",i*Nx*59 + j*59 +lbpArry[val]);
+                    CvScalar s1;
+                    s1=cvGet2D(features_final,i*Nx*59 + j*59 +lbpArry[val],0);
+                    s1.val[0]+=1;
+                    cvSet2D(features_final,i*Nx*59 + j*59+lbpArry[val],0,s1);
+
+                }
+            }
+
+
+        }
+    }
+
+    cvReleaseImage( &imgLBP);
+}
+
+
 
 CvMat * createGaussianFilter(int size)
 {
@@ -52,7 +201,61 @@ CvMat * createGaussianFilter(int size)
 
     return filter;
 }
+
+double LBPdiff(    CvMat* model,    CvMat* test)
+{
+    double weights[4][5]  =
+    {
+        { 1, 1,  1, 1,  1},
+        { 1, 2,  2,2,  1},
+        { 1, 1,  1, 1,  1},
+        { .3, 1,  1, 1,  .3},
+
+    };
+
+    int i,j,k;
+    double chiSquare=0;
+    for (i=0;i<5;i++)
+    {
+        for (j=0;j<4;j++)
+        {
+
+            for (k=0;k<59;k++)
+            {
+                CvScalar s1,s2;
+                s1=cvGet2D(model,i*4*59 + j*59 +k,0);
+                s2=cvGet2D(test,i*4*59 + j*59 +k,0);
+                double hist1=0,hist2=0;
+                hist1=s1.val[0];
+                hist2=s2.val[0];
+                if ((hist1+hist2)!=0)
+                chiSquare+=(weights[i][j]*(pow(hist1-hist2,2)/(hist1+hist2)));
+
+            }
+
+        }
+
+    }
+    return chiSquare;
+}
+
+
+void saveMace(mace * maceFilter,char *path)
+{
+    char fullpath[300];
+    sprintf(fullpath,"%s/%s", path,maceFilter->maceFilterName);
+   // printf("%s \n",fullpath);
+    CvFileStorage *fs;
+    fs = cvOpenFileStorage( fullpath, 0, CV_STORAGE_WRITE );
+    cvWrite( fs, "maceFilter", maceFilter->filter, cvAttrList(0,0) );
+    cvWriteInt( fs, "thresholdPSLR", maceFilter->thresholdPSLR);
+    cvWriteReal( fs, "thresholdPCER", maceFilter->thresholdPCER);
+    cvReleaseFileStorage( &fs );
+}
+
+
 ////////////////  \m/ ^^ SELF QUOTIENT IMAGE \m/  ////
+
 
 IplImage * SQI(CvMat * filter,IplImage *  image,int size)
 {
@@ -303,31 +506,19 @@ void setConfig(config *configuration,char * configDirectory)
     sprintf(maceConfig,"%s/mace.xml", configDirectory);
     CvFileStorage* fs ;
     fs = cvOpenFileStorage( maceConfig, 0, CV_STORAGE_WRITE );
-    cvWriteReal( fs, "faceThreshold_PCER", configuration->filterMaceFacePCER );
-    cvWriteReal( fs, "eyeThreshold_PCER", configuration->filterMaceEyePCER );
-    cvWriteReal( fs, "insideFaceThreshold_PCER", configuration->filterMaceInsideFacePCER );
-    cvWriteInt( fs, "faceThreshold_PSLR", configuration->filterMaceFacePSLR );
-    cvWriteInt( fs, "eyeThreshold_PSLR", configuration->filterMaceEyePSLR );
-    cvWriteInt( fs, "insideFaceThreshold_PSLR", configuration->filterMaceInsideFacePSLR );
+   // printf("%e \n",configuration->percentage);
+    cvWriteReal( fs, "percentage", configuration->percentage );
     cvReleaseFileStorage( &fs );
 }
 
 config * getConfig(char *configDirectory)
 {
     config * newConfig=new config;
-    char maceConig[300];
-    sprintf(maceConig,"%s/mace.xml", configDirectory);
+    char maceConfig[300];
+    sprintf(maceConfig,"%s/mace.xml", configDirectory);
     CvFileStorage * fileStorage;
-    fileStorage = cvOpenFileStorage(maceConig, 0, CV_STORAGE_READ );
-    newConfig->filterMaceFacePCER=cvReadRealByName( fileStorage, 0, "faceThreshold_PCER", MACE_FACE_DEFAULT);
-    newConfig->filterMaceEyePCER=cvReadRealByName( fileStorage, 0, "eyeThreshold_PCER", MACE_EYE_DEFAULT);
-    newConfig->filterMaceInsideFacePCER=cvReadRealByName( fileStorage, 0, "insideFaceThreshold_PCER", MACE_INSIDE_FACE_DEFAULT);
-    newConfig->filterMaceFacePSLR=cvReadIntByName( fileStorage, 0, "faceThreshold_PSLR", 0);
-    newConfig->filterMaceEyePSLR=cvReadIntByName( fileStorage, 0, "eyeThreshold_PSLR", 0);
-    newConfig->filterMaceInsideFacePSLR=cvReadIntByName( fileStorage, 0, "insideFaceThreshold_PSLR", 0);
-
-
-  //  printf("%e %e %e \n", newConfig->filterMaceFacePCER,newConfig->filterMaceEyePCER,newConfig->filterMaceInsideFacePCER);
+    fileStorage = cvOpenFileStorage(maceConfig, 0, CV_STORAGE_READ );
+    newConfig->percentage=cvReadRealByName( fileStorage, 0, "percentage", 1);
     cvReleaseFileStorage( &fileStorage );
     return newConfig;
 }
@@ -839,7 +1030,8 @@ return maceFilterVisualize;
 
 CvMat *computeMace(IplImage **img,int size,int SIZE_OF_IMAGE)
 
-{    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
+{
+    int  SIZE_OF_IMAGE_2X =SIZE_OF_IMAGE*2;
     int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
     ////printf("%d size =",size);
     IplImage ** faces=new IplImage *[size];
@@ -849,8 +1041,8 @@ CvMat *computeMace(IplImage **img,int size,int SIZE_OF_IMAGE)
     {
 
         faces[index]=cvCreateImage( cvSize(img[index]->width,img[index]->height), 8, 1 );
-      //  cvResize(img[index], faces[index], CV_INTER_LINEAR );
-         cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
+        //  cvResize(img[index], faces[index], CV_INTER_LINEAR );
+        cvCvtColor( img[index], faces[index], CV_BGR2GRAY );
 //          faces[index]=featureLBPSum(faces[index]);
 
         //  logOfImage(faces[index],faces[index]);
@@ -887,7 +1079,7 @@ CvMat *computeMace(IplImage **img,int size,int SIZE_OF_IMAGE)
     {
         IplImage *gray = cvCreateImage( cvSize(SIZE_OF_IMAGE,SIZE_OF_IMAGE), 8, 1 );
         cvResize(faces[i], gray, CV_INTER_LINEAR ) ;
-	cvEqualizeHist( gray,gray);
+        cvEqualizeHist( gray,gray);
         grayfaces[i]=gray;
         CvMat tmp;
 
@@ -895,6 +1087,7 @@ CvMat *computeMace(IplImage **img,int size,int SIZE_OF_IMAGE)
         IplImage *  realInputDouble = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
         IplImage *  imaginaryInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
         IplImage *  complexInput = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 2);
+
         cvScale(grayfaces[i], realInput, 1.0, 0.0);
         cvZero(realInputDouble);
         cvZero(imaginaryInput);
@@ -1316,21 +1509,21 @@ double peakCorrPlaneEnergy(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_
     cvCopy( complexInput, &tmp, NULL );
     cvDFT( dftImage, dftImage, CV_DXT_FORWARD,0);
     int l=0,m=0;
-   /*
-    CvScalar s1;
-    s1=cvGet2D(dftImage,0,0);
-    for (l=0;l<SIZE_OF_IMAGE_2X;l++)
-    {
-        for (m=0;m<SIZE_OF_IMAGE_2X;m++)
-        {
+    /*
+     CvScalar s1;
+     s1=cvGet2D(dftImage,0,0);
+     for (l=0;l<SIZE_OF_IMAGE_2X;l++)
+     {
+         for (m=0;m<SIZE_OF_IMAGE_2X;m++)
+         {
 
-            CvScalar scalar = cvGet2D( dftImage, l, m );
-            scalar.val[0]/=s1.val[0];
-            scalar.val[1]/=s1.val[0];
-            cvSet2D( dftImage, l, m,scalar );
-        }
-   }
-   */
+             CvScalar scalar = cvGet2D( dftImage, l, m );
+             scalar.val[0]/=s1.val[0];
+             scalar.val[1]/=s1.val[0];
+             cvSet2D( dftImage, l, m,scalar );
+         }
+    }
+    */
     cvMulSpectrums(dftImage , maceFilterVisualize, dftImage,CV_DXT_MUL_CONJ);
     cvDFT( dftImage, dftImage ,CV_DXT_INV_SCALE,0 );
     IplImage * image_Re = cvCreateImage( cvSize(SIZE_OF_IMAGE_2X,SIZE_OF_IMAGE_2X), IPL_DEPTH_64F, 1);
@@ -1350,13 +1543,13 @@ double peakCorrPlaneEnergy(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_
         }
 
     }
-   // static int namedw=0;
-   //// namedw++;
-  // /// char namedwin[300];
-   // sprintf(namedwin,"win %d\n",namedw);
-   // cvNamedWindow(namedwin,0);
-  // //     cvScale(image_Re, image_Re, 1.0/(M1-m1), 1.0*(-m1)/(M1-m1));
-  //  printf("%e MAX  %e MIN \n",M1,m1);
+    // static int namedw=0;
+    //// namedw++;
+    // /// char namedwin[300];
+    // sprintf(namedwin,"win %d\n",namedw);
+    // cvNamedWindow(namedwin,0);
+    // //     cvScale(image_Re, image_Re, 1.0/(M1-m1), 1.0*(-m1)/(M1-m1));
+    //  printf("%e MAX  %e MIN \n",M1,m1);
 
     //cvShowImage(namedwin,image_Re);
 
@@ -1382,7 +1575,7 @@ int peakToSideLobeRatio(CvMat*maceFilterVisualize,IplImage *img,int  SIZE_OF_IMA
     int  TOTALPIXEL =SIZE_OF_IMAGE_2X*SIZE_OF_IMAGE_2X;
 
     int radius1=int(floor((double)(45.0/64.0)*(double)SIZE_OF_IMAGE));
-    int radius2=int(floor((double)(33.0/64.0)*(double)SIZE_OF_IMAGE));
+    int radius2=int(floor((double)(27.0/64.0)*(double)SIZE_OF_IMAGE));
 
     int rad1=radius1;
     int rad2=radius2;
