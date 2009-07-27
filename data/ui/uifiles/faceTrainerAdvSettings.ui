@@ -38,7 +38,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>290</y>
+     <y>280</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -50,88 +50,36 @@
     <string>Thresholds</string>
    </property>
   </widget>
-  <widget class="QSpinBox" name="sb_face">
-   <property name="geometry">
-    <rect>
-     <x>107</x>
-     <y>310</y>
-     <width>51</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="value">
-    <number>17</number>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>74</x>
-     <y>314</y>
+     <x>73</x>
+     <y>317</y>
      <width>29</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Face</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_3">
-   <property name="geometry">
-    <rect>
-     <x>166</x>
-     <y>314</y>
-     <width>32</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Eye</string>
+    <string>0%</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>247</x>
-     <y>312</y>
-     <width>91</width>
+     <x>322</x>
+     <y>316</y>
+     <width>38</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>Nose &amp; Mouth</string>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="sb_eye">
-   <property name="geometry">
-    <rect>
-     <x>188</x>
-     <y>310</y>
-     <width>51</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="value">
-    <number>25</number>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="sb_insideFace">
-   <property name="geometry">
-    <rect>
-     <x>340</x>
-     <y>310</y>
-     <width>51</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <property name="value">
-    <number>25</number>
+    <string>100%</string>
    </property>
   </widget>
   <widget class="QGraphicsView" name="webcamPreview">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>49</x>
      <y>30</y>
      <width>320</width>
      <height>240</height>
@@ -170,9 +118,9 @@
    </property>
    <property name="geometry">
     <rect>
-     <x>160</x>
-     <y>340</y>
-     <width>151</width>
+     <x>252</x>
+     <y>343</y>
+     <width>147</width>
      <height>31</height>
     </rect>
    </property>
@@ -186,8 +134,8 @@
   <widget class="QLabel" name="result">
    <property name="geometry">
     <rect>
-     <x>280</x>
-     <y>380</y>
+     <x>284</x>
+     <y>383</y>
      <width>61</width>
      <height>16</height>
     </rect>
@@ -202,8 +150,8 @@
   <widget class="QLabel" name="result_2">
    <property name="geometry">
     <rect>
-     <x>90</x>
-     <y>380</y>
+     <x>94</x>
+     <y>383</y>
      <width>181</width>
      <height>16</height>
     </rect>
@@ -218,9 +166,9 @@
   <widget class="QLabel" name="lbl_number_4">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>303</y>
-     <width>41</width>
+     <x>29</x>
+     <y>302</y>
+     <width>29</width>
      <height>31</height>
     </rect>
    </property>
@@ -263,9 +211,9 @@ font: 22pt &quot;Serif&quot;;
   <widget class="QLabel" name="lbl_number_5">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>343</y>
-     <width>41</width>
+     <x>29</x>
+     <y>342</y>
+     <width>29</width>
      <height>31</height>
     </rect>
    </property>
@@ -311,8 +259,8 @@ font: 22pt &quot;Serif&quot;;
    </property>
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>340</y>
+     <x>162</x>
+     <y>343</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -330,8 +278,8 @@ font: 22pt &quot;Serif&quot;;
    </property>
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>340</y>
+     <x>72</x>
+     <y>342</y>
      <width>91</width>
      <height>31</height>
     </rect>
@@ -341,6 +289,46 @@ font: 22pt &quot;Serif&quot;;
    </property>
    <property name="text">
     <string>Defaults</string>
+   </property>
+  </widget>
+  <widget class="QSlider" name="percentage">
+   <property name="geometry">
+    <rect>
+     <x>104</x>
+     <y>305</y>
+     <width>201</width>
+     <height>35</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string/>
+   </property>
+   <property name="minimum">
+    <number>1</number>
+   </property>
+   <property name="maximum">
+    <number>100</number>
+   </property>
+   <property name="value">
+    <number>76</number>
+   </property>
+   <property name="tracking">
+    <bool>true</bool>
+   </property>
+   <property name="orientation">
+    <enum>Qt::Horizontal</enum>
+   </property>
+   <property name="invertedAppearance">
+    <bool>false</bool>
+   </property>
+   <property name="invertedControls">
+    <bool>false</bool>
+   </property>
+   <property name="tickPosition">
+    <enum>QSlider::TicksAbove</enum>
+   </property>
+   <property name="tickInterval">
+    <number>10</number>
    </property>
   </widget>
  </widget>
