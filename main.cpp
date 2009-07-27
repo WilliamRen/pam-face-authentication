@@ -91,7 +91,7 @@ void faceTrainerAdvSettings::setQImageWebcam(QImage *input)
 void faceTrainerAdvSettings::saveClicked()
 {
     config newConfig;
-   newConfig.percentage=((double)ui.percentage->getValue()/100);
+   newConfig.percentage=((double)ui.percentage->value()/100);
   //  newConfig.filterMaceFacePSLR= ui.sb_face->value();
  //   newConfig.filterMaceInsideFacePSLR= ui.sb_insideFace->value();
     setConfig(&newConfig,configDirectory);
@@ -181,7 +181,7 @@ faceTrainer::faceTrainer(QWidget *parent)
 }
 void faceTrainer::about()
 {
-    verify();
+   // verify();
 
     aboutBox newAboutBox;
     newAboutBox.exec();
