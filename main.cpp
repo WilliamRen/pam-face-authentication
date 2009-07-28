@@ -99,13 +99,13 @@ void faceTrainerAdvSettings::saveClicked()
 
 void faceTrainerAdvSettings::restoreDefaults()
 {
-    newVerifier->createBiometricModels();
     initConfig();
-
+ui.percentage->setValue(76);
    // ui.sb_face->setValue(MACE_FACE_DEFAULT);
   //  ui.sb_eye->setValue(MACE_EYE_DEFAULT);
    // ui.sb_insideFace->setValue(MACE_INSIDE_FACE_DEFAULT);
     saveClicked();
+    newVerifier->createBiometricModels();
 
 }
 
@@ -114,7 +114,6 @@ void faceTrainerAdvSettings::sT(opencvWebcam *wc,detector *nd,verifier *nv)
     webcam=wc;
     newDetector=nd;
     newVerifier=nv;
-
     startTimer( 20 );
 }
 
@@ -127,12 +126,9 @@ void faceTrainerAdvSettings:: testRecognition()
         ui.result->setText(QString(tr("No")));
 }
 
-faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent, char* configDir,opencvWebcam *wc,detector *nd,verifier *nv)
+faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent, char* configDir)
         : QDialog(parent)
 {
-    webcam=wc;
-    newDetector=nd;
-    newVerifier=nv;
     configDirectory=configDir;
     ui.setupUi(this);
     connect(ui.pb_save,SIGNAL(clicked()), this, SLOT(saveClicked()));
@@ -163,7 +159,6 @@ aboutBox::aboutBox(QWidget *parent)
 faceTrainer::faceTrainer(QWidget *parent)
         : QMainWindow(parent)
 {
-    newDialog= new faceTrainerAdvSettings(this,newVerifier.configDirectory,&webcam,&newDetector,&newVerifier);
     ui.setupUi(this);
     ui.stkWg->setCurrentIndex(0);
     connect(ui.pb_capture,SIGNAL(clicked()), this, SLOT(captureClick()));
@@ -181,16 +176,19 @@ faceTrainer::faceTrainer(QWidget *parent)
 }
 void faceTrainer::about()
 {
-   // verify();
+ //verify();
 
     aboutBox newAboutBox;
     newAboutBox.exec();
 }
 void faceTrainer::showAdvDialog()
 {
+  faceTrainerAdvSettings*    newDialog= new faceTrainerAdvSettings(this,newVerifier.configDirectory);
   newDialog->initConfig();
   newDialog->sT(&webcam,&newDetector,&newVerifier);
   newDialog->exec();
+  delete newDialog;
+
 }
 
 
@@ -220,7 +218,7 @@ void faceTrainer::verify()
 
 }
 /*
-void faceTrainer::butClick()
+void faceTrainer::butClick()protected
 {
     IplImage * queryImage = webcam.queryFrame();
     newVerifier.verifyFace(newDetector.clipFace(queryImage));
@@ -279,8 +277,8 @@ void faceTrainer::timerEvent( QTimerEvent * )
     //double t = (double)cvGetTickCount();
 
     static webcamImagePaint newWebcamImagePaint;
-    newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-    newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+  newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+ newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
     //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     QImage * qm=QImageIplImageCvt(queryImage);
@@ -323,7 +321,8 @@ void faceTrainerAdvSettings::timerEvent( QTimerEvent * )
 //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     QImage * qm=QImageIplImageCvt(queryImage);
     setQImageWebcam(qm);
-cvWaitKey(1);
+    cvWaitKey(1);
+    cvReleaseImage(&queryImage);
     delete qm;
 }
 void faceTrainer::showTab2()

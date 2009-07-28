@@ -38,7 +38,7 @@
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>280</y>
+     <y>276</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -53,34 +53,34 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>73</x>
-     <y>317</y>
-     <width>29</width>
+     <x>76</x>
+     <y>297</y>
+     <width>94</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>0%</string>
+    <string>Low Security</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>322</x>
-     <y>316</y>
-     <width>38</width>
+     <x>280</x>
+     <y>294</y>
+     <width>93</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>100%</string>
+    <string>High Security</string>
    </property>
   </widget>
   <widget class="QGraphicsView" name="webcamPreview">
    <property name="geometry">
     <rect>
      <x>49</x>
-     <y>30</y>
+     <y>26</y>
      <width>320</width>
      <height>240</height>
     </rect>
@@ -294,20 +294,36 @@ font: 22pt &quot;Serif&quot;;
   <widget class="QSlider" name="percentage">
    <property name="geometry">
     <rect>
-     <x>104</x>
-     <y>305</y>
-     <width>201</width>
-     <height>35</height>
+     <x>102</x>
+     <y>312</y>
+     <width>218</width>
+     <height>31</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string/>
+    <string> QSlider::groove:horizontal {
+	 
+     border: 1px solid #999999;
+     height: 12px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
+     background: qlineargradient(spread:pad, x1:0.222, y1:0.591318, x2:0.928, y2:0.585, stop:0 rgba(255, 10, 0, 255), stop:0.494444 rgba(255, 231, 0, 255), stop:0.938889 rgba(122, 255, 0, 255));
+     margin: 2px 0;
+ }
+
+ QSlider::handle:horizontal {
+     background:  qlineargradient(spread:pad, x1:0.389, y1:0, x2:0.422, y2:0.698682, stop:0 rgba(0, 0, 0, 255), stop:1 rgba(94, 94, 94, 255));
+     border: 1px solid #333333;
+     width: 18px;
+     margin: -2px 0; /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
+     border-radius: 3px;
+ }
+
+</string>
    </property>
    <property name="minimum">
     <number>1</number>
    </property>
    <property name="maximum">
-    <number>100</number>
+    <number>90</number>
    </property>
    <property name="value">
     <number>76</number>
@@ -329,6 +345,19 @@ font: 22pt &quot;Serif&quot;;
    </property>
    <property name="tickInterval">
     <number>10</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>194</x>
+     <y>294</y>
+     <width>51</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Medium</string>
    </property>
   </widget>
  </widget>

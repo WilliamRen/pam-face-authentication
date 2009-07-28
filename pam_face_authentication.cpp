@@ -54,6 +54,12 @@
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
+
+#include     <stdio.h>
+#include     <stdlib.h>
+#include     <string.h>
+#include     <X11/Xlib.h>
+#include     <X11/Xutil.h>
 int file_exists(const char* filename);
 char * prevmsg=0;
 int msgPipeLiner(char *msg)
@@ -158,13 +164,88 @@ void writeImageToMemory(IplImage* img,char *shared)
         }
     }
 }
+
+XImage *CreateTrueColorImage(Display *display, Visual *visual,  char *image, int width, int height,IplImage* img)
+{
+    int max=IMAGE_WIDTH >IMAGE_HEIGHT?IMAGE_WIDTH:IMAGE_HEIGHT;
+    int wh=IMAGE_WIDTH >IMAGE_HEIGHT? 1 : 0;
+
+    int i, j;
+    char *image32=( char *)malloc(width*height*4);
+    char *p=image32;
+
+    for (j=0; j<height; j++)
+    {
+        for (i=0; i<width; i++)
+        {
+            if ((j<IMAGE_HEIGHT) && (i<IMAGE_WIDTH))
+            {
+                CvScalar s;
+                s=cvGet2D(img,j,i);
+                int val3=(uchar)s.val[2];
+                int val2=(uchar)s.val[1];
+                int val1=(uchar)s.val[0];
+
+
+                *p++=val1; // blue
+                *p++=val2; // green
+                *p++=val3; // red
+            }
+            else
+            {
+
+                *p++=0; // blue
+                *p++=0; // green
+                *p++=0; // red
+
+            }
+
+
+            p++;
+
+        }
+    }
+    return XCreateImage(display, visual, 24, ZPixmap, 0,( char *) image32, width, height, 32, 0);
+}
+
+void processEvent(Display *display, Window window, int width, int height,IplImage* img,int s )
+{
+    int xoffset=(DisplayWidth(display,s) - IMAGE_WIDTH)/2;
+    int yoffset=(DisplayHeight(display,s) - IMAGE_HEIGHT)/2;
+   // XMoveWindow( display, window, xoffset, yoffset);
+    XImage *ximage;
+    Visual *visual=DefaultVisual(display, 0);
+    ximage=CreateTrueColorImage(display, visual, 0, width, height,img);
+    XPutImage(display, window, DefaultGC(display, 0), ximage, 0, 0, 0, 0, width, height);
+    XDestroyImage(ximage);
+}
+
+
 PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         ,const char **argv)
 {
     int retval;
     const char *user=NULL;
+    const char *user_request=NULL;
+
     const char *error;
+
+    // From fingerprint GUI project
+    // We need the Xauth to fork the GUI
+    int j;
+    const char *pamtty=NULL;
+    char X_lock[300];
+    char cmdline[300];
+    FILE *xlock;
+    int length;
+    int procnumber=0;
+    const char* displayOrig=getenv("DISPLAY");
+    char* xauthpathOrig=getenv("XAUTHORITY");
+
+    const char* display=getenv("DISPLAY");
+    char* xauthpath=getenv("XAUTHORITY");
+   // printf("%s \n",xauthpath);
 
 
     retval = pam_get_user(pamh, &user, NULL);
@@ -193,10 +274,78 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     userStruct = getpwnam(username);
     uid_t userID=userStruct->pw_uid;
     verifier* newVerifier=new verifier(userID);
+    //cvNamedWindow("src",0);
+    //cvShowImage("src",
+    pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
+    if (pamtty!=NULL&&strlen(pamtty)>0)
+    {
+        if (pamtty[0]==':')
+        {
+            if (display==NULL)
+            {
+                display=pamtty;
+                if (displayOrig!=NULL)
+                {
+                    setenv("DISPLAY",display,-1);
+                }
+            }
+        }
+    }
+    // int max=IMAGE_WIDTH >IMAGE_HEIGHT?IMAGE_WIDTH: IMAGE_HEIGHT;
+    int width=IMAGE_WIDTH, height=IMAGE_HEIGHT;
+    //printf("%d \n",max);
+    //  setenv("DISPLAY",":0.0 ",-1);
+    int s ;
+    int enableX=0;
+    Display *displayScreen;
+    Window window;
+    if (argc>0)
+    {
+        if ((strcmp(argv[0],"enableX")==0) || (strcmp(argv[0],"enablex")==0))
+        {
+            pam_get_item(pamh,PAM_RUSER,(const void **)(const void*)&user_request);
+            if (user_request!=NULL)
+            {
+
+                struct passwd *pw;
+                pw = getpwnam(user_request);
+                if (pw!=NULL)
+                {
+                    char xauthPathString[300];
+                    if (xauthpathOrig==NULL)
+                    {
+
+                        sprintf(xauthPathString,"%s/.Xauthority",pw->pw_dir);
+                        setenv("XAUTHORITY",xauthPathString,-1);
+                    }
+                    displayScreen=XOpenDisplay(NULL);
+                    if (displayScreen!=NULL)
+                    {
+
+                        s = DefaultScreen(displayScreen);
+                        int xoffset=(DisplayWidth(displayScreen,s) - IMAGE_WIDTH)/2;
+                        int yoffset=(DisplayHeight(displayScreen,s) - IMAGE_HEIGHT)/2;
+
+                        //       printf("%d  %d\n",xoffset ,yoffset);
+
+                        window=XCreateSimpleWindow(displayScreen, RootWindow(displayScreen, s), xoffset,xoffset, width, height, 1, 0, 0);
+                        //XSelectInput(displayScreen, window, ButtonPressMask|ExposureMask);
+                        XMapWindow(displayScreen, window);
+                        XMoveWindow(displayScreen, window, xoffset, yoffset);
+
+                        enableX=1;
+
+
+                    }
+                }
+
+            }
+        }
+    }
 
     opencvWebcam webcam;
     detector newDetector;
-	static webcamImagePaint newWebcamImagePaint;
+    static webcamImagePaint newWebcamImagePaint;
 
     /* Clear Shared Memory */
 
@@ -218,25 +367,33 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     double t1 = (double)cvGetTickCount();
     double t2=0;
     int loop=1;
-int ind=0;
-char tempM[300];
-send_info_msg(pamh, "Face Verification Pluggable Authentication Module Started");
+    int ind=0;
+    char tempM[300];
+    send_info_msg(pamh, "Face Verification Pluggable Authentication Module Started");
+    int val=newVerifier->verifyFace(zeroFrame);
+    if (val==2)
+    {
+        send_info_msg(pamh, "Biometrics Model not Generated for the User.");
+        loop=0;
+    }
 
     while (loop==1 && t2<25000)
     {
-/*
-sprintf(tempM,"Message %d",ind++);
-send_info_msg(pamh, tempM);
-        writeImageToMemory(zeroFrame,shared);
-*/
+
+        /*
+        sprintf(tempM,"Message %d",ind++);
+        send_info_msg(pamh, tempM);
+                writeImageToMemory(zeroFrame,shared);
+        */
         t2 = (double)cvGetTickCount() - t1;
         t2=t2/((double)cvGetTickFrequency()*1000.0);
 
         IplImage * queryImage = webcam.queryFrame();
         if (queryImage!=0)
         {
-           newDetector.runDetector(queryImage);
-          if ( newDetector.checkFaceDetected()==1)
+
+            newDetector.runDetector(queryImage);
+            if ( newDetector.checkFaceDetected()==1)
             {
 
                 if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>28  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
@@ -252,18 +409,22 @@ send_info_msg(pamh, tempM);
                             if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
                             {
                                 IplImage * im = newDetector.clipFace(queryImage);
+                                send_info_msg(pamh, "Trying To Recognize...");
 
-                                if (newVerifier->verifyFace(im)==1)
+                                int val=newVerifier->verifyFace(im);
+                                if (val==1)
                                 {
                                     // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
                                     send_info_msg(pamh, "Verification successful.");
                                     webcam.stopCamera();
+                                    if (enableX==1)
+                                    {
+                                        XDestroyWindow(displayScreen,window);
+                                        XCloseDisplay(displayScreen);
+                                    }
                                     return PAM_SUCCESS;
                                 }
-                                else
-                                {
-                                    send_info_msg(pamh, "Verification failed. Trying again.");
-                                }
+
 
                                 cvReleaseImage(&im);
                             }
@@ -286,10 +447,10 @@ send_info_msg(pamh, tempM);
                     {
                         send_info_msg(pamh, "Trying putting Your face to the center of the frame.");
                     }
-					newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-					newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+                    newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+                    newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
 
-		//  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+                    //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
                 }
                 else
                 {
@@ -301,9 +462,13 @@ send_info_msg(pamh, tempM);
             {
                 send_info_msg(pamh, "Unable to Detect Your Face.");
             }
+            if (enableX==1)
+                processEvent(displayScreen, window, width, height,queryImage,s);
 
-        writeImageToMemory(queryImage,shared);
-        cvReleaseImage(&queryImage);
+
+
+            writeImageToMemory(queryImage,shared);
+            cvReleaseImage(&queryImage);
         }
         else
         {
@@ -314,7 +479,12 @@ send_info_msg(pamh, tempM);
     }
 
     send_err_msg(pamh, "Giving Up Face Authentication. Try Again=(.");
-   webcam.stopCamera();
+    if (enableX==1)
+    {
+        XDestroyWindow(displayScreen,window);
+        XCloseDisplay(displayScreen);
+    }
+    webcam.stopCamera();
     return PAM_AUTHINFO_UNAVAIL;
 }
 

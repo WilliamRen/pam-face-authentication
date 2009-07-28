@@ -48,25 +48,24 @@ public:
     */
     verifier(uid_t   userID);
     /**
-    *Creates the MACE Filter , it Creates $HOME/.pam-face-authentication/model/$SETNAME_(FACE | EYE | INSIDE_FACE).XML
+    *Creates the MACE Filter and LBP Feature Hist , it Creates $HOME/.pam-face-authentication/model/$SETNAME_(FACE | EYE | INSIDE_FACE)_(MACE | LBP).XML
     */
-
     void createBiometricModels();
 //Done
 
     /**
-    *Adds a Set of Face Images , and calls createMaceFilter
+    *Adds a Set of Face Images , and calls createBiometricModels
     *@param set Set of IplImage of Faces
     *@param size Size of set
-    *@see createMaceFilter
+    *@see createBiometricModels
     */
     void addFaceSet(IplImage **set,int size);
 //allFaces* getFaceImagesFromAllSet();
 //Done
     /**
-    *Removes the Set from $HOME/.pam-face-authentication/faces/$SETNAME/ , calls createMaceFilter afterwards
+    *Removes the Set from $HOME/.pam-face-authentication/faces/$SETNAME/ , and its Models calls createBiometricModels afterwards
     *@param setName Name of the Set
-    *@see createMaceFilter
+    *@see createBiometricModels
     */
     void removeFaceSet(char* setName);
 //Done

@@ -19,7 +19,7 @@ public:
      *@param nd Detector Pointer
      *@param nv Verifier Pointer
      */
-    faceTrainerAdvSettings(QWidget *parent = 0,char *config=0,opencvWebcam *wc=0,detector *nd=0,verifier *nv=0);
+    faceTrainerAdvSettings(QWidget *parent = 0,char *config=0);
     /**
     *Config Directory Path
     */

@@ -73,8 +73,8 @@ void  webcamImagePaint::paintEllipse(IplImage *image,CvPoint leftEye,CvPoint rig
 
         }
     }
-
-
+cvReleaseImage(&imgDest);
+cvReleaseMat(&rotateMatrix);
 
 }
 void  webcamImagePaint::paintCyclops(IplImage *image,CvPoint leftEye,CvPoint rightEye)
@@ -316,7 +316,8 @@ void  webcamImagePaint::paintCyclops(IplImage *image,CvPoint leftEye,CvPoint rig
         }
 
     }
-
+cvReleaseImage(&imgDest);
+cvReleaseMat(&rotateMatrix);
     //cvLine(image,p1LeftTop, p1LeftBottom, cvScalar(0,122,0),1,CV_AA,0);
 //	cvLine(image,p1RightTop, p1RightBottom, cvScalar(0,122,0),1,CV_AA,0);
 

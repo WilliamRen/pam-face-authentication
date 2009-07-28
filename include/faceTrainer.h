@@ -17,10 +17,7 @@ public:
     *Sets up the UI for the Main Window and connect Signals to Slots
     */
     faceTrainer(QWidget *parent = 0);
-    /**
-    *Advanced Settings Dialog
-    */
-    faceTrainerAdvSettings* newDialog;
+
     /**
     *OpenCV Webcam Object
     */
