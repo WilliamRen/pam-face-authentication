@@ -345,7 +345,7 @@ int verifier::verifyFace(IplImage *faceMain)
             cvReleaseMat( &lbpModel);
             double step=((1.0-newConfig->percentage)/(.24))*WIDTH_STEP_LBP;
             double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
-       //   printf("val %e \n",val);
+      printf("val %e \n",val);
             //   printf("step %e thresholdLBP %e \n",step,thresholdLBP);
             if (val<(thresholdLBP+step))
             {
