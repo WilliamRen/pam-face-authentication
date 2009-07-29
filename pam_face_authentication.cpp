@@ -1,12 +1,12 @@
 /*
-    Rewritten
-    Google Summer of Code Program 2009
-    Mentoring Organization: pardus
-    Mentor: Onur Kucuk
-
     Copyright (C) 2008-2009
      Rohan Anil (rohan.anil@gmail.com)
      Alex Lau ( avengermojo@gmail.com)
+
+    Rewritten
+    Google Summer of Code Program 2009
+    Mentoring Organization: Pardus
+    Mentor: Onur Kucuk
 
     Google Summer of Code Program 2008
     Mentoring Organization: openSUSE
@@ -284,24 +284,57 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             if (display==NULL)
             {
                 display=pamtty;
-                if (displayOrig!=NULL)
+                if (displayOrig==NULL)
                 {
                     setenv("DISPLAY",display,-1);
                 }
             }
         }
     }
-    // int max=IMAGE_WIDTH >IMAGE_HEIGHT?IMAGE_WIDTH: IMAGE_HEIGHT;
+
     int width=IMAGE_WIDTH, height=IMAGE_HEIGHT;
-    //printf("%d \n",max);
-    //  setenv("DISPLAY",":0.0 ",-1);
-    int s ;
+    int s;
     int enableX=0;
     Display *displayScreen;
     Window window;
 
     if (argc>0)
     {
+        if (strcmp(argv[0],"gdmlegacy")==0)
+        {
+
+            sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
+            char str[50];
+            xlock=fopen(X_lock,"r");
+            fgets(cmdline, 300,xlock);
+            fclose(xlock);
+            char *word1;
+            word1=strtok(cmdline,"  \n");
+            sprintf(X_lock,"/proc/%s/cmdline",word1);
+            xlock=fopen(X_lock,"r");
+            fgets (X_lock , 300 , xlock);
+            fclose(xlock);
+            for (j=0;j<300;j++)
+            {
+                if (X_lock[j]=='\0')
+                    X_lock[j]=' ';
+
+            }
+            char *word;
+            for (word=strtok(X_lock," ");word!=NULL;word=strtok(NULL," "))
+            {
+                if (strcmp(word,"-auth")==0)
+                {
+                    xauthpath=strtok(NULL," ");
+                    break;
+                }
+            }
+            if (file_exists(xauthpath)==1)
+            {
+                setenv("XAUTHORITY",xauthpath,-1);
+            }
+        }
+
         if ((strcmp(argv[0],"enableX")==0) || (strcmp(argv[0],"enablex")==0))
         {
             pam_get_item(pamh,PAM_RUSER,(const void **)(const void*)&user_request);

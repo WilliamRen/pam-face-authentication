@@ -345,7 +345,7 @@ int verifier::verifyFace(IplImage *faceMain)
             cvReleaseMat( &lbpModel);
             double step=((1.0-newConfig->percentage)/(.24))*WIDTH_STEP_LBP;
             double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
-      printf("val %e \n",val);
+    //  printf("val %e \n",val);
             //   printf("step %e thresholdLBP %e \n",step,thresholdLBP);
             if (val<(thresholdLBP+step))
             {
@@ -375,7 +375,7 @@ int verifier::verifyFace(IplImage *faceMain)
                 int pcent=int(((double)value/(double)PSLR)*100);
                 int lowerPcent=int(newConfig->percentage*100.0);
                 int upperPcent=int((newConfig->percentage+((1-newConfig->percentage)/2))*100.0);
-              //    printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
+       //   printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
 
                 if (pcent>=upperPcent)
                 {
@@ -417,7 +417,7 @@ int verifier::verifyFace(IplImage *faceMain)
 
     if (count==1)
     {
-      //   printf("\n YES \n");
+     //   printf("\n YES \n");
         return 1;
     }
     else

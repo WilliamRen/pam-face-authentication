@@ -2,7 +2,7 @@
 #define _INCL_UTILS
 /** @file */
 
-#define MAX_THRESHOLD_LBP 13700
+#define MAX_THRESHOLD_LBP 14200
 #define WIDTH_STEP_LBP 1200
 
 
