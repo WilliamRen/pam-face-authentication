@@ -91,19 +91,19 @@ void faceTrainerAdvSettings::setQImageWebcam(QImage *input)
 void faceTrainerAdvSettings::saveClicked()
 {
     config newConfig;
-   newConfig.percentage=((double)ui.percentage->value()/100);
-  //  newConfig.filterMaceFacePSLR= ui.sb_face->value();
- //   newConfig.filterMaceInsideFacePSLR= ui.sb_insideFace->value();
+    newConfig.percentage=((double)ui.percentage->value()/100);
+    //  newConfig.filterMaceFacePSLR= ui.sb_face->value();
+//   newConfig.filterMaceInsideFacePSLR= ui.sb_insideFace->value();
     setConfig(&newConfig,configDirectory);
 }
 
 void faceTrainerAdvSettings::restoreDefaults()
 {
     initConfig();
-ui.percentage->setValue(76);
-   // ui.sb_face->setValue(MACE_FACE_DEFAULT);
-  //  ui.sb_eye->setValue(MACE_EYE_DEFAULT);
-   // ui.sb_insideFace->setValue(MACE_INSIDE_FACE_DEFAULT);
+    ui.percentage->setValue(76);
+    // ui.sb_face->setValue(MACE_FACE_DEFAULT);
+    //  ui.sb_eye->setValue(MACE_EYE_DEFAULT);
+    // ui.sb_insideFace->setValue(MACE_INSIDE_FACE_DEFAULT);
     saveClicked();
     newVerifier->createBiometricModels();
 
@@ -144,10 +144,10 @@ void faceTrainerAdvSettings::initConfig()
     config* newConfig;
 
     newConfig=getConfig(configDirectory);
-  ui.percentage->setValue(int(newConfig->percentage*100));
-  //  ui.sb_face->setValue(newConfig->filterMaceFacePSLR);
-  ////  ui.sb_eye->setValue(newConfig->filterMaceEyePSLR);
-  //  ui.sb_insideFace->setValue(newConfig->filterMaceInsideFacePSLR);
+    ui.percentage->setValue(int(newConfig->percentage*100));
+    //  ui.sb_face->setValue(newConfig->filterMaceFacePSLR);
+    ////  ui.sb_eye->setValue(newConfig->filterMaceEyePSLR);
+    //  ui.sb_insideFace->setValue(newConfig->filterMaceInsideFacePSLR);
 }
 
 aboutBox::aboutBox(QWidget *parent)
@@ -160,6 +160,28 @@ faceTrainer::faceTrainer(QWidget *parent)
         : QMainWindow(parent)
 {
     ui.setupUi(this);
+    QDesktopWidget *desktop = QApplication::desktop();
+
+    int screenWidth, width;
+    int screenHeight, height;
+    int x, y;
+    QSize windowSize;
+
+    screenWidth = desktop->width(); // get width of screen
+    screenHeight = desktop->height(); // get height of screen
+
+    windowSize = size(); // size of our application window
+    width = windowSize.width();
+    height = windowSize.height();
+
+// little computations
+    x = (screenWidth - width) / 2;
+    y = (screenHeight - height) / 2;
+    y -= 50;
+
+// move window to desired coordinates
+    move ( x, y );
+
     ui.stkWg->setCurrentIndex(0);
     connect(ui.pb_capture,SIGNAL(clicked()), this, SLOT(captureClick()));
     connect(ui.pb_next_t2,SIGNAL(clicked()), this, SLOT(showTab3()));
@@ -176,18 +198,18 @@ faceTrainer::faceTrainer(QWidget *parent)
 }
 void faceTrainer::about()
 {
- //verify();
+//verify();
 
     aboutBox newAboutBox;
     newAboutBox.exec();
 }
 void faceTrainer::showAdvDialog()
 {
-  faceTrainerAdvSettings*    newDialog= new faceTrainerAdvSettings(this,newVerifier.configDirectory);
-  newDialog->initConfig();
-  newDialog->sT(&webcam,&newDetector,&newVerifier);
-  newDialog->exec();
-  delete newDialog;
+    faceTrainerAdvSettings*    newDialog= new faceTrainerAdvSettings(this,newVerifier.configDirectory);
+    newDialog->initConfig();
+    newDialog->sT(&webcam,&newDetector,&newVerifier);
+    newDialog->exec();
+    delete newDialog;
 
 }
 
@@ -277,8 +299,8 @@ void faceTrainer::timerEvent( QTimerEvent * )
     //double t = (double)cvGetTickCount();
 
     static webcamImagePaint newWebcamImagePaint;
-  newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
- newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+    newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+    newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
     //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     QImage * qm=QImageIplImageCvt(queryImage);
@@ -296,7 +318,7 @@ void faceTrainer::timerEvent( QTimerEvent * )
     setQImageWebcam(qm);
 
 
-cvWaitKey(1);
+    cvWaitKey(1);
     // sleep(1);
 
     delete qm;
@@ -312,7 +334,7 @@ void faceTrainerAdvSettings::timerEvent( QTimerEvent * )
     //if(newDetector->checkEyeDetected()==1)
     //newVerifier->verifyFace(newDetector->clipFace(queryImage));
     //this works captureClick();
-   //double t = (double)cvGetTickCount();
+    //double t = (double)cvGetTickCount();
     static webcamImagePaint newWebcamImagePaint;
     newWebcamImagePaint.paintCyclops(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
     newWebcamImagePaint.paintEllipse(queryImage, newDetector->eyesInformation.LE, newDetector->eyesInformation.RE);
@@ -340,8 +362,8 @@ void faceTrainer::showTab2()
         msgBox1.setWindowTitle(tr("Face Trainer"));
         msgBox1.setText(tr("<strong>Error</strong>"));
         msgBox1.setInformativeText(tr(
-            "Camera Not Found. <br /> "
-            "Plugin Your Camera and Try Again."));
+                                       "Camera Not Found. <br /> "
+                                       "Plugin Your Camera and Try Again."));
         msgBox1.setStandardButtons(QMessageBox::Ok);
         msgBox1.setIconPixmap(QPixmap(":/cnc.png"));
         msgBox1.exec();

@@ -127,6 +127,9 @@ void  featureLBPHist(IplImage * img,CvMat *features_final)
     int l,m,k=0;
 
 
+
+
+
     for (i=0;i<Ny;i++)
     {
         for (j=0;j<Nx;j++)
@@ -229,8 +232,9 @@ double LBPdiff(    CvMat* model,    CvMat* test)
                 hist1=s1.val[0];
                 hist2=s2.val[0];
                 if ((hist1+hist2)!=0)
-                chiSquare+=(weights[i][j]*(pow(hist1-hist2,2)/(hist1+hist2)));
+                chiSquare+=(weights[j][i]*(pow(hist1-hist2,2)/(hist1+hist2)));
 
+         //   printf("%e \n",weights[i][j]);
             }
 
         }

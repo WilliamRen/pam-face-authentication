@@ -212,7 +212,7 @@ void processEvent(Display *display, Window window, int width, int height,IplImag
 {
     int xoffset=(DisplayWidth(display,s) - IMAGE_WIDTH)/2;
     int yoffset=(DisplayHeight(display,s) - IMAGE_HEIGHT)/2;
-   // XMoveWindow( display, window, xoffset, yoffset);
+    // XMoveWindow( display, window, xoffset, yoffset);
     XImage *ximage;
     Visual *visual=DefaultVisual(display, 0);
     ximage=CreateTrueColorImage(display, visual, 0, width, height,img);
@@ -245,7 +245,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     const char* display=getenv("DISPLAY");
     char* xauthpath=getenv("XAUTHORITY");
-   // printf("%s \n",xauthpath);
+    // printf("%s \n",xauthpath);
 
 
     retval = pam_get_user(pamh, &user, NULL);
@@ -299,11 +299,14 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int enableX=0;
     Display *displayScreen;
     Window window;
+
     if (argc>0)
     {
         if ((strcmp(argv[0],"enableX")==0) || (strcmp(argv[0],"enablex")==0))
         {
             pam_get_item(pamh,PAM_RUSER,(const void **)(const void*)&user_request);
+
+
             if (user_request!=NULL)
             {
 
@@ -311,6 +314,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                 pw = getpwnam(user_request);
                 if (pw!=NULL)
                 {
+
                     char xauthPathString[300];
                     if (xauthpathOrig==NULL)
                     {
@@ -318,30 +322,33 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         sprintf(xauthPathString,"%s/.Xauthority",pw->pw_dir);
                         setenv("XAUTHORITY",xauthPathString,-1);
                     }
-                    displayScreen=XOpenDisplay(NULL);
-                    if (displayScreen!=NULL)
-                    {
 
-                        s = DefaultScreen(displayScreen);
-                        int xoffset=(DisplayWidth(displayScreen,s) - IMAGE_WIDTH)/2;
-                        int yoffset=(DisplayHeight(displayScreen,s) - IMAGE_HEIGHT)/2;
-
-                        //       printf("%d  %d\n",xoffset ,yoffset);
-
-                        window=XCreateSimpleWindow(displayScreen, RootWindow(displayScreen, s), xoffset,xoffset, width, height, 1, 0, 0);
-                        //XSelectInput(displayScreen, window, ButtonPressMask|ExposureMask);
-                        XMapWindow(displayScreen, window);
-                        XMoveWindow(displayScreen, window, xoffset, yoffset);
-
-                        enableX=1;
-
-
-                    }
                 }
 
             }
+            displayScreen=XOpenDisplay(NULL);
+            if (displayScreen!=NULL)
+            {
+
+                s = DefaultScreen(displayScreen);
+                int xoffset=(DisplayWidth(displayScreen,s) - IMAGE_WIDTH)/2;
+                int yoffset=(DisplayHeight(displayScreen,s) - IMAGE_HEIGHT)/2;
+
+                //       printf("%d  %d\n",xoffset ,yoffset);
+
+                window=XCreateSimpleWindow(displayScreen, RootWindow(displayScreen, s), xoffset,xoffset, width, height, 1, 0, 0);
+                //XSelectInput(displayScreen, window, ButtonPressMask|ExposureMask);
+                XMapWindow(displayScreen, window);
+                XMoveWindow(displayScreen, window, xoffset, yoffset);
+
+                enableX=1;
+
+
+            }
+
         }
     }
+
 
     opencvWebcam webcam;
     detector newDetector;
@@ -379,12 +386,6 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     while (loop==1 && t2<25000)
     {
-
-        /*
-        sprintf(tempM,"Message %d",ind++);
-        send_info_msg(pamh, tempM);
-                writeImageToMemory(zeroFrame,shared);
-        */
         t2 = (double)cvGetTickCount() - t1;
         t2=t2/((double)cvGetTickFrequency()*1000.0);
 

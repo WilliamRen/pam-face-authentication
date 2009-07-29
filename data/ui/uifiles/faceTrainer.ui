@@ -106,6 +106,9 @@ color: rgb(76, 76, 76);</string>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
@@ -192,6 +195,9 @@ color: rgb(166, 166, 166);</string>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
@@ -257,6 +263,9 @@ color: rgb(166, 166, 166);</string>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
       </property>
@@ -297,6 +306,9 @@ color: rgb(166, 166, 166);</string>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -453,6 +465,9 @@ color: rgb(76, 76, 76);</string>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
@@ -790,6 +805,9 @@ color: rgb(76, 76, 76);</string>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
       </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
       </property>
@@ -799,13 +817,13 @@ color: rgb(76, 76, 76);</string>
        <rect>
         <x>221</x>
         <y>127</y>
-        <width>436</width>
+        <width>272</width>
         <height>27</height>
        </rect>
       </property>
       <property name="minimumSize">
        <size>
-        <width>436</width>
+        <width>0</width>
         <height>0</height>
        </size>
       </property>
@@ -830,6 +848,9 @@ color: rgb(126, 126, 126);</string>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -898,6 +919,9 @@ Developers</string>
       </property>
       <property name="textFormat">
        <enum>Qt::PlainText</enum>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>

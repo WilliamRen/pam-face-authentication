@@ -4,8 +4,6 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
  PROJECT( PAM_FACE_AUTHENTICATION )
 
-add_subdirectory(kgreet_plugin)
-  
 
 SET( QT_FACETRAINER_SRCS
       main.cpp

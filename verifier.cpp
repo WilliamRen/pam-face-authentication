@@ -83,9 +83,9 @@ verifier::verifier(uid_t   userID)
     sprintf(maceConfig,"%s/mace.xml", configDirectory);
 
 
-  //  mkdir(facesDirectory, S_IRWXU );
-  //  mkdir(modelDirectory, S_IRWXU );
- //   mkdir(configDirectory, S_IRWXU );
+    //  mkdir(facesDirectory, S_IRWXU );
+    //  mkdir(modelDirectory, S_IRWXU );
+//   mkdir(configDirectory, S_IRWXU );
 }
 
 void verifier::createBiometricModels()
@@ -171,6 +171,7 @@ void verifier::createBiometricModels()
         avEye/=temp->faceImages[i].count;
         avInsideFace/=temp->faceImages[i].count;
 
+
         int Nx = floor((averageImage->width )/35);
         int Ny= floor((averageImage->height)/30);
         //  printf("%d %d A \n",Nx,Ny);
@@ -183,6 +184,8 @@ void verifier::createBiometricModels()
         cvWrite( fs, "lbp",featureLBPHistMatrix, cvAttrList(0,0) );
         cvReleaseFileStorage( &fs );
         cvReleaseMat(&featureLBPHistMatrix);
+
+
         cvReleaseImage(&averageImage);
         maceFaceValuesPSLR->sort();
         maceFaceValuesPCER->sort();
@@ -197,7 +200,7 @@ void verifier::createBiometricModels()
 
         faceMaceFilter.thresholdPCER=maceFaceValuesPCER->front();
         faceMaceFilter.thresholdPSLR=maceFaceValuesPSLR->front() + (avFace-maceFaceValuesPSLR->front())/10;
-       //rintf("%d %d \n",maceFaceValuesPSLR->front(),avFace);
+        //rintf("%d %d \n",maceFaceValuesPSLR->front(),avFace);
         faceMaceFilter.filter=maceFilterFace;
         sprintf(faceMaceFilter.maceFilterName,"%s_face_mace.xml",temp->setName[i]);
 
@@ -205,13 +208,13 @@ void verifier::createBiometricModels()
         eyeMaceFilter.thresholdPSLR=maceEyeValuesPSLR->front() + (avEye-maceEyeValuesPSLR->front())/10;
         eyeMaceFilter.filter=maceFilterEye;
         sprintf(eyeMaceFilter.maceFilterName,"%s_eye_mace.xml",temp->setName[i]);
-      //printf("%d %d \n",maceEyeValuesPSLR->front(),avEye);
+        //printf("%d %d \n",maceEyeValuesPSLR->front(),avEye);
 
         insideFaceMaceFilter.thresholdPCER=maceInsideFaceValuesPCER->front();
         insideFaceMaceFilter.thresholdPSLR=maceInsideFaceValuesPSLR->front() + (avInsideFace-maceInsideFaceValuesPSLR->front())/10;
         insideFaceMaceFilter.filter=maceFilterInsideFace;
         sprintf(insideFaceMaceFilter.maceFilterName,"%s_inside_face_mace.xml",temp->setName[i]);
-      //printf("%d %d \n",maceInsideFaceValuesPSLR->front(),avInsideFace);
+        //printf("%d %d \n",maceInsideFaceValuesPSLR->front(),avInsideFace);
 
         saveMace(&faceMaceFilter,modelDirectory);
         saveMace(&eyeMaceFilter,modelDirectory);
@@ -299,10 +302,10 @@ int verifier::verifyFace(IplImage *faceMain)
     CvMat *maceFilterUser;
     CvMat *lbpModel;
 
-   IplImage * face= cvCreateImage( cvSize(140,150),8,faceMain->nChannels);
-      IplImage * faceGray= cvCreateImage( cvSize(140,150),8,1);
+    IplImage * face= cvCreateImage( cvSize(140,150),8,faceMain->nChannels);
+    IplImage * faceGray= cvCreateImage( cvSize(140,150),8,1);
 
-     CvMat * featureLBPHistMatrix = cvCreateMat(7*6*59,1, CV_64FC1 );
+    CvMat * featureLBPHistMatrix = cvCreateMat(7*6*59,1, CV_64FC1 );
 
     cvResize( faceMain,face, CV_INTER_LINEAR ) ;
     cvCvtColor(face, faceGray, CV_BGR2GRAY );
@@ -323,8 +326,8 @@ int verifier::verifyFace(IplImage *faceMain)
     DIR *d=NULL;
     d=opendir(facesDirectory);
     int k=0;
-    if(!d)
-    return 2;
+    if (!d)
+        return 2;
     while (de = readdir(d) )
     {
         if (!((strcmp(de->d_name, ".")==0) || (strcmp(de->d_name, "..")==0)))
@@ -338,73 +341,73 @@ int verifier::verifyFace(IplImage *faceMain)
             fileStorage = cvOpenFileStorage(lbp, 0, CV_STORAGE_READ );
             lbpModel = (CvMat *)cvReadByName(fileStorage, 0, "lbp", 0);
             double val=LBPdiff(lbpModel,featureLBPHistMatrix);
-          //  printf("%e \n",val);
+            //  printf("%e \n",val);
             cvReleaseMat( &lbpModel);
             double step=((1.0-newConfig->percentage)/(.24))*WIDTH_STEP_LBP;
             double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
-         //   printf("val %e \n",val);
-         //   printf("step %e thresholdLBP %e \n",step,thresholdLBP);
-            if(val<(thresholdLBP+step))
+       //   printf("val %e \n",val);
+            //   printf("step %e thresholdLBP %e \n",step,thresholdLBP);
+            if (val<(thresholdLBP+step))
             {
 
-            sprintf(facePath,"%s/%s_face_mace.xml",modelDirectory,de->d_name);
-            sprintf(eyePath,"%s/%s_eye_mace.xml",modelDirectory,de->d_name);
-            sprintf(insideFacePath,"%s/%s_inside_face_mace.xml",modelDirectory,de->d_name);
-            fileStorage = cvOpenFileStorage(facePath, 0, CV_STORAGE_READ );
-            maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-            int PSLR= cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
-            int value=peakToSideLobeRatio(maceFilterUser,face,FACE_MACE_SIZE);
-            cvReleaseFileStorage( &fileStorage );
-            cvReleaseMat( &maceFilterUser );
+                sprintf(facePath,"%s/%s_face_mace.xml",modelDirectory,de->d_name);
+                sprintf(eyePath,"%s/%s_eye_mace.xml",modelDirectory,de->d_name);
+                sprintf(insideFacePath,"%s/%s_inside_face_mace.xml",modelDirectory,de->d_name);
+                fileStorage = cvOpenFileStorage(facePath, 0, CV_STORAGE_READ );
+                maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+                int PSLR= cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
+                int value=peakToSideLobeRatio(maceFilterUser,face,FACE_MACE_SIZE);
+                cvReleaseFileStorage( &fileStorage );
+                cvReleaseMat( &maceFilterUser );
 
-            fileStorage = cvOpenFileStorage(eyePath, 0, CV_STORAGE_READ );
-            maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-            PSLR+=cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
-            value+=peakToSideLobeRatio(maceFilterUser,eye,EYE_MACE_SIZE);
-            cvReleaseFileStorage( &fileStorage );
-            cvReleaseMat( &maceFilterUser );
+                fileStorage = cvOpenFileStorage(eyePath, 0, CV_STORAGE_READ );
+                maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+                PSLR+=cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
+                value+=peakToSideLobeRatio(maceFilterUser,eye,EYE_MACE_SIZE);
+                cvReleaseFileStorage( &fileStorage );
+                cvReleaseMat( &maceFilterUser );
 
-            fileStorage = cvOpenFileStorage(insideFacePath, 0, CV_STORAGE_READ );
-            maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-            PSLR+=cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
-            value+=peakToSideLobeRatio(maceFilterUser,insideFace,INSIDE_FACE_MACE_SIZE);
-            int threshold=int(PSLR*newConfig->percentage);
-            int pcent=int(((double)value/(double)PSLR)*100);
-            int lowerPcent=int(newConfig->percentage*100.0);
-            int upperPcent=int((newConfig->percentage+((1-newConfig->percentage)/2))*100.0);
-        //    printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
+                fileStorage = cvOpenFileStorage(insideFacePath, 0, CV_STORAGE_READ );
+                maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+                PSLR+=cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
+                value+=peakToSideLobeRatio(maceFilterUser,insideFace,INSIDE_FACE_MACE_SIZE);
+                int threshold=int(PSLR*newConfig->percentage);
+                int pcent=int(((double)value/(double)PSLR)*100);
+                int lowerPcent=int(newConfig->percentage*100.0);
+                int upperPcent=int((newConfig->percentage+((1-newConfig->percentage)/2))*100.0);
+              //    printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
 
-            if(pcent>=upperPcent)
-            {
-             count=1;
-             break;
+                if (pcent>=upperPcent)
+                {
+                    count=1;
+                    break;
+                }
+                else if (pcent<lowerPcent)
+                {
+
+                }
+                else
+                {
+
+                    double newThres=(thresholdLBP)+(double(double(pcent-lowerPcent)/double(upperPcent-lowerPcent))*double(step));
+                    // printf("New Thres %e\n",newThres);
+
+                    if (val<newThres)
+                    {
+                        count=1;
+                        break;
+                    }
+
+
+                }
+
+                //      int percentage = int( (double(value)/double(PSLR))*100.0);
+
+
+                //    printf("%d \n",percentage);
+                cvReleaseFileStorage( &fileStorage );
+                cvReleaseMat( &maceFilterUser );
             }
-            else if(pcent<lowerPcent)
-            {
-
-            }
-            else
-            {
-
-            double newThres=(thresholdLBP)+(double(double(pcent-lowerPcent)/double(upperPcent-lowerPcent))*double(step));
-          // printf("New Thres %e\n",newThres);
-
-            if(val<newThres)
-            {
-            count=1;
-             break;
-            }
-
-
-            }
-
-    //      int percentage = int( (double(value)/double(PSLR))*100.0);
-
-
-        //    printf("%d \n",percentage);
-            cvReleaseFileStorage( &fileStorage );
-            cvReleaseMat( &maceFilterUser );
-        }
 
         }
     }
@@ -414,7 +417,7 @@ int verifier::verifyFace(IplImage *faceMain)
 
     if (count==1)
     {
-    //  printf("\n YES \n");
+      //   printf("\n YES \n");
         return 1;
     }
     else
