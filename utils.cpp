@@ -125,11 +125,6 @@ void  featureLBPHist(IplImage * img,CvMat *features_final)
         }
     }
     int l,m,k=0;
-
-
-
-
-
     for (i=0;i<Ny;i++)
     {
         for (j=0;j<Nx;j++)
@@ -153,8 +148,6 @@ void  featureLBPHist(IplImage * img,CvMat *features_final)
             }
             int startX=35*j;
             int startY=30*i;
-
-//printf("%d \n",count);
             for (l=0;l<30;l++)
             {
 
@@ -163,8 +156,6 @@ void  featureLBPHist(IplImage * img,CvMat *features_final)
                     CvScalar s;
                     s=cvGet2D(imgLBP,startY+l,startX+m);
                     int val=s.val[0];
-
-                    // printf("%d \n",i*Nx*59 + j*59 +lbpArry[val]);
                     CvScalar s1;
                     s1=cvGet2D(features_final,i*Nx*59 + j*59 +lbpArry[val],0);
                     s1.val[0]+=1;
@@ -209,9 +200,9 @@ double LBPdiff(    CvMat* model,    CvMat* test)
 {
     double weights[4][5]  =
     {
-        { 1, 1,  1, 1,  1},
-        { 1, 2,  2,2,  1},
-        { 1, 1,  1, 1,  1},
+        { 1, 1,  3, 1,  1},
+        { 1, 2,  3,2,  1},
+        { 1, 2,  2, 2,  1},
         { .3, 1,  1, 1,  .3},
 
     };

@@ -66,7 +66,7 @@ verifier::verifier()
 // Default Config
 
         config  newConfig;
-        newConfig.percentage=.76;
+        newConfig.percentage=.80;
         setConfig(&newConfig,configDirectory);
     }
 
@@ -88,21 +88,37 @@ verifier::verifier(uid_t   userID)
 //   mkdir(configDirectory, S_IRWXU );
 }
 
-void verifier::createBiometricModels()
+void verifier::createBiometricModels(char* setName=NULL)
 {
     //cvNamedWindow("eyeRight",1);
 
     setFace* temp=getFaceSet();
-    for (int i=0;i<temp->count;i++)
+    int leftIndex=0;
+    int rightIndex=temp->count;
+    if (setName!=NULL)
     {
+        for (int i=0;i<temp->count;i++)
+        {
+            if (strcmp(temp->setName[i],setName)==0)
+            {
+                leftIndex=i;
+                rightIndex=leftIndex+1;
+            }
 
-
+        }
+    }
+    for (int i=leftIndex;i<rightIndex;i++)
+    {
         list<int> * maceFaceValuesPSLR=new list<int>;
         list<double> * maceFaceValuesPCER=new list<double>;
         list<int> * maceEyeValuesPSLR=new list<int>;
         list<double> * maceEyeValuesPCER=new list<double>;
         list<int> * maceInsideFaceValuesPSLR=new list<int>;
         list<double> * maceInsideFaceValuesPCER=new list<double>;
+
+
+        list<double> * lbpAv=new list<double>;
+
         int avFace=0,avEye=0,avInsideFace=0;
 
         IplImage ** eye=new IplImage *[temp->faceImages[i].count];
@@ -182,9 +198,33 @@ void verifier::createBiometricModels()
         CvFileStorage *fs;
         fs = cvOpenFileStorage( lbpFacePath, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "lbp",featureLBPHistMatrix, cvAttrList(0,0) );
-        cvReleaseFileStorage( &fs );
-        cvReleaseMat(&featureLBPHistMatrix);
 
+        for (int index=0;index<temp->faceImages[i].count;index++)
+        {
+            CvMat * featureLBPHistMatrixTest = cvCreateMat(Nx*Ny*59,1, CV_64FC1 );
+            IplImage *imageFace =cvCreateImage( cvSize(temp->faceImages[i].faces[index]->width,temp->faceImages[i].faces[index]->height), 8, 1);
+            cvCvtColor( temp->faceImages[i].faces[index], imageFace, CV_BGR2GRAY );
+            featureLBPHist(imageFace,featureLBPHistMatrixTest);
+            lbpAv->push_back (LBPdiff(featureLBPHistMatrixTest,featureLBPHistMatrix));
+            cvReleaseMat(&featureLBPHistMatrixTest);
+            cvReleaseImage(&imageFace);
+
+
+        }
+       cvReleaseMat(&featureLBPHistMatrix);
+        lbpAv->sort();
+
+        int half=(temp->faceImages[i].count/2) -1;
+        if (half>0)
+        {
+            while (half>=0)
+            {
+                lbpAv->pop_front();
+                half--;
+            }
+        }
+        cvWriteReal( fs, "thresholdLbp", lbpAv->front());
+        cvReleaseFileStorage( &fs );
 
         cvReleaseImage(&averageImage);
         maceFaceValuesPSLR->sort();
@@ -250,7 +290,7 @@ void verifier::addFaceSet(IplImage **set,int size)
         cvReleaseImage(&set[i]);
     }
 
-    createBiometricModels();
+    createBiometricModels(dirNameUnique);
     delete [] set;
 }
 
@@ -274,6 +314,8 @@ void verifier::removeFaceSet(char* setName)
         }
     }
     char maceFilters[300];
+    sprintf(maceFilters,"%s/%s_face_lbp.xml",modelDirectory,setName);
+    remove(maceFilters);
     sprintf(maceFilters,"%s/%s_face_mace.xml",modelDirectory,setName);
     remove(maceFilters);
     sprintf(maceFilters,"%s/%s_eye_mace.xml",modelDirectory,setName);
@@ -281,7 +323,7 @@ void verifier::removeFaceSet(char* setName)
     sprintf(maceFilters,"%s/%s_inside_face_mace.xml",modelDirectory,setName);
     remove(maceFilters);
     remove(dirname);
-    createBiometricModels();
+    //createBiometricModels();
     //sprintf(dirname,"%s/%s_mace.xml",modelDirectory,setName);
     //remove(dirname);
 
@@ -339,14 +381,18 @@ int verifier::verifyFace(IplImage *faceMain)
             char lbp[300];
             sprintf(lbp,"%s/%s_face_lbp.xml",modelDirectory,de->d_name);
             fileStorage = cvOpenFileStorage(lbp, 0, CV_STORAGE_READ );
+            if (fileStorage==0)
+                continue;
             lbpModel = (CvMat *)cvReadByName(fileStorage, 0, "lbp", 0);
+            double lbpThresh= cvReadRealByName(fileStorage, 0, "thresholdLbp",8000);
+  // printf("%e Thresh\n",lbpThresh);
             double val=LBPdiff(lbpModel,featureLBPHistMatrix);
-            //  printf("%e \n",val);
+     //printf("%e \n",val);
             cvReleaseMat( &lbpModel);
-            double step=((1.0-newConfig->percentage)/(.24))*WIDTH_STEP_LBP;
-            double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
-    //  printf("val %e \n",val);
-            //   printf("step %e thresholdLBP %e \n",step,thresholdLBP);
+            double step=WIDTH_STEP_LBP;
+
+         //   double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
+            double thresholdLBP=lbpThresh-((.80-newConfig->percentage)*1000);
             if (val<(thresholdLBP+step))
             {
 
@@ -354,6 +400,8 @@ int verifier::verifyFace(IplImage *faceMain)
                 sprintf(eyePath,"%s/%s_eye_mace.xml",modelDirectory,de->d_name);
                 sprintf(insideFacePath,"%s/%s_inside_face_mace.xml",modelDirectory,de->d_name);
                 fileStorage = cvOpenFileStorage(facePath, 0, CV_STORAGE_READ );
+                if (fileStorage==0)
+                    continue;
                 maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
                 int PSLR= cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
                 int value=peakToSideLobeRatio(maceFilterUser,face,FACE_MACE_SIZE);
@@ -361,6 +409,9 @@ int verifier::verifyFace(IplImage *faceMain)
                 cvReleaseMat( &maceFilterUser );
 
                 fileStorage = cvOpenFileStorage(eyePath, 0, CV_STORAGE_READ );
+                if (fileStorage==0)
+                    continue;
+
                 maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
                 PSLR+=cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
                 value+=peakToSideLobeRatio(maceFilterUser,eye,EYE_MACE_SIZE);
@@ -368,6 +419,10 @@ int verifier::verifyFace(IplImage *faceMain)
                 cvReleaseMat( &maceFilterUser );
 
                 fileStorage = cvOpenFileStorage(insideFacePath, 0, CV_STORAGE_READ );
+                if (fileStorage==0)
+                    continue;
+
+
                 maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
                 PSLR+=cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
                 value+=peakToSideLobeRatio(maceFilterUser,insideFace,INSIDE_FACE_MACE_SIZE);
@@ -375,7 +430,7 @@ int verifier::verifyFace(IplImage *faceMain)
                 int pcent=int(((double)value/(double)PSLR)*100);
                 int lowerPcent=int(newConfig->percentage*100.0);
                 int upperPcent=int((newConfig->percentage+((1-newConfig->percentage)/2))*100.0);
-       //   printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
+            //  printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
 
                 if (pcent>=upperPcent)
                 {
@@ -390,7 +445,7 @@ int verifier::verifyFace(IplImage *faceMain)
                 {
 
                     double newThres=(thresholdLBP)+(double(double(pcent-lowerPcent)/double(upperPcent-lowerPcent))*double(step));
-                    // printf("New Thres %e\n",newThres);
+                 //   printf("New Thres %e\n",newThres);
 
                     if (val<newThres)
                     {
@@ -417,7 +472,7 @@ int verifier::verifyFace(IplImage *faceMain)
 
     if (count==1)
     {
-     //   printf("\n YES \n");
+  //   printf("\n YES \n");
         return 1;
     }
     else

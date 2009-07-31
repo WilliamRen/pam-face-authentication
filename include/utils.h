@@ -3,7 +3,7 @@
 /** @file */
 
 #define MAX_THRESHOLD_LBP 14200
-#define WIDTH_STEP_LBP 1200
+#define WIDTH_STEP_LBP 1400
 
 
 

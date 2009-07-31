@@ -35,10 +35,6 @@ IplImage * preprocess(IplImage * img,CvPoint plefteye,CvPoint prighteye)
     IplImage * face= cvCreateImage( cvSize(140,150),8,3);
     IplImage* imgDest = cvCreateImage( cvSize(img->width,img->height),8,3);
     cvZero(face);
-
-
-
-
     double yvalue=prighteye.y-plefteye.y;
     double xvalue=prighteye.x-plefteye.x;
     double ang= atan(yvalue/xvalue)*(180/CV_PI);
@@ -81,7 +77,7 @@ IplImage * detector::clipFace(IplImage * inputImage)
 {
     if (inputImage==0)
         return 0;
-    if (checkFaceDetected()==1)
+    if (eyesInformation.LE.x>0 && eyesInformation.LE.y>0 &&eyesInformation.RE.x>0 && eyesInformation.RE.y>0 )
     {
         IplImage *face=preprocess(inputImage,eyesInformation.LE,eyesInformation.RE);
         return face;
@@ -344,13 +340,8 @@ int detector::runDetector(IplImage * input)
                 finishedClipFaceFlag=1;
 
             }
-            //printf("aaaaaaaaaaaaa \n");
         }
-
-
-
     }
-
     return 0;
 }
 int detector::finishedClipFace()

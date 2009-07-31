@@ -35,22 +35,16 @@ IplImage * frame_copy=0;
 
 opencvWebcam::opencvWebcam()
 {
-  //capture = cvCreateFileCapture("ggm2.avi");
-  //  capture =cvCaptureFromCAM(0);
+
 }
 void opencvWebcam::stopCamera()
 {
-    if(capture!=0)
+   if(capture!=0)
    cvReleaseCapture( &capture );
-
-  //capture = cvCreateFileCapture("ggm2.avi");
-  //  capture =cvCaptureFromCAM(0);
 }
 int opencvWebcam::startCamera()
 {
-   // capture = cvCreateFileCapture("/home/rohananil/ggm2.avi");
-capture =cvCaptureFromCAM(0);
- //   capture = cvCreateFileCapture("ggm2.avi");
+    capture =cvCaptureFromCAM(0);
     if(capture==0)
     return 0;
     else
@@ -61,16 +55,13 @@ IplImage *opencvWebcam::queryFrame()
 {
     orginalFrame = cvQueryFrame( capture );
     if (orginalFrame==NULL) return 0;
-    //return orginalFrame;
-
     frame = cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U, orginalFrame->nChannels );
     cvResize(orginalFrame,frame, CV_INTER_LINEAR);
-
     if ( !frame )
         return 0;
 
     frame_copy = cvCreateImage( cvSize(frame->width,frame->height),IPL_DEPTH_8U, frame->nChannels );
-   if ( frame->origin == IPL_ORIGIN_TL )
+    if ( frame->origin == IPL_ORIGIN_TL )
         cvCopy( frame, frame_copy, 0 );
     else
         cvFlip( frame, frame_copy, 0 );

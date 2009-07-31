@@ -40,6 +40,8 @@ public:
     void verify();
 
 private:
+
+    int timerId;
     /**
     *UI Object of the Face Trainer Main Window
     */

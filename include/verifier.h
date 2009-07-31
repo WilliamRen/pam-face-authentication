@@ -49,8 +49,9 @@ public:
     verifier(uid_t   userID);
     /**
     *Creates the MACE Filter and LBP Feature Hist , it Creates $HOME/.pam-face-authentication/model/$SETNAME_(FACE | EYE | INSIDE_FACE)_(MACE | LBP).XML
+    *@param setName if set name is NULL, then all the faces sets are retrained
     */
-    void createBiometricModels();
+    void createBiometricModels(char *setName);
 //Done
 
     /**

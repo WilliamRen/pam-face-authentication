@@ -100,12 +100,12 @@ void faceTrainerAdvSettings::saveClicked()
 void faceTrainerAdvSettings::restoreDefaults()
 {
     initConfig();
-    ui.percentage->setValue(76);
+    ui.percentage->setValue(80);
     // ui.sb_face->setValue(MACE_FACE_DEFAULT);
     //  ui.sb_eye->setValue(MACE_EYE_DEFAULT);
     // ui.sb_insideFace->setValue(MACE_INSIDE_FACE_DEFAULT);
     saveClicked();
-    newVerifier->createBiometricModels();
+    newVerifier->createBiometricModels(NULL);
 
 }
 
@@ -120,10 +120,13 @@ void faceTrainerAdvSettings::sT(opencvWebcam *wc,detector *nd,verifier *nv)
 void faceTrainerAdvSettings:: testRecognition()
 {
     IplImage * queryImage = webcam->queryFrame();
-    if (newVerifier->verifyFace(newDetector->clipFace(queryImage))==1)
+    IplImage *test=newDetector->clipFace(queryImage);
+    if (newVerifier->verifyFace(test)==1)
         ui.result->setText(QString(tr("Yes")));
     else
         ui.result->setText(QString(tr("No")));
+    cvReleaseImage(&queryImage);
+    cvReleaseImage(&test);
 }
 
 faceTrainerAdvSettings::faceTrainerAdvSettings(QWidget *parent, char* configDir)
@@ -230,6 +233,8 @@ void faceTrainer::verify()
             // printf("%s \n",fullPath);
             if (newVerifier.verifyFace(temp)==1)
             {
+
+                printf("%s \n",fullPath);
             }
 
         }
@@ -257,7 +262,8 @@ void faceTrainer::removeSelected()
         QListWidgetItem *item = *i;
         QString dat=item->data(Qt::UserRole).toString();
         char *ptr =  dat.toAscii().data();
-//      printf("%s \n",ptr);
+   //  printf("%s \n",ptr);
+
         newVerifier.removeFaceSet(ptr);
 
     }
@@ -308,8 +314,10 @@ void faceTrainer::timerEvent( QTimerEvent * )
     if (newDetector.finishedClipFace()==1)
     {
         setIbarText(tr("Processing Faces, Please Wait ..."));
+       // cvWaitKey(1000);
         newVerifier.addFaceSet(newDetector.returnClipedFace(),13);
         setIbarText(tr("Processing Completed."));
+
         captureClick();
         populateQList();
 
@@ -353,7 +361,7 @@ void faceTrainer::showTab2()
     {
         ui.stkWg->setCurrentIndex(1);
         populateQList();
-        startTimer( 20 );
+       timerId= startTimer( 20 );
     }
     else
     {
@@ -372,6 +380,8 @@ void faceTrainer::showTab2()
 
 void faceTrainer::showTab1()
 {
+    killTimer(timerId);
+webcam.stopCamera();
 
     ui.stkWg->setCurrentIndex(0);
 }

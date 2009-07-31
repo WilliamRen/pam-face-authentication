@@ -427,75 +427,60 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         {
 
             newDetector.runDetector(queryImage);
-            if ( newDetector.checkFaceDetected()==1)
+
+
+            if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>28  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
             {
 
-                if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>28  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
+                double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
+                double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
+                double ang= atan(yvalue/xvalue)*(180/CV_PI);
+
+                if (pow(ang,2)<200)
                 {
-                    if (((newDetector.eyesInformation.LE.x>newDetector.faceInformation.LT.x) && (newDetector.eyesInformation.RE.x<newDetector.faceInformation.RB.x)) && ((newDetector.eyesInformation.LE.y>newDetector.faceInformation.LT.y) && (newDetector.eyesInformation.RE.y>newDetector.faceInformation.LT.y)))
+
+                    IplImage * im = newDetector.clipFace(queryImage);
+                    send_info_msg(pamh, "Trying To Recognize...");
+                    if (im!=0)
                     {
-                        double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
-                        double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
-                        double ang= atan(yvalue/xvalue)*(180/CV_PI);
-
-                        if (pow(ang,2)<200)
+                        int val=newVerifier->verifyFace(im);
+                        if (val==1)
                         {
-                            if ((newDetector.eyesInformation.LE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))) && (newDetector.eyesInformation.RE.y<(newDetector.faceInformation.LT.y+(newDetector.faceInformation.RB.y-newDetector.faceInformation.LT.y/2))))
+                            // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
+                            send_info_msg(pamh, "Verification successful.");
+                            webcam.stopCamera();
+                            if (enableX==1)
                             {
-                                IplImage * im = newDetector.clipFace(queryImage);
-                                send_info_msg(pamh, "Trying To Recognize...");
-
-                                int val=newVerifier->verifyFace(im);
-                                if (val==1)
-                                {
-                                    // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
-                                    send_info_msg(pamh, "Verification successful.");
-                                    webcam.stopCamera();
-                                    if (enableX==1)
-                                    {
-                                        XDestroyWindow(displayScreen,window);
-                                        XCloseDisplay(displayScreen);
-                                    }
-                                    return PAM_SUCCESS;
-                                }
-
-
-                                cvReleaseImage(&im);
+                                XDestroyWindow(displayScreen,window);
+                                XCloseDisplay(displayScreen);
                             }
-                            else
-                            {
-                                send_info_msg(pamh, "Your eyes are not detected properly.");
-                            }
-
-
+                            return PAM_SUCCESS;
                         }
-                        else
-                        {
-                            send_info_msg(pamh, "The face is tilted at a greater angle.");
-
-                        }
-
-
                     }
-                    else
-                    {
-                        send_info_msg(pamh, "Trying putting Your face to the center of the frame.");
-                    }
-                    newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-                    newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
 
-                    //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+
+                    cvReleaseImage(&im);
+
                 }
                 else
                 {
-                    send_info_msg(pamh, "Keep proper distance with the camera.");
+                    send_info_msg(pamh, "The face is tilted at a greater angle.");
+
                 }
 
+
+
+                newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+                newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+
+                //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
             }
             else
             {
-                send_info_msg(pamh, "Unable to Detect Your Face.");
+                send_info_msg(pamh, "Keep proper distance with the camera.");
             }
+
+
             if (enableX==1)
                 processEvent(displayScreen, window, width, height,queryImage,s);
 
