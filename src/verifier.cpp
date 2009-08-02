@@ -385,17 +385,18 @@ int verifier::verifyFace(IplImage *faceMain)
                 continue;
             lbpModel = (CvMat *)cvReadByName(fileStorage, 0, "lbp", 0);
             double lbpThresh= cvReadRealByName(fileStorage, 0, "thresholdLbp",8000);
-  // printf("%e Thresh\n",lbpThresh);
             double val=LBPdiff(lbpModel,featureLBPHistMatrix);
-     //printf("%e \n",val);
             cvReleaseMat( &lbpModel);
-            double step=WIDTH_STEP_LBP;
+            double step=lbpThresh/8;
 
          //   double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
             double thresholdLBP=lbpThresh-((.80-newConfig->percentage)*1000);
+
+         //printf("%e %e %e\n",val,(thresholdLBP+step),step);
+
             if (val<(thresholdLBP+step))
             {
-
+//printf("\ntrue\n");
                 sprintf(facePath,"%s/%s_face_mace.xml",modelDirectory,de->d_name);
                 sprintf(eyePath,"%s/%s_eye_mace.xml",modelDirectory,de->d_name);
                 sprintf(insideFacePath,"%s/%s_inside_face_mace.xml",modelDirectory,de->d_name);
@@ -429,8 +430,8 @@ int verifier::verifyFace(IplImage *faceMain)
                 int threshold=int(PSLR*newConfig->percentage);
                 int pcent=int(((double)value/(double)PSLR)*100);
                 int lowerPcent=int(newConfig->percentage*100.0);
-                int upperPcent=int((newConfig->percentage+((1-newConfig->percentage)/2))*100.0);
-            //  printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
+                int upperPcent=int((newConfig->percentage+((1-newConfig->percentage)/4))*100.0);
+    // printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
 
                 if (pcent>=upperPcent)
                 {
@@ -445,7 +446,7 @@ int verifier::verifyFace(IplImage *faceMain)
                 {
 
                     double newThres=(thresholdLBP)+(double(double(pcent-lowerPcent)/double(upperPcent-lowerPcent))*double(step));
-                 //   printf("New Thres %e\n",newThres);
+      // printf("New Thres %e\n",newThres);
 
                     if (val<newThres)
                     {

@@ -29,23 +29,23 @@
    <string>Face Trainer</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: rgb(255, 255, 255);</string>
+   <string>background-color: rgb(244, 244, 244);</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QStackedWidget" name="stkWg">
     <property name="geometry">
      <rect>
-      <x>12</x>
-      <y>0</y>
+      <x>1</x>
+      <y>7</y>
       <width>746</width>
       <height>567</height>
      </rect>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color: rgb(255, 255, 255);</string>
+     <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="first">
      <widget class="QPushButton" name="pb_next_t1">
@@ -72,8 +72,8 @@
      <widget class="QLabel" name="lbl_heading_1">
       <property name="geometry">
        <rect>
-        <x>120</x>
-        <y>70</y>
+        <x>78</x>
+        <y>73</y>
         <width>501</width>
         <height>41</height>
        </rect>
@@ -187,7 +187,7 @@ font: 75 36pt &quot;Serif&quot;;
       </property>
       <property name="styleSheet">
        <string notr="true">font: italic 16pt &quot;Serif&quot;;
-color: rgb(166, 166, 166);</string>
+color: rgb(123, 123, 123);</string>
       </property>
       <property name="text">
        <string>To ensure high efficiency please keep proper distance between head and camera</string>
@@ -255,7 +255,7 @@ color: rgb(166, 166, 166);</string>
       </property>
       <property name="styleSheet">
        <string notr="true">font: italic 16pt &quot;Serif&quot;;
-color: rgb(166, 166, 166);</string>
+color: rgb(123, 123, 123);</string>
       </property>
       <property name="text">
        <string>Please try to sit where there is ample lighting</string>
@@ -299,7 +299,7 @@ color: rgb(166, 166, 166);</string>
       </property>
       <property name="styleSheet">
        <string notr="true">font: italic 16pt &quot;Serif&quot;;
-color: rgb(166, 166, 166);</string>
+color: rgb(123, 123, 123);</string>
       </property>
       <property name="text">
        <string>No glass or hat as it might affect the recognition rate</string>
@@ -353,6 +353,25 @@ color: rgb(126, 126, 126);</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label">
+      <property name="geometry">
+       <rect>
+        <x>56</x>
+        <y>82</y>
+        <width>56</width>
+        <height>53</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+      <property name="pixmap">
+       <pixmap resource="../../../graphics.qrc">:/data/ui/images/about.png</pixmap>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
       </property>
      </widget>
     </widget>

@@ -6,16 +6,16 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 
 SET( QT_FACETRAINER_SRCS
-      main.cpp
-      opencvWebcam.cpp           
-      detector.cpp               
-      faceDetector.cpp          
-      eyesDetector.cpp            
-      tracker.cpp               
-      verifier.cpp
-      utils.cpp
-      qtUtils.cpp
-      webcamImagePaint.cpp
+      ${CMAKE_SOURCE_DIR}/src/main.cpp
+      ${CMAKE_SOURCE_DIR}/src/opencvWebcam.cpp           
+      ${CMAKE_SOURCE_DIR}/src/detector.cpp               
+      ${CMAKE_SOURCE_DIR}/src/faceDetector.cpp          
+      ${CMAKE_SOURCE_DIR}/src/eyesDetector.cpp            
+      ${CMAKE_SOURCE_DIR}/src/tracker.cpp               
+      ${CMAKE_SOURCE_DIR}/src/verifier.cpp
+      ${CMAKE_SOURCE_DIR}/src/utils.cpp
+      ${CMAKE_SOURCE_DIR}/src/qtUtils.cpp
+      ${CMAKE_SOURCE_DIR}/src/webcamImagePaint.cpp
 )              
  
  SET( QT_FACETRAINER_MOC_HDRS
@@ -28,7 +28,7 @@ SET( QT_FACETRAINER_SRCS
        ${CMAKE_SOURCE_DIR}/data/ui/uifiles/faceTrainer.ui
        ${CMAKE_SOURCE_DIR}/data/ui/uifiles/faceTrainerAdvSettings.ui
        ${CMAKE_SOURCE_DIR}/data/ui/uifiles/aboutDialog.ui
-       
+        
   )
   
   SET( QT_FACETRAINER_RCS
@@ -37,15 +37,15 @@ SET( QT_FACETRAINER_SRCS
 
 
   SET( PAM_FACE_AUTHENTICATE_SRCS
-                 pam_face_authentication.cpp
-                 opencvWebcam.cpp         
-                 detector.cpp             
-                 faceDetector.cpp       
-                 eyesDetector.cpp
-                 webcamImagePaint.cpp
-                 tracker.cpp              
-                 verifier.cpp           
-                 utils.cpp                
+                  ${CMAKE_SOURCE_DIR}/src/pam_face_authentication.cpp
+                  ${CMAKE_SOURCE_DIR}/src/opencvWebcam.cpp         
+                  ${CMAKE_SOURCE_DIR}/src/detector.cpp             
+                  ${CMAKE_SOURCE_DIR}/src/faceDetector.cpp       
+                  ${CMAKE_SOURCE_DIR}/src/eyesDetector.cpp
+                  ${CMAKE_SOURCE_DIR}/src/webcamImagePaint.cpp
+                  ${CMAKE_SOURCE_DIR}/src/tracker.cpp              
+                  ${CMAKE_SOURCE_DIR}/src/verifier.cpp           
+                  ${CMAKE_SOURCE_DIR}/src/utils.cpp                
 )
 
 
