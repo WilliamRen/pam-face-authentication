@@ -302,7 +302,6 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     {
         if (strcmp(argv[0],"gdmlegacy")==0)
         {
-
             sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
             char str[50];
             xlock=fopen(X_lock,"r");
@@ -416,6 +415,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         send_info_msg(pamh, "Biometrics Model not Generated for the User.");
         loop=0;
     }
+*commAuth==STARTED;
+send_info_msg(pamh, "Commencing Face Verification.");
 
     while (loop==1 && t2<25000)
     {
@@ -440,7 +441,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                 {
 
                     IplImage * im = newDetector.clipFace(queryImage);
-                    send_info_msg(pamh, "Trying To Recognize...");
+                    send_info_msg(pamh, "Verifying Face ...");
                     if (im!=0)
                     {
                         int val=newVerifier->verifyFace(im);
@@ -454,6 +455,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                                 XDestroyWindow(displayScreen,window);
                                 XCloseDisplay(displayScreen);
                             }
+                            *commAuth==STOPPED;
                             return PAM_SUCCESS;
                         }
                     }
@@ -464,7 +466,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                 }
                 else
                 {
-                    send_info_msg(pamh, "The face is tilted at a greater angle.");
+                    send_info_msg(pamh, "Align your face.");
 
                 }
 
@@ -503,6 +505,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         XDestroyWindow(displayScreen,window);
         XCloseDisplay(displayScreen);
     }
+    *commAuth==STOPPED;
     webcam.stopCamera();
     return PAM_AUTHINFO_UNAVAIL;
 }

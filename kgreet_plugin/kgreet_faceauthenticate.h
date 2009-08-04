@@ -35,6 +35,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QTimer>
 #include <QImage>
 #include <QGraphicsView>
+#include <QProcess>
+#include <QString>
+#include <QStringList>
+#include <QX11EmbedContainer>
 //#include "webcamQLabel.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -71,23 +75,17 @@ class KFaceAuthenticateGreeter : public QObject, public KGreeterPlugin {
 	virtual void failed();
 	virtual void revive();
 	virtual void clear();
-  protected:
-        void timerEvent(QTimerEvent *event);
 
   public Q_SLOTS:
 	void slotChanged();
   private:
 	void setActive( bool enable );
 	void returnData();
-	void ipcStart();
 	//void timeout();
 		QImage image;
-
-	//webcamQLabel *webcamPreview;
+	QX11EmbedContainer * frame;
+	QProcess faceAuthGUI;
 	QLabel *loginLabel, *faceauthenticateStatus;
-	//QTimer *webcamTimer;
-	QGraphicsView *webcamPreview;
-	QString sensor, finger;
 	KLineEdit *loginEdit;
 	KSimpleConfig *stsFile;
 	QString fixedUser, curUser;
@@ -95,9 +93,6 @@ class KFaceAuthenticateGreeter : public QObject, public KGreeterPlugin {
 	Context ctx;
 	int has;
 	bool running, authTok, authStarted;
-     char *shared;
-	key_t ipckey;
-	int shmid;
 };
 
 #endif /* KGREET_FACEAUTHENTICATE_H */

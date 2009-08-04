@@ -31,9 +31,6 @@
   <property name="windowTitle">
    <string>Advanced Settings</string>
   </property>
-  <property name="styleSheet">
-   <string notr="true">background-color: rgb(255, 255, 255);</string>
-  </property>
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
@@ -43,9 +40,6 @@
      <height>16</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string>font: 75 12pt &quot;Sans Serif&quot;;</string>
-   </property>
    <property name="text">
     <string>Thresholds</string>
    </property>
@@ -54,9 +48,9 @@
    <property name="geometry">
     <rect>
      <x>76</x>
-     <y>297</y>
+     <y>296</y>
      <width>94</width>
-     <height>16</height>
+     <height>20</height>
     </rect>
    </property>
    <property name="text">
@@ -67,7 +61,7 @@
    <property name="geometry">
     <rect>
      <x>280</x>
-     <y>294</y>
+     <y>296</y>
      <width>93</width>
      <height>20</height>
     </rect>
@@ -124,9 +118,6 @@
      <height>31</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">font: 11pt &quot;Sans Serif&quot;;</string>
-   </property>
    <property name="text">
     <string>Test Recognition</string>
    </property>
@@ -134,14 +125,11 @@
   <widget class="QLabel" name="result">
    <property name="geometry">
     <rect>
-     <x>284</x>
-     <y>383</y>
+     <x>274</x>
+     <y>384</y>
      <width>61</width>
      <height>16</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string>font: 75 12pt &quot;Sans Serif&quot;;</string>
    </property>
    <property name="text">
     <string>Yes/No</string>
@@ -150,14 +138,11 @@
   <widget class="QLabel" name="result_2">
    <property name="geometry">
     <rect>
-     <x>94</x>
+     <x>117</x>
      <y>383</y>
-     <width>181</width>
+     <width>145</width>
      <height>16</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string>font: 75 12pt &quot;Sans Serif&quot;;</string>
    </property>
    <property name="text">
     <string>Test Recognition Result</string>
@@ -265,9 +250,6 @@ font: 22pt &quot;Serif&quot;;
      <height>31</height>
     </rect>
    </property>
-   <property name="styleSheet">
-    <string notr="true">font: 11pt &quot;Sans Serif&quot;;</string>
-   </property>
    <property name="text">
     <string>Save</string>
    </property>
@@ -283,9 +265,6 @@ font: 22pt &quot;Serif&quot;;
      <width>91</width>
      <height>31</height>
     </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">font: 11pt &quot;Sans Serif&quot;;</string>
    </property>
    <property name="text">
     <string>Defaults</string>
@@ -350,8 +329,8 @@ font: 22pt &quot;Serif&quot;;
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>194</x>
-     <y>294</y>
+     <x>183</x>
+     <y>296</y>
      <width>51</width>
      <height>20</height>
     </rect>
