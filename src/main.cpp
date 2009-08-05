@@ -373,7 +373,7 @@ void faceTrainer::showTab2()
                                        "Camera Not Found. <br /> "
                                        "Plugin Your Camera and Try Again."));
         msgBox1.setStandardButtons(QMessageBox::Ok);
-        msgBox1.setIconPixmap(QPixmap(":/cnc.png"));
+        msgBox1.setIconPixmap(QPixmap(":/data/ui/images/cnc.png"));
         msgBox1.exec();
     }
 }

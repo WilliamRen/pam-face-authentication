@@ -6,5 +6,6 @@
     <file>data/ui/images/record.png</file>
     <file>data/ui/images/about.png</file>
     <file>data/ui/images/cnc.png</file>
+    <file>data/ui/images/message1.png</file>
 </qresource>
 </RCC>
