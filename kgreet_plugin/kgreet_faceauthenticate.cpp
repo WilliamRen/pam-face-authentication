@@ -201,8 +201,7 @@ KFaceAuthenticateGreeter::textMessage( const char *text, bool err )
             QStringList arguments;
             arguments << QStringList()<< QString::number(frame->winId());
             faceAuthGUI.start(BINDIR "/xwindowFaceAuth",arguments);
-            frame->resize(IMAGE_WIDTH,IMAGE_HEIGHT);
-            frame->show();
+
 
         }//startTimerstartTimer(80);
         return true;
