@@ -109,6 +109,8 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
 
         //ipcStart();
         frame =new QX11EmbedContainer();
+        frame->resize(IMAGE_WIDTH,IMAGE_HEIGHT);
+        frame->setMinimumSize(QSize(320,240));
         grid->addWidget( frame, line, 0, 2, 2 );
 
         if (loginEdit)
@@ -201,8 +203,8 @@ KFaceAuthenticateGreeter::textMessage( const char *text, bool err )
             QStringList arguments;
             arguments << QStringList()<< QString::number(frame->winId());
             faceAuthGUI.start(BINDIR "/xwindowFaceAuth",arguments);
-
-
+            frame->resize(IMAGE_WIDTH,IMAGE_HEIGHT);
+            frame->show();
         }//startTimerstartTimer(80);
         return true;
     }
@@ -260,6 +262,7 @@ KFaceAuthenticateGreeter::abort()
     faceauthenticateStatus->clear();
     authStarted = false;
     running = false;
+    faceAuthGUI.kill();
 }
 
 void // virtual
@@ -284,6 +287,8 @@ KFaceAuthenticateGreeter::failed()
     faceauthenticateStatus->clear();
     running = false;
     authStarted = false;
+    faceAuthGUI.kill();
+
     //animLabel->stop();
 }
 
