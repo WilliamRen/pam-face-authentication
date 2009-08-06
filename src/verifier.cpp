@@ -1,3 +1,5 @@
+/** @file */
+
 #include <verifier.h>
 #include <dirent.h>
 #include <unistd.h>

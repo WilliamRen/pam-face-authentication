@@ -1,3 +1,5 @@
+/** @file */
+
 /*
     OpenCV Webcam CLASS
     Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus

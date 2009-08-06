@@ -1,3 +1,5 @@
+/** @file */
+
 /*
     Detector Class - Inherits FACE DETECTOR AND EYE DETECTOR CLASS
     Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus

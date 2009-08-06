@@ -1,3 +1,5 @@
+/** @file */
+
 #include "ui_faceTrainer.h"
 #include "faceTrainerAdvSettings.h"
 //#include "opencvWebcamThread.h"

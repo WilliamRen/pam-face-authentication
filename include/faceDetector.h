@@ -1,3 +1,5 @@
+/** @file */
+
 #include "cv.h"
 #include "highgui.h"
 /**
@@ -11,7 +13,7 @@ struct face
     int Height;/**< Height of the Face */
 } ;
 /**
-* Face Detector Class. This Class Runs the OpenCV Haar Detect Functions on the Face.
+* Face Detector Class. This Class Runs the OpenCV Haar Detect Functions for finding the Face.
 */
 class faceDetector
 {

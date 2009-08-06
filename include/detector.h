@@ -1,3 +1,5 @@
+/** @file */
+
 #include "cv.h"
 #ifndef _INCL_GUARD_DET
 #define _INCL_GUARD_DET

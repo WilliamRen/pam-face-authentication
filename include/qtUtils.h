@@ -1,3 +1,5 @@
+/** @file */
+
 #include "cv.h"
 #include <QtGui>
 #include "highgui.h"

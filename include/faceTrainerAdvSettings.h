@@ -1,3 +1,5 @@
+/** @file */
+
 #include "ui_faceTrainerAdvSettings.h"
 #include "opencvWebcam.h"
 #include "detector.h"

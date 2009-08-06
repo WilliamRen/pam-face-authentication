@@ -1,3 +1,5 @@
+/** @file */
+
 #include "ui_aboutDialog.h"
 /**
 * About Dialog Class. The aboutBox QDialog

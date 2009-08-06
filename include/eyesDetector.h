@@ -1,3 +1,5 @@
+/** @file */
+
 #include "cv.h"
 
 /**
@@ -9,7 +11,9 @@ struct eyes
     CvPoint RE; /**< Co-ordinates of the Right Eye */
     int Length; /**< Length Eye */
 };
-
+/**
+* Eye Detector Class. This Class Runs the OpenCV Haar Detect Functions for finding Eyes.
+*/
 class eyesDetector
 {
 public:

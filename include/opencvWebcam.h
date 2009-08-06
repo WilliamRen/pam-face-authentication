@@ -1,3 +1,5 @@
+/** @file */
+
 #include "cv.h"
 #include "highgui.h"
 #ifndef _INCL_GUARD_WEBCAM

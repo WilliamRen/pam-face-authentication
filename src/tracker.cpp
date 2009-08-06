@@ -1,3 +1,4 @@
+/** @file */
 /*
     INTEGRAL AND VARIANCE PROJECTION TRACKER CLASS
     Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus

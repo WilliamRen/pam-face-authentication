@@ -1,3 +1,5 @@
+/** @file */
+
 /*
     QT Face Trainer MAIN
     Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus

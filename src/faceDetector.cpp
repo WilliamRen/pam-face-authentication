@@ -1,3 +1,5 @@
+/** @file */
+
 /*
     Face Detector Class
     Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
