@@ -28,11 +28,12 @@
   <property name="windowTitle">
    <string>Face Trainer</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../../graphics.qrc">
+    <normaloff>:/data/ui/images/pfa-logo.png</normaloff>:/data/ui/images/pfa-logo.png</iconset>
+  </property>
   <property name="styleSheet">
    <string/>
-  </property>
-  <property name="tabShape">
-   <enum>QTabWidget::Rounded</enum>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QStackedWidget" name="stkWg">

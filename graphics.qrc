@@ -7,5 +7,6 @@
     <file>data/ui/images/about.png</file>
     <file>data/ui/images/cnc.png</file>
     <file>data/ui/images/message1.png</file>
+    <file>data/ui/images/pfa-logo.png</file>
 </qresource>
 </RCC>

@@ -28,6 +28,10 @@
   <property name="windowTitle">
    <string>About the Software \m/</string>
   </property>
+  <property name="windowIcon">
+   <iconset resource="../../../graphics.qrc">
+    <normaloff>:/data/ui/images/pfa-logo.png</normaloff>:/data/ui/images/pfa-logo.png</iconset>
+  </property>
   <property name="modal">
    <bool>true</bool>
   </property>
@@ -377,7 +381,9 @@ p, li { white-space: pre-wrap; }
    </property>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../graphics.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>pb_ok</sender>

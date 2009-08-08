@@ -264,7 +264,7 @@ void faceTrainer::removeSelected()
         QListWidgetItem *item = *i;
         QString dat=item->data(Qt::UserRole).toString();
         char *ptr =  dat.toAscii().data();
-   //  printf("%s \n",ptr);
+        //  printf("%s \n",ptr);
 
         newVerifier.removeFaceSet(ptr);
 
@@ -316,7 +316,7 @@ void faceTrainer::timerEvent( QTimerEvent * )
     if (newDetector.finishedClipFace()==1)
     {
         setIbarText(tr("Processing Faces, Please Wait ..."));
-       // cvWaitKey(1000);
+        // cvWaitKey(1000);
         newVerifier.addFaceSet(newDetector.returnClipedFace(),13);
         setIbarText(tr("Processing Completed."));
 
@@ -363,7 +363,7 @@ void faceTrainer::showTab2()
     {
         ui.stkWg->setCurrentIndex(1);
         populateQList();
-       timerId= startTimer( 20 );
+        timerId= startTimer( 20 );
     }
     else
     {
@@ -383,7 +383,7 @@ void faceTrainer::showTab2()
 void faceTrainer::showTab1()
 {
     killTimer(timerId);
-webcam.stopCamera();
+    webcam.stopCamera();
 
     ui.stkWg->setCurrentIndex(0);
 }
@@ -399,6 +399,14 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     faceTrainer tab1;
     //tab1.setWindowTitle("Face Trainer");
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + QLocale::system().name(),
+                      QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
+
+    QTranslator myappTranslator;
+    myappTranslator.load("qt_facetrainer_" + QLocale::system().name());
+    app.installTranslator(&myappTranslator);
 
     QRect r = tab1.geometry();
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
