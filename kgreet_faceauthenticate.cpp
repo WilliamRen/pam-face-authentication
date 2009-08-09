@@ -263,6 +263,7 @@ KFaceAuthenticateGreeter::abort()
     authStarted = false;
     running = false;
     faceAuthGUI.kill();
+
 }
 
 void // virtual
