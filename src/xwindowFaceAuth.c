@@ -4,11 +4,33 @@
 #include <stdlib.h>
 #include <string.h>
 #include <X11/Xlib.h>
-#include <pam_face_defines.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+
+/**
+* Shared Memory Key Value for Image
+*/
+#define IPC_KEY_IMAGE 567814
+/**
+* Shared Memory Key Value for Communication
+*/
+#define IPC_KEY_STATUS 567813
+/**
+* Shared Memory Size for Image , 320X240
+*/
+#define IMAGE_SIZE 230400
+
+/**
+* Image Width of Webcam
+*/
+#define IMAGE_WIDTH 320
+/**
+* Image Height of Webcam
+*/
+#define IMAGE_HEIGHT 240
+#define STARTED 21
 
 /**
 * Start IPC Connections
@@ -63,8 +85,6 @@ void ipcStart()
     ipckeyCommAuth = IPC_KEY_STATUS;
     shmidCommAuth = shmget(ipckeyCommAuth, sizeof(int), IPC_CREAT | 0666);
     commAuth = (int *)shmat(shmidCommAuth, NULL, 0);
-
-    *commAuth=0;
     /*   IPC END  */
 }
 XImage *CreateTrueColorImage(Display *display, Visual *visual, unsigned char *image, int width, int height)

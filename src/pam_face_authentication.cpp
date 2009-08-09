@@ -417,7 +417,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         send_info_msg(pamh, "Biometrics Model not Generated for the User.");
         loop=0;
     }
-*commAuth==STARTED;
+*commAuth=STARTED;
 send_info_msg(pamh, "Commencing Face Verification.");
 
     while (loop==1 && t2<25000)
@@ -457,7 +457,7 @@ send_info_msg(pamh, "Commencing Face Verification.");
                                 XDestroyWindow(displayScreen,window);
                                 XCloseDisplay(displayScreen);
                             }
-                            *commAuth==STOPPED;
+                            *commAuth=STOPPED;
                             return PAM_SUCCESS;
                         }
                     }
@@ -507,7 +507,7 @@ send_info_msg(pamh, "Commencing Face Verification.");
         XDestroyWindow(displayScreen,window);
         XCloseDisplay(displayScreen);
     }
-    *commAuth==STOPPED;
+    *commAuth=STOPPED;
     webcam.stopCamera();
     return PAM_AUTHINFO_UNAVAIL;
 }
