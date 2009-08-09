@@ -213,7 +213,7 @@ void verifier::createBiometricModels(char* setName=NULL)
 
 
         }
-       cvReleaseMat(&featureLBPHistMatrix);
+        cvReleaseMat(&featureLBPHistMatrix);
         lbpAv->sort();
 
         int half=(temp->faceImages[i].count/2) -1;
@@ -336,6 +336,7 @@ void verifier::removeFaceSet(char* setName)
 
 int verifier::verifyFace(IplImage *faceMain)
 {
+
     if (faceMain==0)
         return 0;
     list<string> * faceSetName=new list<string>;
@@ -391,13 +392,14 @@ int verifier::verifyFace(IplImage *faceMain)
             cvReleaseMat( &lbpModel);
             double step=lbpThresh/8;
 
-         //   double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
+            //   double thresholdLBP=MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
             double thresholdLBP=lbpThresh-((.80-newConfig->percentage)*1000);
 
-         //printf("%e %e %e\n",val,(thresholdLBP+step),step);
+            //printf("%e %e %e\n",val,(thresholdLBP+step),step);
 
             if (val<(thresholdLBP+step))
             {
+
 //printf("\ntrue\n");
                 sprintf(facePath,"%s/%s_face_mace.xml",modelDirectory,de->d_name);
                 sprintf(eyePath,"%s/%s_eye_mace.xml",modelDirectory,de->d_name);
@@ -433,10 +435,11 @@ int verifier::verifyFace(IplImage *faceMain)
                 int pcent=int(((double)value/(double)PSLR)*100);
                 int lowerPcent=int(newConfig->percentage*100.0);
                 int upperPcent=int((newConfig->percentage+((1-newConfig->percentage)/4))*100.0);
-    // printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
+                // printf("Current Percent %d Lower %d  Upper %d\n",pcent,lowerPcent,upperPcent);
 
                 if (pcent>=upperPcent)
                 {
+
                     count=1;
                     break;
                 }
@@ -448,7 +451,7 @@ int verifier::verifyFace(IplImage *faceMain)
                 {
 
                     double newThres=(thresholdLBP)+(double(double(pcent-lowerPcent)/double(upperPcent-lowerPcent))*double(step));
-      // printf("New Thres %e\n",newThres);
+                    // printf("New Thres %e\n",newThres);
 
                     if (val<newThres)
                     {
@@ -472,15 +475,17 @@ int verifier::verifyFace(IplImage *faceMain)
     if (k==0)
         return 2;
 
-
     if (count==1)
     {
-  //   printf("\n YES \n");
+        //   printf("\n YES \n");
         return 1;
     }
-    else
-        return 0;
 
+    else
+    {
+
+        return 0;
+    }
 }
 /*
 allFaces* verifier::getFaceImagesFromAllSet()

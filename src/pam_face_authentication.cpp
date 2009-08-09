@@ -101,6 +101,8 @@ static int send_info_msg(pam_handle_t *pamh, char *msg)
     return pc->conv(1, &msgp, &resp, pc->appdata_ptr);
 }
 
+
+
 static int send_err_msg(pam_handle_t *pamh, char *msg)
 {
     if (msgPipeLiner(msg)==0)
@@ -276,6 +278,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     userStruct = getpwnam(username);
     uid_t userID=userStruct->pw_uid;
     verifier* newVerifier=new verifier(userID);
+
+
     //cvNamedWindow("src",0);
     //cvShowImage("src",
     pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
@@ -302,6 +306,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     if (argc>0)
     {
+
         if (strcmp(argv[0],"gdmlegacy")==0)
         {
             sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
@@ -410,6 +415,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int loop=1;
     int ind=0;
     char tempM[300];
+    *commAuth=STARTED;
     send_info_msg(pamh, "Face Verification Pluggable Authentication Module Started");
     int val=newVerifier->verifyFace(zeroFrame);
     if (val==2)
@@ -417,8 +423,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         send_info_msg(pamh, "Biometrics Model not Generated for the User.");
         loop=0;
     }
-*commAuth=STARTED;
-send_info_msg(pamh, "Commencing Face Verification.");
+//send_info_msg(pamh, "Commencing Face Verification.");
 
     while (loop==1 && t2<25000)
     {
@@ -449,15 +454,18 @@ send_info_msg(pamh, "Commencing Face Verification.");
                         int val=newVerifier->verifyFace(im);
                         if (val==1)
                         {
+                            *commAuth=STOPPED;
                             // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
                             send_info_msg(pamh, "Verification successful.");
-                            webcam.stopCamera();
                             if (enableX==1)
                             {
                                 XDestroyWindow(displayScreen,window);
                                 XCloseDisplay(displayScreen);
                             }
-                            *commAuth=STOPPED;
+
+                            writeImageToMemory(zeroFrame,shared);
+                            webcam.stopCamera();
+
                             return PAM_SUCCESS;
                         }
                     }
@@ -500,6 +508,7 @@ send_info_msg(pamh, "Commencing Face Verification.");
         }
 
     }
+    writeImageToMemory(zeroFrame,shared);
 
     send_err_msg(pamh, "Giving Up Face Authentication. Try Again=(.");
     if (enableX==1)

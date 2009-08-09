@@ -46,6 +46,7 @@ void opencvWebcam::stopCamera()
 }
 int opencvWebcam::startCamera()
 {
+     // capture =cvCaptureFromAVI("/home/rohananil/ggm2.avi");
     capture =cvCaptureFromCAM(0);
     if(capture==0)
     return 0;

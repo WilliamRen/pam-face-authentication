@@ -97,9 +97,9 @@ XImage *CreateTrueColorImage(Display *display, Visual *visual, unsigned char *im
         for (i=0; i<width; i++)
         {
 
-                *p++= *(shared + i*3+ 0+ j*IMAGE_WIDTH*3)%256; // blue
-                *p++= *(shared + i*3 + 1+ j*IMAGE_WIDTH*3)%256; // green
-                *p++= *(shared + i*3 + 2+ j*IMAGE_WIDTH*3)%256; // green
+            *p++= *(shared + i*3+ 0+ j*IMAGE_WIDTH*3)%256; // blue
+            *p++= *(shared + i*3 + 1+ j*IMAGE_WIDTH*3)%256; // green
+            *p++= *(shared + i*3 + 2+ j*IMAGE_WIDTH*3)%256; // green
 
             p++;
         }
@@ -110,7 +110,7 @@ XImage *CreateTrueColorImage(Display *display, Visual *visual, unsigned char *im
 void processEvent(Display *display, Window window, int width, int height,int s )
 {
     XImage *ximage;
-    Visual *visual=DefaultVisual(display, 0);
+    Visual *visual=DefaultVisual(display, s);
     ximage=CreateTrueColorImage(display, visual, 0, width, height);
     XPutImage(display, window, DefaultGC(display, 0), ximage, 0, 0, 0, 0, width, height);
     XDestroyImage(ximage);
@@ -121,27 +121,27 @@ int main(int argc, char **argv)
 {
     XImage *ximage;
     int width=IMAGE_WIDTH, height=IMAGE_HEIGHT;
-    Display *display=XOpenDisplay(NULL);
-    int  s = DefaultScreen(display);
-ipcStart();
+    Display *display;
+    int  s;
+    display=XOpenDisplay(NULL);
+    s = DefaultScreen(display);
 
+    ipcStart();
     Window window;
     if (argc>=2)
     {
         int k=atoi(argv[1]);
-       // printf("%d \n",k);                       /* create window */
-
         window=XCreateSimpleWindow(display,k, 0, 0, width, height, 1, 0, 0);
     }
     else
-        window=XCreateSimpleWindow(display, RootWindow(display, s), 0, 0, width, height, 1, 0, 0);
-
-    XMapWindow(display, window);
-
-    while (*commAuth==STARTED)
     {
-        processEvent(display, window, width, height,s);
+        window=XCreateSimpleWindow(display, RootWindow(display, s), 0, 0, width, height, 1, 0, 0);
     }
-          XDestroyWindow(display,window);
-        XCloseDisplay(display);
+    XMapWindow(display, window);
+    while (*commAuth==STARTED)
+        processEvent(display, window, width, height,s);
+
+    XUnmapWindow(display, window);
+    XDestroyWindow(display,window);
+    XCloseDisplay(display);
 }
