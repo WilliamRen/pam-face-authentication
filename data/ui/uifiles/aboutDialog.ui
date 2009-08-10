@@ -169,9 +169,9 @@ p, li { white-space: pre-wrap; }
      <property name="geometry">
       <rect>
        <x>11</x>
-       <y>151</y>
-       <width>220</width>
-       <height>19</height>
+       <y>147</y>
+       <width>318</width>
+       <height>23</height>
       </rect>
      </property>
      <property name="font">
@@ -189,7 +189,7 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Sans Serif'; font-size:11pt; font-weight:600; font-style:normal;&quot;&gt;
-&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Copyright (C) 2008 Rohan Anil &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-weight:400;&quot;&gt;Copyright (C) 2008-2009 Rohan Anil &lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
@@ -203,8 +203,8 @@ p, li { white-space: pre-wrap; }
       <rect>
        <x>12</x>
        <y>175</y>
-       <width>388</width>
-       <height>16</height>
+       <width>395</width>
+       <height>18</height>
       </rect>
      </property>
      <property name="font">
