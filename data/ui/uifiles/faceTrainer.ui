@@ -49,7 +49,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="first">
      <widget class="QPushButton" name="pb_next_t1">
@@ -846,7 +846,7 @@ font: 75 36pt &quot;Serif&quot;;
        <string notr="true">color: rgb(126, 126, 126);</string>
       </property>
       <property name="text">
-       <string>Thank you for using our application, to be a part of this phenomena visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!
+       <string>Thank you for using our application, to be a part of this project , visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!
 
 
 regards
