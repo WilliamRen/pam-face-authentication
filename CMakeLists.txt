@@ -1,6 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-
+if(EXISTS /lib64/security/)
+    set(PAM_MODULES_LOCATION /lib64/security/)
+elseif(EXISTS /lib/security/)
+    set(PAM_MODULES_LOCATION /lib/security/)
+endif(EXISTS /lib64/security/)
 
 PROJECT( PAM_FACE_AUTHENTICATION )
 SET( XWINDOWFACEAUTH_SRCS
@@ -118,12 +122,11 @@ if( UNIX AND NOT APPLE )
   endif( UNIX AND NOT APPLE )
 
 
-
 INSTALL(
     TARGETS
     pam_face_authentication
     DESTINATION
-    /lib/security/
+    ${PAM_MODULES_LOCATION}
 )
 
 INSTALL(
