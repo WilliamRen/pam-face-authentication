@@ -60,6 +60,7 @@ SET( HAAR_CASCADES
      ${CMAKE_SOURCE_DIR}/data/haarcascades/haarcascade_eye_tree_eyeglasses.xml
      ${CMAKE_SOURCE_DIR}/data/haarcascades/haarcascade_nose.xml
      ${CMAKE_SOURCE_DIR}/data/haarcascades/haarcascade.xml
+     ${CMAKE_SOURCE_DIR}/data/haarcascades/config.xml
    )
 
 SET(BIN_INSTALL_DIR

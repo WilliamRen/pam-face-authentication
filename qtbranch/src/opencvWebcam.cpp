@@ -34,6 +34,7 @@
 static IplImage * orginalFrame=0;
 IplImage * frame=0;
 IplImage * frame_copy=0;
+char* CONFIG_XML=PKGDATADIR "/config.xml";
 
 opencvWebcam::opencvWebcam()
 {
@@ -46,12 +47,22 @@ void opencvWebcam::stopCamera()
 }
 int opencvWebcam::startCamera()
 {
-     // capture =cvCaptureFromAVI("/home/rohananil/ggm2.avi");
-    capture =cvCaptureFromCAM(0);
-    if(capture==0)
-    return 0;
-    else
-    return 1;
+
+   CvFileStorage * fileStorage;
+   int i=0;
+   fileStorage = cvOpenFileStorage( CONFIG_XML, 0, CV_STORAGE_READ );
+   if( fileStorage )
+   {
+      i = cvReadIntByName(fileStorage, 0, "CAMERA_INDEX", 0);
+      cvReleaseFileStorage( &fileStorage );
+   }
+   printf("> Camera %d\n ",i);
+   // capture =cvCaptureFromAVI("/home/rohananil/ggm2.avi");
+   capture =cvCaptureFromCAM(i);
+   if(capture==0)
+   return 0;
+   else
+   return 1;
 }
 
 IplImage *opencvWebcam::queryFrame()
