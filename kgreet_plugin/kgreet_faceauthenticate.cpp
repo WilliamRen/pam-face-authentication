@@ -40,7 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QRegExp>
 #include <QLayout>
 #include <QLabel>
-#include "webcamQLabel.h"
+//#include "webcamQLabel.h"
 #define IPC_KEY_IMAGE 567814
 #define IPC_KEY_STATUS 567813
 #define IMAGE_SIZE 230400
