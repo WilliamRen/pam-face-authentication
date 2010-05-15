@@ -35,10 +35,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QTimer>
 #include <QImage>
 #include <QGraphicsView>
-#include <QProcess>
-#include <QString>
-#include <QStringList>
-#include <QX11EmbedContainer>
 //#include "webcamQLabel.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -49,50 +45,60 @@ class KLineEdit;
 class KSimpleConfig;
 class QLabel;
 
-class KFaceAuthenticateGreeter : public QObject, public KGreeterPlugin {
-	Q_OBJECT
+class KFaceAuthenticateGreeter : public QObject, public KGreeterPlugin
+{
+    Q_OBJECT
 
-  public:
-	KFaceAuthenticateGreeter( KGreeterPluginHandler *handler,
-	                 QWidget *parent,
-	                 const QString &fixedEntitiy,
-	                 Function func, Context ctx );
-	~KFaceAuthenticateGreeter();
-	virtual void loadUsers( const QStringList &users );
-	virtual void presetEntity( const QString &entity, int field );
-	virtual QString getEntity() const;
-	virtual void setUser( const QString &user );
-	virtual void setEnabled( bool on );
-	virtual bool textMessage( const char *message, bool error );
-	virtual void textPrompt( const char *prompt, bool echo, bool nonBlocking );
-	virtual bool binaryPrompt( const char *prompt, bool nonBlocking );
-	virtual void start();
-	virtual void suspend();
-	virtual void resume();
-	virtual void next();
-	virtual void abort();
-	virtual void succeeded();
-	virtual void failed();
-	virtual void revive();
-	virtual void clear();
+public:
+    KFaceAuthenticateGreeter( KGreeterPluginHandler *handler,
+                              QWidget *parent,
+                              const QString &fixedEntitiy,
+                              Function func, Context ctx );
+    ~KFaceAuthenticateGreeter();
+    virtual void loadUsers( const QStringList &users );
+    virtual void presetEntity( const QString &entity, int field );
+    virtual QString getEntity() const;
+    virtual void setUser( const QString &user );
+    virtual void setEnabled( bool on );
+    virtual bool textMessage( const char *message, bool error );
+    virtual void textPrompt( const char *prompt, bool echo, bool nonBlocking );
+    virtual bool binaryPrompt( const char *prompt, bool nonBlocking );
+    virtual void start();
+    virtual void suspend();
+    virtual void resume();
+    virtual void next();
+    virtual void abort();
+    virtual void succeeded();
+    virtual void failed();
+    virtual void revive();
+    virtual void clear();
+protected:
+    void timerEvent(QTimerEvent *event);
 
-  public Q_SLOTS:
-	void slotChanged();
-  private:
-	void setActive( bool enable );
-	void returnData();
-	//void timeout();
-		QImage image;
-	QX11EmbedContainer * frame;
-	QProcess faceAuthGUI;
-	QLabel *loginLabel, *faceauthenticateStatus;
-	KLineEdit *loginEdit;
-	KSimpleConfig *stsFile;
-	QString fixedUser, curUser;
-	Function func;
-	Context ctx;
-	int has;
-	bool running, authTok, authStarted;
+public Q_SLOTS:
+    void slotChanged();
+private:
+    void setActive( bool enable );
+    void returnData();
+    void ipcStart();
+    //void timeout();
+    QImage image;
+
+    //webcamQLabel *webcamPreview;
+    QLabel *loginLabel, *faceauthenticateStatus;
+    //QTimer *webcamTimer;
+    QGraphicsView *webcamPreview;
+    QString sensor, finger;
+    KLineEdit *loginEdit;
+    KSimpleConfig *stsFile;
+    QString fixedUser, curUser;
+    Function func;
+    Context ctx;
+    int has;
+    bool running, authTok, authStarted;
+    char *shared;
+    key_t ipckey;
+    int shmid;
 };
 
 #endif /* KGREET_FACEAUTHENTICATE_H */

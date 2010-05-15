@@ -40,16 +40,66 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QRegExp>
 #include <QLayout>
 #include <QLabel>
-#include <QProcess>
-#include <QString>
-#include <QStringList>
-#include <QX11EmbedContainer>
-
+#include "webcamQLabel.h"
 #define IPC_KEY_IMAGE 567814
 #define IPC_KEY_STATUS 567813
 #define IMAGE_SIZE 230400
 #define IMAGE_WIDTH 320
 #define IMAGE_HEIGHT 240
+void KFaceAuthenticateGreeter::timerEvent(QTimerEvent * event)
+{
+    static QGraphicsScene * scene = new QGraphicsScene(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+    uchar* pBits         = image.bits();
+    int nBytesPerLine    = image.bytesPerLine();
+    int n,m;
+    if (authStarted==true)
+    {
+
+
+
+        for (n=0;n<IMAGE_HEIGHT;n++)
+        {
+            for (m= 0;m<IMAGE_WIDTH;m++)
+            {
+
+                QRgb value;
+                value = qRgb((unsigned char)*(shared + m*3 + 2+ n*IMAGE_WIDTH*3), (unsigned char)*(shared + m*3 + 1+ n*IMAGE_WIDTH*3), (unsigned char)*(shared + m*3 + 0+ n*IMAGE_WIDTH*3));
+                uchar * scanLine = pBits+n*nBytesPerLine;
+                ((uint *)scanLine)[m] = value;
+            }
+        }
+
+    }
+    else
+    {
+
+        for (n=0;n<IMAGE_HEIGHT;n++)
+        {
+            for (m= 0;m<IMAGE_WIDTH;m++)
+            {
+
+                QRgb value;
+                value = qRgb(0,0,0);
+                uchar * scanLine = pBits+n*nBytesPerLine;
+                ((uint *)scanLine)[m] = value;
+            }
+        }
+    }
+
+    webcamPreview->setScene(scene);
+    webcamPreview->setBackgroundBrush(image);
+    webcamPreview->show();
+}
+void KFaceAuthenticateGreeter::ipcStart()
+{
+    /*   IPC   */
+    ipckey =  IPC_KEY_IMAGE;
+    shmid = shmget(ipckey, IMAGE_SIZE, IPC_CREAT | 0666);
+    shared = (char *)shmat(shmid, NULL, 0);
+    /*   IPC END  */
+    image= QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
+}
+
 
 KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_handler,
         QWidget *parent,
@@ -66,13 +116,16 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
     QGridLayout *grid = 0;
     int line = 0;
 
-
+    if (!_handler->gplugHasNode( "user-entry" ) ||
+            !_handler->gplugHasNode( "faceauthenticate-status" ) ||
+            !_handler->gplugHasNode( "webcam-preview" ) )
+    {
         parent = new QWidget( parent );
         parent->setObjectName( "talker" );
         widgetList << parent;
         grid = new QGridLayout( parent );
         grid->setMargin( 0 );
-
+    }
 
     loginLabel = faceauthenticateStatus =  0;
     loginEdit = 0;
@@ -81,6 +134,9 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
         fixedUser = KUser().loginName();
     if (func != ChAuthTok)
     {
+
+
+
         if (fixedUser.isEmpty())
         {
             loginEdit = new KLineEdit( parent );
@@ -88,13 +144,18 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
             connect( loginEdit, SIGNAL(editingFinished()), SLOT(slotChanged()) );
             connect( loginEdit, SIGNAL(textChanged( const QString & )), SLOT(slotChanged()) );
             connect( loginEdit, SIGNAL(selectionChanged()), SLOT(slotChanged()) );
-
-
+            if (!grid)
+            {
+                loginEdit->setObjectName( "user-entry" );
+                widgetList << loginEdit;
+            }
+            else
+            {
                 loginLabel = new QLabel( i18n( "&Username:" ), parent );
                 loginLabel->setBuddy( loginEdit );
                 grid->addWidget( loginLabel, line, 0 );
                 grid->addWidget( loginEdit, line++, 1 );
-
+            }
         }
         else if (ctx != Login && ctx != Shutdown && ctx != ExUnlock && grid)
         {
@@ -104,14 +165,40 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
         }
 
         faceauthenticateStatus = new QLabel();
-        grid->addWidget( faceauthenticateStatus, line++, 0, 1, 2 );
+        if (!grid)
+        {
+            faceauthenticateStatus->setObjectName( "faceauthenticate-status" );
+            widgetList << faceauthenticateStatus;
+        }
+        else
+        {
+            grid->addWidget( faceauthenticateStatus, line++, 0, 1, 2 );
+        }
+
+        ipcStart();
+        webcamPreview = new QGraphicsView();
+        webcamPreview->setGeometry(QRect(0, 0, 320, 240));
+        webcamPreview->setMaximumSize(QSize(320, 240));
+        webcamPreview->setFrameShape(QFrame::NoFrame);
+        webcamPreview->setFrameShadow(QFrame::Plain);
+        webcamPreview->setLineWidth(0);
+        webcamPreview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        webcamPreview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        webcamPreview->setSceneRect(QRectF(0, 0, 320, 240));
+
+        if (!grid)
+        {
+            webcamPreview->setObjectName( "webcam-preview" );
+            widgetList << webcamPreview;
+        }
+        else
+        {
+            grid->addWidget( webcamPreview, line, 0, 2, 2 );
 
 
-        //ipcStart();
-        frame =new QX11EmbedContainer();
-        frame->resize(IMAGE_WIDTH,IMAGE_HEIGHT);
-        frame->setMinimumSize(QSize(320,240));
-        grid->addWidget( frame, line, 0, 2, 2 );
+        }
+        image= QImage(IMAGE_WIDTH, IMAGE_HEIGHT, QImage::Format_RGB32);
+
 
         if (loginEdit)
         {
@@ -124,6 +211,13 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
         }
     }
 }
+/*
+void KFaceAuthenticateGreeter::timerEvent( QTimerEvent * )
+{
+
+
+}
+*/
 
 
 // virtual
@@ -199,13 +293,7 @@ KFaceAuthenticateGreeter::textMessage( const char *text, bool err )
         QString msg = QString(text);
         faceauthenticateStatus->setText( i18n(msg.toLatin1()) );
         if ( msg.indexOf("Face Verification Pluggable Authentication Module Started" ) > -1 )
-        {
-            QStringList arguments;
-            arguments << QStringList()<< QString::number(frame->winId());
-            faceAuthGUI.start(BINDIR "/xwindowFaceAuth",arguments);
-            frame->resize(IMAGE_WIDTH,IMAGE_HEIGHT);
-            frame->show();
-        }//startTimerstartTimer(80);
+            startTimer(80);
         return true;
     }
 
@@ -262,8 +350,6 @@ KFaceAuthenticateGreeter::abort()
     faceauthenticateStatus->clear();
     authStarted = false;
     running = false;
-    faceAuthGUI.kill();
-
 }
 
 void // virtual
@@ -288,8 +374,6 @@ KFaceAuthenticateGreeter::failed()
     faceauthenticateStatus->clear();
     running = false;
     authStarted = false;
-    faceAuthGUI.kill();
-
     //animLabel->stop();
 }
 
