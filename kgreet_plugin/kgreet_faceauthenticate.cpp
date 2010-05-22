@@ -40,7 +40,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #include <QRegExp>
 #include <QLayout>
 #include <QLabel>
-//#include "webcamQLabel.h"
 #define IPC_KEY_IMAGE 567814
 #define IPC_KEY_STATUS 567813
 #define IMAGE_SIZE 230400
@@ -54,9 +53,6 @@ void KFaceAuthenticateGreeter::timerEvent(QTimerEvent * event)
     int n,m;
     if (authStarted==true)
     {
-
-
-
         for (n=0;n<IMAGE_HEIGHT;n++)
         {
             for (m= 0;m<IMAGE_WIDTH;m++)
@@ -185,6 +181,9 @@ KFaceAuthenticateGreeter::KFaceAuthenticateGreeter( KGreeterPluginHandler *_hand
         webcamPreview->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         webcamPreview->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         webcamPreview->setSceneRect(QRectF(0, 0, 320, 240));
+        QGraphicsScene * scene = new QGraphicsScene(0, 0, IMAGE_WIDTH, IMAGE_HEIGHT);
+        scene->setBackgroundBrush(Qt::black);
+        webcamPreview->setScene(scene);
 
         if (!grid)
         {
