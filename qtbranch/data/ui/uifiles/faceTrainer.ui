@@ -39,8 +39,8 @@
    <widget class="QStackedWidget" name="stkWg">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>5</y>
+      <x>-10</x>
+      <y>10</y>
       <width>746</width>
       <height>567</height>
      </rect>
@@ -474,7 +474,7 @@ font: 75 36pt &quot;Serif&quot;;
       <property name="font">
        <font>
         <family>Serif</family>
-        <pointsize>16</pointsize>
+        <pointsize>14</pointsize>
         <weight>50</weight>
         <italic>true</italic>
         <bold>false</bold>
@@ -484,10 +484,7 @@ font: 75 36pt &quot;Serif&quot;;
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">font: italic 16pt &quot;Serif&quot;;
-border-width:14px;
-border-radius:8px;
-</string>
+       <string notr="true"/>
       </property>
       <property name="text">
        <string/>
@@ -496,10 +493,10 @@ border-radius:8px;
        <set>Qt::AlignCenter</set>
       </property>
       <property name="wordWrap">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="margin">
-       <number>13</number>
+       <number>0</number>
       </property>
      </widget>
      <widget class="QPushButton" name="pb_back_t2">
