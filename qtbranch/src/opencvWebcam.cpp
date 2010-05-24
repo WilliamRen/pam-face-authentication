@@ -31,10 +31,11 @@
 #include <ctype.h>
 #include "opencvWebcam.h"
 #include "pam_face_defines.h"
+
+
 static IplImage * orginalFrame=0;
 IplImage * frame=0;
 IplImage * frame_copy=0;
-char* CONFIG_XML=PKGDATADIR "/config.xml";
 
 opencvWebcam::opencvWebcam()
 {
@@ -50,13 +51,13 @@ int opencvWebcam::startCamera()
 
    CvFileStorage * fileStorage;
    int i=0;
-   fileStorage = cvOpenFileStorage( CONFIG_XML, 0, CV_STORAGE_READ );
+   fileStorage = cvOpenFileStorage( PKGDATADIR "/config.xml", 0, CV_STORAGE_READ );
    if( fileStorage )
    {
       i = cvReadIntByName(fileStorage, 0, "CAMERA_INDEX", 0);
       cvReleaseFileStorage( &fileStorage );
    }
-   printf("> Camera %d\n ",i);
+   //printf("> Camera %d\n ",i);
    // capture =cvCaptureFromAVI("/home/rohananil/ggm2.avi");
    capture =cvCaptureFromCAM(i);
    if(capture==0)

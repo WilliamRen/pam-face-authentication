@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <opencv_storage>
 <CAMERA_INDEX>0</CAMERA_INDEX>
+<TIME_OUT>25000</TIME_OUT>
 </opencv_storage>

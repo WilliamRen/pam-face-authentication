@@ -4,6 +4,7 @@
 #include "highgui.h"
 #ifndef _INCL_GUARD_WEBCAM
 #define _INCL_GUARD_WEBCAM
+
 /**
 * OpenCV Webcam Class. This class wraps over the opencv Image Query Functions.
 */

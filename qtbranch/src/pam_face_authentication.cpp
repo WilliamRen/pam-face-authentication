@@ -62,10 +62,14 @@
 #include     <string.h>
 #include     <X11/Xlib.h>
 #include     <X11/Xutil.h>
+
+
 int file_exists(const char* filename);
 char * prevmsg=0;
+int boolMessages=1;
 int msgPipeLiner(char *msg)
 {
+
     if (prevmsg!=0)
     {
         if (strcmp(prevmsg,msg)==0)
@@ -81,6 +85,9 @@ int msgPipeLiner(char *msg)
 
 static int send_info_msg(pam_handle_t *pamh, char *msg)
 {
+    if (boolMessages==0)
+        return 0;
+
     if (msgPipeLiner(msg)==0)
         return 0;
     struct pam_message mymsg;
@@ -105,6 +112,8 @@ static int send_info_msg(pam_handle_t *pamh, char *msg)
 
 static int send_err_msg(pam_handle_t *pamh, char *msg)
 {
+    if (boolMessages==0)
+        return 0;
     if (msgPipeLiner(msg)==0)
         return 0;
     struct pam_message mymsg;
@@ -303,11 +312,10 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int enableX=0;
     Display *displayScreen;
     Window window;
-
-    if (argc>0)
+    int k=0;
+    while (k<argc)
     {
-
-        if (strcmp(argv[0],"gdmlegacy")==0)
+        if (strcmp(argv[k],"gdmlegacy")==0)
         {
             sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
             char str[50];
@@ -341,7 +349,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             }
         }
 
-        if ((strcmp(argv[0],"enableX")==0) || (strcmp(argv[0],"enablex")==0))
+
+        if ((strcmp(argv[k],"enableX")==0) || (strcmp(argv[k],"enablex")==0))
         {
             pam_get_item(pamh,PAM_RUSER,(const void **)(const void*)&user_request);
 
@@ -386,7 +395,20 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             }
 
         }
+
+        if (strcmp(argv[k],"disable-messages")==0)
+        {
+            boolMessages=0;
+        }
+
+        k++;
     }
+
+
+
+
+
+
 
 
     opencvWebcam webcam;
@@ -412,6 +434,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 // system(QT_FACE_AUTH);
     double t1 = (double)cvGetTickCount();
     double t2=0;
+    double t3=0;
     int loop=1;
     int ind=0;
     char tempM[300];
@@ -420,11 +443,18 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int val=newVerifier->verifyFace(zeroFrame);
     if (val==2)
     {
-        send_info_msg(pamh, "Biometrics Model not Generated for the User.");
+        send_info_msg(pamh, "Biometrics model has not been generated for the user. Use qt-facetrainer to create the model.");
         loop=0;
     }
 //send_info_msg(pamh, "Commencing Face Verification.");
-
+    CvFileStorage * fileStorage;
+    int totalTime=25000;
+    fileStorage = cvOpenFileStorage( PKGDATADIR "/config.xml", 0, CV_STORAGE_READ );
+    if ( fileStorage )
+    {
+        totalTime = cvReadIntByName(fileStorage, 0, "TIME_OUT", 25000);
+        cvReleaseFileStorage( &fileStorage );
+    }
     while (loop==1 && t2<25000)
     {
         t2 = (double)cvGetTickCount() - t1;
@@ -456,7 +486,9 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         {
                             *commAuth=STOPPED;
                             // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
-                            send_info_msg(pamh, "Verification successful.");
+                            send_info_msg(pamh, "Verification Successful.");
+
+
                             if (enableX==1)
                             {
                                 XDestroyWindow(displayScreen,window);
@@ -466,6 +498,12 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                             writeImageToMemory(zeroFrame,shared);
                             webcam.stopCamera();
 
+                            t2=(double)cvGetTickCount();
+
+                            while ( t3<1300)
+                            {
+                                t3 = (double)cvGetTickCount() - t2;
+                            }
                             return PAM_SUCCESS;
                         }
                     }
@@ -510,7 +548,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     }
     writeImageToMemory(zeroFrame,shared);
 
-    send_err_msg(pamh, "Giving Up Face Authentication. Try Again=(.");
+    send_err_msg(pamh, "Giving Up Face Authentication. Try Again.");
     if (enableX==1)
     {
         XDestroyWindow(displayScreen,window);
