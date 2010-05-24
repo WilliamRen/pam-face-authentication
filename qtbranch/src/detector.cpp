@@ -335,7 +335,7 @@ int detector::runDetector(IplImage * input)
             clippedFace[totalFaceClipNum-clipFaceCounter]=clipFace(input);
             clipFaceCounter--;
             messageIndex=5;
-            sprintf(messageCaptureMessage,"Varied Expression. Better Recognition. Captured %d/%d faces.",totalFaceClipNum-clipFaceCounter+1,totalFaceClipNum);
+            sprintf(messageCaptureMessage,"Captured %d/%d faces.",totalFaceClipNum-clipFaceCounter+1,totalFaceClipNum);
             if (clipFaceCounter==0)
             {
                 messageIndex=6;
