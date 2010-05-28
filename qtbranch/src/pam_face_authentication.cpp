@@ -56,6 +56,8 @@
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
+#include <libintl.h>
+#include <locale.h>
 
 #include     <stdio.h>
 #include     <stdlib.h>
@@ -238,6 +240,11 @@ PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         ,const char **argv)
 {
+
+     setlocale( LC_ALL, "" );
+     bindtextdomain( "pam-face-authentication", PKGDATADIR "/locale" );
+     textdomain( "pam-face-authentication" );
+
     int retval;
     const char *user=NULL;
     const char *user_request=NULL;
@@ -424,7 +431,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     if (webcam.startCamera()==0)
     {
         //Awesome Graphic Could be put to shared memory over here [TODO]
-        send_err_msg(pamh, "Unable to get hold of your webcam. Please check if it is plugged in.");
+        send_err_msg(pamh, gettext("Unable to get hold of your webcam. Please check if it is plugged in."));
         return PAM_AUTHINFO_UNAVAIL;
     }
 
@@ -439,11 +446,11 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int ind=0;
     char tempM[300];
     *commAuth=STARTED;
-    send_info_msg(pamh, "Face Verification Pluggable Authentication Module Started");
+    send_info_msg(pamh,gettext("Face Verification Pluggable Authentication Module Started"));
     int val=newVerifier->verifyFace(zeroFrame);
     if (val==2)
     {
-        send_info_msg(pamh, "Biometrics model has not been generated for the user. Use qt-facetrainer to create the model.");
+        send_info_msg(pamh, gettext("Biometrics model has not been generated for the user. Use qt-facetrainer to create the model."));
         loop=0;
     }
 //send_info_msg(pamh, "Commencing Face Verification.");
@@ -478,7 +485,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                 {
 
                     IplImage * im = newDetector.clipFace(queryImage);
-                    send_info_msg(pamh, "Verifying Face ...");
+                    send_info_msg(pamh, gettext("Verifying Face ..."));
                     if (im!=0)
                     {
                         int val=newVerifier->verifyFace(im);
@@ -486,7 +493,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                         {
                             *commAuth=STOPPED;
                             // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
-                            send_info_msg(pamh, "Verification Successful.");
+                            send_info_msg(pamh, gettext("Verification Successful."));
 
 
                             if (enableX==1)
@@ -514,7 +521,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
                 }
                 else
                 {
-                    send_info_msg(pamh, "Align your face.");
+                    send_info_msg(pamh, gettext("Align your face."));
 
                 }
 
@@ -527,7 +534,7 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
             }
             else
             {
-                send_info_msg(pamh, "Keep proper distance with the camera.");
+                send_info_msg(pamh,gettext("Keep proper distance with the camera."));
             }
 
 
@@ -541,14 +548,14 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         }
         else
         {
-            send_info_msg(pamh, "Unable query image from your webcam.");
+            send_info_msg(pamh, gettext("Unable query image from your webcam."));
 
         }
 
     }
     writeImageToMemory(zeroFrame,shared);
 
-    send_err_msg(pamh, "Giving Up Face Authentication. Try Again.");
+    send_err_msg(pamh, gettext("Giving Up Face Authentication. Try Again."));
     if (enableX==1)
     {
         XDestroyWindow(displayScreen,window);
