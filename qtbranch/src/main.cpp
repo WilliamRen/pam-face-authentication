@@ -314,7 +314,7 @@ QString faceTrainer::getQString(int messageIndex)
     else if (messageIndex==4)
         return QString(tr("Tracking in progress."));
     else if (messageIndex==5)
-        return QString(tr("Captured  %1/%2 faces.").arg(newDetector.getClipFaceCounter()+1,13));
+        return QString(tr("Captured %1 / %2 faces.").arg(14-newDetector.getClipFaceCounter()).arg(13));
     else if (messageIndex==6)
         return QString(tr("Capturing Image Finished."));
     return 0;
