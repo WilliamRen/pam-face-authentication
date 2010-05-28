@@ -37,6 +37,13 @@ private:
     int finishedClipFaceFlag;
 
 public:
+
+    /**
+    *Getter for ClipFaceCounter
+    *@return clipFaceCounter
+    */
+    int getClipFaceCounter();
+
     /**
     * Array of Clipped Face Images
     */
@@ -81,9 +88,9 @@ public:
 
     /**
     *function to return the Current State of Detector
-    *@return the String which describes the State in Human Readable Form (english ( need to fix this, translation))
+    *@return messageIndex
     */
-    char * queryMessage();
+    int queryMessage();
 
     /**
     *Returns the Face Image of the Detected Face

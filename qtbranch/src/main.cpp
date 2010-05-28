@@ -295,12 +295,41 @@ void faceTrainer::captureClick()
 
 
 }
+
+QString faceTrainer::getQString(int messageIndex)
+{
+//       sprintf(messageCaptureMessage,"Captured %d/%d faces.",totalFaceClipNum-clipFaceCounter+1,totalFaceClipNum);
+
+
+    if (messageIndex==-1)
+        return QString("");
+    else if (messageIndex==0)
+        return QString(tr("Please come closer to the camera."));
+    else if (messageIndex==1)
+        return QString(tr("Please go little far from the camera."));
+    else if (messageIndex==2)
+        return QString(tr("Unable to Detect Your Face."));
+    else if (messageIndex==3)
+        return QString(tr("Tracker lost, trying to reinitialize."));
+    else if (messageIndex==4)
+        return QString(tr("Tracking in progress."));
+    else if (messageIndex==5)
+        return QString(tr("Captured  %1/%2 faces.").arg(newDetector.getClipFaceCounter()+1,13));
+    else if (messageIndex==6)
+        return QString(tr("Capturing Image Finished."));
+    return 0;
+
+
+
+}
+
+
 void faceTrainer::timerEvent( QTimerEvent * )
 {
     IplImage * queryImage = webcam.queryFrame();
     newDetector.runDetector(queryImage);
 
-    setIbarText(tr(newDetector.queryMessage()));
+    setIbarText(getQString(newDetector.queryMessage()));
     //if(newDetector.checkEyeDetected()==1)
     //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     //this works captureClick();

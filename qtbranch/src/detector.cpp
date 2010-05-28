@@ -335,7 +335,7 @@ int detector::runDetector(IplImage * input)
             clippedFace[totalFaceClipNum-clipFaceCounter]=clipFace(input);
             clipFaceCounter--;
             messageIndex=5;
-            sprintf(messageCaptureMessage,"Captured %d/%d faces.",totalFaceClipNum-clipFaceCounter+1,totalFaceClipNum);
+         //   sprintf(messageCaptureMessage,"Captured %d/%d faces.",totalFaceClipNum-clipFaceCounter+1,totalFaceClipNum);
             if (clipFaceCounter==0)
             {
                 messageIndex=6;
@@ -345,6 +345,11 @@ int detector::runDetector(IplImage * input)
         }
     }
     return 0;
+}
+int detector::getClipFaceCounter()
+{
+
+return clipFaceCounter;
 }
 int detector::finishedClipFace()
 {
@@ -397,33 +402,34 @@ int detector::detectorSuccessful()
 
     return 0;
 }
-char * detector::queryMessage()
+int detector::queryMessage()
 {
-    char *message0="Please come closer to the camera.";
-    char *message1="Please go little far from the camera.";
-    char *message2="Unable to Detect Your Face.";
-    char *message3="Tracker lost, trying to reinitialize.";
-    char *message4="Tracking in progress.";
-    char *message6="Capturing Image Finished.";
-
-    if (messageIndex==-1)
-        return 0;
-    else if (messageIndex==0)
-        return message0;
-    else if (messageIndex==1)
-        return message1;
-    else if (messageIndex==2)
-        return message2;
-    else if (messageIndex==3)
-        return message3;
-    else if (messageIndex==4)
-        return message4;
-    else if (messageIndex==5)
-        return messageCaptureMessage;
-    else if (messageIndex==6)
-        return message6;
-    return 0;
-
+//
+//        char *message0="Please come closer to the camera.";
+//    char *message1="Please go little far from the camera.";
+//    char *message2="Unable to Detect Your Face.";
+//    char *message3="Tracker lost, trying to reinitialize.";
+//    char *message4="Tracking in progress.";
+//    char *message6="Capturing Image Finished.";
+//
+//    if (messageIndex==-1)
+//        return 0;
+//    else if (messageIndex==0)
+//        return message0;
+//    else if (messageIndex==1)
+//        return message1;
+//    else if (messageIndex==2)
+//        return message2;
+//    else if (messageIndex==3)
+//        return message3;
+//    else if (messageIndex==4)
+//        return message4;
+//    else if (messageIndex==5)
+//        return messageCaptureMessage;
+//    else if (messageIndex==6)
+//        return message6;
+//    return 0;
+    return messageIndex;
 }
 
 

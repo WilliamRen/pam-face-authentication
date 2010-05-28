@@ -40,6 +40,11 @@ public:
     *Crappy Function i use to test against a set of Images, Ignore it
     */
     void verify();
+     /**
+    * Translating messages from detector class
+    *@param int for Message Index
+    */
+    QString getQString(int );
 
 private:
 
