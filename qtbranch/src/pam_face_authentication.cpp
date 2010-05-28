@@ -446,7 +446,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int ind=0;
     char tempM[300];
     *commAuth=STARTED;
-    send_info_msg(pamh,gettext("Face Verification Pluggable Authentication Module Started"));
+    // Donot Gettext this because kgreet_plugin relies on this :)
+    send_info_msg(pamh,"Face Verification Pluggable Authentication Module Started");
     int val=newVerifier->verifyFace(zeroFrame);
     if (val==2)
     {
