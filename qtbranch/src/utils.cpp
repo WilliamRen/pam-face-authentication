@@ -1772,7 +1772,10 @@ double CenterofMass(IplImage* src,int flagXY)
             if (flagXY==1) ptr_src = CV_MOVE_TO(pos_src,y,x,1);
 
             Intensity = ptr_src[0];
+
+            if(Intensity<140 || Intensity>200)
             sumPixels[x]+=255-Intensity;
+
         }
 
 
