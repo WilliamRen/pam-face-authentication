@@ -54,9 +54,9 @@ SET (OpenCV_POSSIBLE_ROOT_DIRS
   "$ENV{OPENCV_HOME}" # only for backward compatibility
   "[HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Intel(R) Open Source Computer Vision Library_is1;Inno Setup: App Path]"
   "$ENV{ProgramFiles}/OpenCV"
-  /usr/local
   /usr
-  )
+  /usr/local  
+)
 
 
 # MIP Uni Kiel /opt/net network installation 

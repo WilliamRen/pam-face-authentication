@@ -1,4 +1,6 @@
 /** @file */
+    /* TRANSLATOR std::faceTrainer */
+        /* TRANSLATOR std::faceTrainerAdvSettings */
 
 /*
     QT Face Trainer MAIN

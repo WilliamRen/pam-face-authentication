@@ -199,6 +199,9 @@
      <height>31</height>
     </rect>
    </property>
+   <property name="accessibleDescription">
+    <string notr="true"/>
+   </property>
    <property name="styleSheet">
     <string> QSlider::groove:horizontal {
 	 

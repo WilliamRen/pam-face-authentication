@@ -39,8 +39,8 @@
    <widget class="QStackedWidget" name="stkWg">
     <property name="geometry">
      <rect>
-      <x>8</x>
-      <y>8</y>
+      <x>0</x>
+      <y>10</y>
       <width>746</width>
       <height>567</height>
      </rect>
@@ -49,7 +49,7 @@
      <string notr="true"/>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="first">
      <widget class="QPushButton" name="pb_next_t1">

@@ -242,8 +242,8 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 {
 
      setlocale( LC_ALL, "" );
-     bindtextdomain( "pam-face-authentication", PKGDATADIR "/locale" );
-     textdomain( "pam-face-authentication" );
+     bindtextdomain( "pam_face_authentication", PKGDATADIR "/locale" );
+     textdomain( "pam_face_authentication" );
 
     int retval;
     const char *user=NULL;
