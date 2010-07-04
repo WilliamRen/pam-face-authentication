@@ -1,0 +1,262 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-04 18:23+0530\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Translate Toolkit 1.4.0\n"
+
+#: aboutDialog#1
+msgid "About the Software \\m/"
+msgstr ""
+
+#: aboutDialog#2
+msgid "Pluggable Authentication Module for your favorite Linux Distro"
+msgstr ""
+
+#: aboutDialog#3
+msgid "About"
+msgstr ""
+
+#: aboutDialog#4
+msgid ""
+"This program allows you to login by Face Authentication.\n"
+"Care has been taken to give you the best User Experience Possible.\n"
+"If you encounter any bugs , report at  "
+msgstr ""
+
+#: aboutDialog#5
+msgid "This program was developed during the auspicious Google Summer of Code "
+"program in 2009 and 2008\n"
+msgstr ""
+
+#: aboutDialog#6
+msgid "Authors"
+msgstr ""
+
+#: aboutDialog#7
+msgid "Thanks To"
+msgstr ""
+
+#: aboutDialog#8
+msgid "Translation"
+msgstr ""
+
+#: aboutDialog#9
+msgid "Artwork"
+msgstr ""
+
+#: aboutDialog#10
+msgid "OK"
+msgstr ""
+
+#: faceTrainer#1
+msgid "Face Trainer"
+msgstr ""
+
+#: faceTrainer#2
+msgid "Next"
+msgstr ""
+
+#: faceTrainer#3
+msgid "For Your Information"
+msgstr ""
+
+#: faceTrainer#4
+msgid "1"
+msgstr ""
+
+#: faceTrainer#5
+msgid "Exit"
+msgstr ""
+
+#: faceTrainer#6
+msgid "color: rgb(139, 139, 139);"
+msgstr ""
+
+#: faceTrainer#7
+msgid "Read the instructions for High Efficiency"
+msgstr ""
+
+#: faceTrainer#8
+msgid "color: rgb(126, 126, 126);"
+msgstr ""
+
+#: faceTrainer#9
+msgid ""
+"To ensure high efficiency please keep proper distance between face and "
+"webcam"
+msgstr ""
+
+#: faceTrainer#10
+msgid "Try to sit where there is ample lighting"
+msgstr ""
+
+#: faceTrainer#11
+msgid "No glass or hat as it might affect the recognition rate"
+msgstr ""
+
+#: faceTrainer#12
+msgid "2"
+msgstr ""
+
+#: faceTrainer#13
+msgid "Capture"
+msgstr ""
+
+#: faceTrainer#14
+msgid "Train Your Face"
+msgstr ""
+
+#: faceTrainer#15
+msgid "Back"
+msgstr ""
+
+#: faceTrainer#16
+msgctxt "faceTrainer#16"
+msgid "Advanced Settings"
+msgstr ""
+
+#: faceTrainer#17
+msgid "About this Software !"
+msgstr ""
+
+#: faceTrainer#18
+msgctxt "faceTrainer#18"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr ""
+
+#: faceTrainer#19
+msgid "Delete Selected Item"
+msgstr ""
+
+#: faceTrainer#20
+msgid "3"
+msgstr ""
+
+#: faceTrainer#21
+msgid "Congratulations"
+msgstr ""
+
+#: faceTrainer#22
+msgid "Get ready to be dazzled!"
+msgstr ""
+
+#: faceTrainer#23
+msgid "Finish"
+msgstr ""
+
+#: faceTrainer#24
+msgid ""
+"Thank you for using our application, to be a part of this project , visit "
+"http://code.google.com/p/pam-face-authentication/ , we hope to see you "
+"there!\n"
+"\n"
+"\n"
+"regards\n"
+"Developers"
+msgstr ""
+
+#: faceTrainer#25
+msgid "Cancel"
+msgstr ""
+
+#: faceTrainer#26
+msgid "Please come closer to the camera."
+msgstr ""
+
+#: faceTrainer#27
+msgid "Please go little far from the camera."
+msgstr ""
+
+#: faceTrainer#28
+msgid "Unable to Detect Your Face."
+msgstr ""
+
+#: faceTrainer#29
+msgid "Tracker lost, trying to reinitialize."
+msgstr ""
+
+#: faceTrainer#30
+msgid "Tracking in progress."
+msgstr ""
+
+#: faceTrainer#31
+msgid "Captured %1 / %2 faces."
+msgstr ""
+
+#: faceTrainer#32
+msgid "Capturing Image Finished."
+msgstr ""
+
+#: faceTrainer#33
+msgid "Processing Faces, Please Wait ..."
+msgstr ""
+
+#: faceTrainer#34
+msgid "Processing Completed."
+msgstr ""
+
+#: faceTrainer#35
+msgid "<strong>Error</strong>"
+msgstr ""
+
+#: faceTrainer#36
+msgid "Camera Not Found. <br /> Plugin Your Camera and Try Again."
+msgstr ""
+
+#: faceTrainerAdvSettings#1
+msgctxt "faceTrainerAdvSettings#1"
+msgid "Advanced Settings"
+msgstr ""
+
+#: faceTrainerAdvSettings#2
+msgid "Low Security"
+msgstr ""
+
+#: faceTrainerAdvSettings#3
+msgid "High Security"
+msgstr ""
+
+#: faceTrainerAdvSettings#4
+msgctxt "faceTrainerAdvSettings#4"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr ""
+
+#: faceTrainerAdvSettings#5
+msgid "Test Recognition"
+msgstr ""
+
+#: faceTrainerAdvSettings#6
+msgid "Yes/No"
+msgstr ""
+
+#: faceTrainerAdvSettings#7
+msgid "Test Recognition Result:"
+msgstr ""
+
+#: faceTrainerAdvSettings#8
+msgid "Save Config"
+msgstr ""
+
+#: faceTrainerAdvSettings#9
+msgid "Defaults"
+msgstr ""
+
+#: faceTrainerAdvSettings#10
+msgid "Medium"
+msgstr ""
+
+#: faceTrainerAdvSettings#11
+msgid "Yes"
+msgstr ""
+
+#: faceTrainerAdvSettings#12
+msgid "No"
+msgstr ""
