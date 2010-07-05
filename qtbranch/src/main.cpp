@@ -428,7 +428,7 @@ void faceTrainer::showTab3()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    faceTrainer tab1;
+  
     //tab1.setWindowTitle("Face Trainer");
     QTranslator qtTranslator;
     qtTranslator.load("qt_" + QLocale::system().name(),
@@ -438,7 +438,7 @@ int main(int argc, char *argv[])
     QTranslator myappTranslator;
     myappTranslator.load("qt_facetrainer_" + QLocale::system().name());
     app.installTranslator(&myappTranslator);
-
+ faceTrainer tab1;
     QRect r = tab1.geometry();
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
     tab1.setGeometry(r);
