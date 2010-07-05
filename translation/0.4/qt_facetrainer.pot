@@ -76,16 +76,8 @@ msgstr ""
 msgid "Exit"
 msgstr ""
 
-#: faceTrainer#6
-msgid "color: rgb(139, 139, 139);"
-msgstr ""
-
 #: faceTrainer#7
 msgid "Read the instructions for High Efficiency"
-msgstr ""
-
-#: faceTrainer#8
-msgid "color: rgb(126, 126, 126);"
 msgstr ""
 
 #: faceTrainer#9
@@ -125,11 +117,6 @@ msgstr ""
 
 #: faceTrainer#17
 msgid "About this Software !"
-msgstr ""
-
-#: faceTrainer#18
-msgctxt "faceTrainer#18"
-msgid "background-color: rgb(0, 0, 0);"
 msgstr ""
 
 #: faceTrainer#19
@@ -222,11 +209,6 @@ msgstr ""
 
 #: faceTrainerAdvSettings#3
 msgid "High Security"
-msgstr ""
-
-#: faceTrainerAdvSettings#4
-msgctxt "faceTrainerAdvSettings#4"
-msgid "background-color: rgb(0, 0, 0);"
 msgstr ""
 
 #: faceTrainerAdvSettings#5
