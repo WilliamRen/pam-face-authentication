@@ -85,7 +85,7 @@ SET( BINDIR "${CMAKE_INSTALL_PREFIX}/${BIN_INSTALL_DIR}" )
 SET( XWINDOW_BINDIR "${CMAKE_INSTALL_PREFIX}/kde/4/${BIN_INSTALL_DIR}" )
 ADD_DEFINITIONS (-DVERSION='"${VERSION}"' -DPKGDATADIR=\"${PKGDATADIR}\" -DBINDIR=\"${BINDIR}\")
 FIND_PACKAGE( PAM REQUIRED )
-
+FIND_PACKAGE( Gettext REQUIRED )
 INCLUDE( ${QT_USE_FILE} )
 QT4_ADD_TRANSLATION(QM ${QT_FACETRAINER_TRANS} )
 QT4_ADD_RESOURCES( QT_FACETRAINER_RC_SRCS ${QT_FACETRAINER_RCS} )
@@ -106,7 +106,8 @@ ADD_EXECUTABLE( qt-facetrainer ${QT_FACETRAINER_SRCS}
     ${QT_FACETRAINER_UI_HDRS} ${QM} )
 TARGET_LINK_LIBRARIES( pam_face_authentication  ${PAM_LIBRARIES} ${OPENCV_LIBRARIES})
 TARGET_LINK_LIBRARIES( qt-facetrainer ${QT_LIBRARIES} ${OPENCV_LIBRARIES})
- 
+set(LANGUAGES pt_PT) 
+
 if( UNIX AND NOT APPLE )
     if( NOT DESKTOP_ENTRY )
       set( DESKTOP_ENTRY qt-facetrainer.desktop )
@@ -121,8 +122,23 @@ if( UNIX AND NOT APPLE )
     add_custom_target( DESKTOP_ENTRY_FILE ALL
       DEPENDS ${DESKTOP_ENTRY}
       )
-    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${DESKTOP_ENTRY}" )
     set( APP_ICON ${CMAKE_SOURCE_DIR}/data/ui/images/pfa-logo.png )
+    set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${DESKTOP_ENTRY}" )
+ foreach(LANG ${LANGUAGES})
+    add_custom_command( OUTPUT LANG/${LANG}/LC_MESSAGES/pam_face_authentication.mo 
+    COMMAND mkdir LANG
+    COMMAND mkdir LANG/${LANG}
+    COMMAND mkdir LANG/${LANG}/LC_MESSAGES/
+    COMMAND msgfmt -c -v -o LANG/${LANG}/LC_MESSAGES/pam_face_authentication.mo ${CMAKE_SOURCE_DIR}/trans/pam_face_authentication_${LANG}.po
+    COMMENT "Generating translation files for pam_face_authentication")
+   add_custom_target(LANG_${LANG} ALL DEPENDS
+       LANG/${LANG}/LC_MESSAGES/pam_face_authentication.mo )
+   install( FILES ${CMAKE_CURRENT_BINARY_DIR}/LANG/${LANG}/LC_MESSAGES/pam_face_authentication.mo DESTINATION
+       ${PKGDATADIR}/locale/${LANG}/LC_MESSAGES/ )
+
+     set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES  "${CMAKE_CURRENT_BINARY_DIR}/LANG" )
+endforeach(LANG)
+
   endif( UNIX AND NOT APPLE )
 
 
