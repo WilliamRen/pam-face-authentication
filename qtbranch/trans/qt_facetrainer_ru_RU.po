@@ -1,0 +1,266 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.4\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-04 18:23+0530\n"
+"PO-Revision-Date: 2010-07-20 21:07+0200\n"
+"Last-Translator: igascream <igascream@gmail.com>\n"
+"Language-Team: Translators <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Translate Toolkit 1.4.0\n"
+"X-Poedit-Language: Russian\n"
+
+#: aboutDialog#1
+msgid "About the Software \\m/"
+msgstr "О программе \\m/"
+
+#: aboutDialog#2
+msgid "Pluggable Authentication Module for your favorite Linux Distro"
+msgstr "Подключаемый Модуль Аутентификации для вашего люмимого Linux дистрибутива"
+
+#: aboutDialog#3
+msgid "About"
+msgstr "О программе"
+
+#: aboutDialog#4
+msgid ""
+"This program allows you to login by Face Authentication.\n"
+"Care has been taken to give you the best User Experience Possible.\n"
+"If you encounter any bugs , report at  "
+msgstr ""
+"Данная программа позволяет вам войти в систему с помощью Лицевой Аутентификации.\n"
+"Было приложено много усилий ,чтобы вы получили наилучшие впечатления от использования программы.\n"
+" Если вы обнаружили неполадки , сообщите на "
+
+#: aboutDialog#5
+msgid "This program was developed during the auspicious Google Summer of Code program in 2009 and 2008\n"
+msgstr "Данная программа была разработана за время Google Summer of Code  2008 и 2009 года\n"
+
+#: aboutDialog#6
+msgid "Authors"
+msgstr "Авторы"
+
+#: aboutDialog#7
+msgid "Thanks To"
+msgstr "Благодарности"
+
+#: aboutDialog#8
+msgid "Translation"
+msgstr "Перевод"
+
+#: aboutDialog#9
+msgid "Artwork"
+msgstr "Оформление"
+
+#: aboutDialog#10
+msgid "OK"
+msgstr "ОК"
+
+#: faceTrainer#1
+msgid "Face Trainer"
+msgstr "Обработчик Лица"
+
+#: faceTrainer#2
+msgid "Next"
+msgstr "Далее"
+
+#: faceTrainer#3
+msgid "For Your Information"
+msgstr "Для вашего сведения"
+
+#: faceTrainer#4
+msgid "1"
+msgstr "1"
+
+#: faceTrainer#5
+msgid "Exit"
+msgstr "Выход"
+
+#: faceTrainer#6
+msgid "color: rgb(139, 139, 139);"
+msgstr "color: rgb(139, 139, 139);"
+
+#: faceTrainer#7
+msgid "Read the instructions for High Efficiency"
+msgstr "Прочтите инструкции для Лучшей Продуктивности"
+
+#: faceTrainer#8
+msgid "color: rgb(126, 126, 126);"
+msgstr "color: rgb(139, 139, 139);"
+
+#: faceTrainer#9
+msgid "To ensure high efficiency please keep proper distance between face and webcam"
+msgstr "Для лу"
+
+#: faceTrainer#10
+msgid "Try to sit where there is ample lighting"
+msgstr "Постарайтесь находится на хорошо освещенном месте"
+
+#: faceTrainer#11
+msgid "No glass or hat as it might affect the recognition rate"
+msgstr "Не одевайте очки или головной убор ,это может помешать уровню распознания"
+
+#: faceTrainer#12
+msgid "2"
+msgstr "2"
+
+#: faceTrainer#13
+msgid "Capture"
+msgstr "Съёмка"
+
+#: faceTrainer#14
+msgid "Train Your Face"
+msgstr ""
+
+#: faceTrainer#15
+msgid "Back"
+msgstr "Назад"
+
+#: faceTrainer#16
+msgctxt "faceTrainer#16"
+msgid "Advanced Settings"
+msgstr "Дополнительные настройки"
+
+#: faceTrainer#17
+msgid "About this Software !"
+msgstr "О программе !"
+
+#: faceTrainer#18
+msgctxt "faceTrainer#18"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr "background-color: rgb(0, 0, 0);"
+
+#: faceTrainer#19
+msgid "Delete Selected Item"
+msgstr "Удалить выбранный экземпляр"
+
+#: faceTrainer#20
+msgid "3"
+msgstr "3"
+
+#: faceTrainer#21
+msgid "Congratulations"
+msgstr "Поздравления"
+
+#: faceTrainer#22
+msgid "Get ready to be dazzled!"
+msgstr "Приготовьтесь быть ослепленными!"
+
+#: faceTrainer#23
+msgid "Finish"
+msgstr "Закончить"
+
+#: faceTrainer#24
+msgid ""
+"Thank you for using our application, to be a part of this project , visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!\n"
+"\n"
+"\n"
+"regards\n"
+"Developers"
+msgstr ""
+"Благодарим за использование нашей программы , чтобы принять участие в проекте посетите http://code.google.com/p/pam-face-authentication/ , надеемся увидеть вас там!\n"
+"\n"
+"\n"
+"благодарности\n"
+"Разработчики"
+
+#: faceTrainer#25
+msgid "Cancel"
+msgstr "Отменить"
+
+#: faceTrainer#26
+msgid "Please come closer to the camera."
+msgstr "Пожалуйста приблизьтесь к камере."
+
+#: faceTrainer#27
+msgid "Please go little far from the camera."
+msgstr "Пожалуйста отдалитесь от камеры."
+
+#: faceTrainer#28
+msgid "Unable to Detect Your Face."
+msgstr "Не получается определить ваше лицо."
+
+#: faceTrainer#29
+msgid "Tracker lost, trying to reinitialize."
+msgstr "Трэкер потерян, пытаюсь перезапустить."
+
+#: faceTrainer#30
+msgid "Tracking in progress."
+msgstr "Отслеживание в процессе."
+
+#: faceTrainer#31
+msgid "Captured %1 / %2 faces."
+msgstr "Снято %1 из %2 изображений."
+
+#: faceTrainer#32
+msgid "Capturing Image Finished."
+msgstr "Съёма завершенаю"
+
+#: faceTrainer#33
+msgid "Processing Faces, Please Wait ..."
+msgstr "Обработка Лица ,Пожалуйста Подождите ..."
+
+#: faceTrainer#34
+msgid "Processing Completed."
+msgstr "Процесс Завершён."
+
+#: faceTrainer#35
+msgid "<strong>Error</strong>"
+msgstr "<strong>Ошибка</strong>"
+
+#: faceTrainer#36
+msgid "Camera Not Found. <br /> Plugin Your Camera and Try Again."
+msgstr "Камера не найдена. <br /> Подключите Камеру и попробуйте заново."
+
+#: faceTrainerAdvSettings#1
+msgctxt "faceTrainerAdvSettings#1"
+msgid "Advanced Settings"
+msgstr "Дополнительные Настройки"
+
+#: faceTrainerAdvSettings#2
+msgid "Low Security"
+msgstr "Низкий Уровень Безопасности"
+
+#: faceTrainerAdvSettings#3
+msgid "High Security"
+msgstr "Высокий Уровень Безопасности"
+
+#: faceTrainerAdvSettings#4
+msgctxt "faceTrainerAdvSettings#4"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr "background-color: rgb(0, 0, 0);"
+
+#: faceTrainerAdvSettings#5
+msgid "Test Recognition"
+msgstr "Тестовое Распознание"
+
+#: faceTrainerAdvSettings#6
+msgid "Yes/No"
+msgstr "Да/Нет"
+
+#: faceTrainerAdvSettings#7
+msgid "Test Recognition Result:"
+msgstr "Результат теста:"
+
+#: faceTrainerAdvSettings#8
+msgid "Save Config"
+msgstr "Сохранить настройки"
+
+#: faceTrainerAdvSettings#9
+msgid "Defaults"
+msgstr "По умолчанию"
+
+#: faceTrainerAdvSettings#10
+msgid "Medium"
+msgstr "Средний"
+
+#: faceTrainerAdvSettings#11
+msgid "Yes"
+msgstr "Да"
+
+#: faceTrainerAdvSettings#12
+msgid "No"
+msgstr "Нет"
+
