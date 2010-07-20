@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 0.4\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-02 22:53+0530\n"
-"PO-Revision-Date: 2010-07-04 18:21+0200\n"
+"PO-Revision-Date: 2010-07-21 02:19+0200\n"
 "Last-Translator: igascream <igascream@gmail.com>\n"
 "Language-Team: Translators <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -22,7 +22,7 @@ msgstr "Выровните лицо."
 
 #: src/pam_face_authentication.cpp:454
 msgid "Biometrics model has not been generated for the user. Use qt-facetrainer to create the model."
-msgstr "Биометрическая модель не была создана для пользователя. Воспользуитесь qt-facetrainer для создания модели."
+msgstr "Биометрическая модель не была создана для пользователя. Воспользуйтесь qt-facetrainer для создания модели."
 
 #: src/pam_face_authentication.cpp:559
 msgid "Giving Up Face Authentication. Try Again."
@@ -30,7 +30,7 @@ msgstr "Аутентификация лица не удалась. Попроб�
 
 #: src/pam_face_authentication.cpp:538
 msgid "Keep proper distance with the camera."
-msgstr "Придерживайтесь надлежашего растояния от камеры."
+msgstr "Придерживайтесь надлежащего расстояния от камеры."
 
 #: src/pam_face_authentication.cpp:552
 msgid "Unable query image from your webcam."

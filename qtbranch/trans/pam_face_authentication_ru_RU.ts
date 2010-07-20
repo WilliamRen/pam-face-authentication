@@ -12,7 +12,7 @@
         <name>src/pam_face_authentication.cpp:454</name>
         <message>
             <source>Biometrics model has not been generated for the user. Use qt-facetrainer to create the model.</source>
-            <translation>Биометрическая модель не была создана для пользователя. Воспользуитесь qt-facetrainer для создания модели.</translation>
+            <translation>Биометрическая модель не была создана для пользователя. Воспользуйтесь qt-facetrainer для создания модели.</translation>
         </message>
     </context>
     <context>
@@ -26,7 +26,7 @@
         <name>src/pam_face_authentication.cpp:538</name>
         <message>
             <source>Keep proper distance with the camera.</source>
-            <translation>Придерживайтесь надлежашего растояния от камеры.</translation>
+            <translation>Придерживайтесь надлежащего расстояния от камеры.</translation>
         </message>
     </context>
     <context>

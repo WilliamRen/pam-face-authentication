@@ -9,7 +9,7 @@
         </message>
         <message>
             <source>Pluggable Authentication Module for your favorite Linux Distro</source>
-            <translation>Подключаемый Модуль Аутентификации для вашего люмимого Linux дистрибутива</translation>
+            <translation>Подключаемый Модуль Аутентификации для вашего любимого Linux дистрибутива</translation>
         </message>
         <message>
             <source>About</source>
@@ -21,7 +21,7 @@ Care has been taken to give you the best User Experience Possible.
 If you encounter any bugs , report at  </source>
             <translation>Данная программа позволяет вам войти в систему с помощью Лицевой Аутентификации.
 Было приложено много усилий ,чтобы вы получили наилучшие впечатления от использования программы.
- Если вы обнаружили неполадки , сообщите на </translation>
+Если вы обнаружили неполадки , сообщите на </translation>
         </message>
         <message>
             <source>This program was developed during the auspicious Google Summer of Code program in 2009 and 2008
@@ -54,7 +54,7 @@ If you encounter any bugs , report at  </source>
         <name>faceTrainer</name>
         <message>
             <source>Face Trainer</source>
-            <translation>Обработчик Лица</translation>
+            <translation>Идентификатор Лица</translation>
         </message>
         <message>
             <source>Next</source>
@@ -62,7 +62,7 @@ If you encounter any bugs , report at  </source>
         </message>
         <message>
             <source>For Your Information</source>
-            <translation>Для вашего сведения</translation>
+            <translation>К вашему сведению</translation>
         </message>
         <message>
             <source>1</source>
@@ -78,7 +78,7 @@ If you encounter any bugs , report at  </source>
         </message>
         <message>
             <source>Read the instructions for High Efficiency</source>
-            <translation>Прочтите инструкции для Лучшей Продуктивности</translation>
+            <translation>Прочтите инструкции для повышения эффективности</translation>
         </message>
         <message>
             <source>color: rgb(126, 126, 126);</source>
@@ -86,7 +86,7 @@ If you encounter any bugs , report at  </source>
         </message>
         <message>
             <source>To ensure high efficiency please keep proper distance between face and webcam</source>
-            <translation>Для лу</translation>
+            <translation>Для большей эффективности придерживайтесь надлежащего расстояния от камеры</translation>
         </message>
         <message>
             <source>Try to sit where there is ample lighting</source>
@@ -106,8 +106,7 @@ If you encounter any bugs , report at  </source>
         </message>
         <message>
             <source>Train Your Face</source>
-            <translation type="unfinished">
-            </translation>
+            <translation>Идентифицируйте Ваше Лицо</translation>
         </message>
         <message>
             <source>Back</source>
@@ -139,7 +138,7 @@ If you encounter any bugs , report at  </source>
         </message>
         <message>
             <source>Get ready to be dazzled!</source>
-            <translation>Приготовьтесь быть ослепленными!</translation>
+            <translation>Приготовьтесь быть ослеплены!</translation>
         </message>
         <message>
             <source>Finish</source>
@@ -167,7 +166,7 @@ Developers</source>
         </message>
         <message>
             <source>Unable to Detect Your Face.</source>
-            <translation>Не получается определить ваше лицо.</translation>
+            <translation>Не получается распознать ваше лицо.</translation>
         </message>
         <message>
             <source>Tracker lost, trying to reinitialize.</source>
@@ -183,11 +182,11 @@ Developers</source>
         </message>
         <message>
             <source>Capturing Image Finished.</source>
-            <translation>Съёма завершенаю</translation>
+            <translation>Съёма завершена.</translation>
         </message>
         <message>
             <source>Processing Faces, Please Wait ...</source>
-            <translation>Обработка Лица ,Пожалуйста Подождите ...</translation>
+            <translation>Обработка Лиц ,Пожалуйста Подождите ...</translation>
         </message>
         <message>
             <source>Processing Completed.</source>
