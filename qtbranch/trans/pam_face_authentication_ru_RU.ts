@@ -5,7 +5,7 @@
         <name>src/pam_face_authentication.cpp:525</name>
         <message>
             <source>Align your face.</source>
-            <translation>Выровните лицо.</translation>
+            <translation>Выровните положение лица.</translation>
         </message>
     </context>
     <context>

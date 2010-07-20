@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: 0.4\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2010-06-02 22:53+0530\n"
-"PO-Revision-Date: 2010-07-21 02:19+0200\n"
+"PO-Revision-Date: 2010-07-21 02:53+0200\n"
 "Last-Translator: igascream <igascream@gmail.com>\n"
 "Language-Team: Translators <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -18,7 +18,7 @@ msgstr ""
 
 #: src/pam_face_authentication.cpp:525
 msgid "Align your face."
-msgstr "Выровните лицо."
+msgstr "Выровните положение лица."
 
 #: src/pam_face_authentication.cpp:454
 msgid "Biometrics model has not been generated for the user. Use qt-facetrainer to create the model."
