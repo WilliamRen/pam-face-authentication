@@ -20,7 +20,7 @@
 Care has been taken to give you the best User Experience Possible.
 If you encounter any bugs , report at  </source>
             <translation>Este programa permite-lhe fazer o login por Autenticação da Face.
-Foram feitos todos os esforços para que tenha uma experiência agradável.
+Foram feitos todos os esforços para que tenha uma experiência agradável na sua utilização.
 Se encontrar quaisquer erros, reporte-os para  </translation>
         </message>
         <message>
@@ -35,7 +35,7 @@ Se encontrar quaisquer erros, reporte-os para  </translation>
         </message>
         <message>
             <source>Thanks To</source>
-            <translation>Agradecimentos para</translation>
+            <translation>Agradecimentos</translation>
         </message>
         <message>
             <source>Translation</source>
@@ -43,7 +43,7 @@ Se encontrar quaisquer erros, reporte-os para  </translation>
         </message>
         <message>
             <source>Artwork</source>
-            <translation>Parte artística</translation>
+            <translation>Arte</translation>
         </message>
         <message>
             <source>OK</source>
@@ -54,11 +54,11 @@ Se encontrar quaisquer erros, reporte-os para  </translation>
         <name>faceTrainer</name>
         <message>
             <source>Face Trainer</source>
-            <translation>Adaptador de Faces</translation>
+            <translation>Registo de Faces</translation>
         </message>
         <message>
             <source>Next</source>
-            <translation>Próximo</translation>
+            <translation>Seguinte</translation>
         </message>
         <message>
             <source>For Your Information</source>
@@ -73,8 +73,16 @@ Se encontrar quaisquer erros, reporte-os para  </translation>
             <translation>Sair</translation>
         </message>
         <message>
+            <source>color: rgb(139, 139, 139);</source>
+            <translation>cor: rgb(139, 139, 139);</translation>
+        </message>
+        <message>
             <source>Read the instructions for High Efficiency</source>
             <translation>Para maior eficiência, leia as instruções</translation>
+        </message>
+        <message>
+            <source>color: rgb(126, 126, 126);</source>
+            <translation>cor: rgb(126, 126, 126);</translation>
         </message>
         <message>
             <source>To ensure high efficiency please keep proper distance between face and webcam</source>
@@ -94,15 +102,15 @@ Se encontrar quaisquer erros, reporte-os para  </translation>
         </message>
         <message>
             <source>Capture</source>
-            <translation>Captura</translation>
+            <translation>Capturar</translation>
         </message>
         <message>
             <source>Train Your Face</source>
-            <translation>Adapte a sua face</translation>
+            <translation>Escolha de faces</translation>
         </message>
         <message>
             <source>Back</source>
-            <translation>Prévio</translation>
+            <translation>Anterior</translation>
         </message>
         <message>
             <source>Advanced Settings</source>
@@ -113,8 +121,13 @@ Se encontrar quaisquer erros, reporte-os para  </translation>
             <translation>Sobre este Software!</translation>
         </message>
         <message>
+            <source>cor de fundo: rgb(0, 0, 0);</source>
+            <translation type="unfinished">
+            </translation>
+        </message>
+        <message>
             <source>Delete Selected Item</source>
-            <translation>Apaga Item seleccionado</translation>
+            <translation>Apagar Item seleccionado</translation>
         </message>
         <message>
             <source>3</source>
@@ -126,19 +139,18 @@ Se encontrar quaisquer erros, reporte-os para  </translation>
         </message>
         <message>
             <source>Get ready to be dazzled!</source>
-            <translation>Prepare-se para ficar deslumbrado</translation>
+            <translation>Surpreenda-se ...!</translation>
         </message>
         <message>
             <source>Finish</source>
             <translation>Terminar</translation>
         </message>
         <message>
-       <source>Thank you for using our application, to be a part of this project , visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!
+              <source>Thank you for using our application, to be a part of this project , visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!
 
 
 regards
-Developers</source>
-      <translation>Obrigado por usar a nossa aplicação. Para tomar parte neste projecto visite http://code.google.com/p/pam-face-authentication/ . Esperamos vê-lo aqui!
+Developers</source>            <translation>Obrigado por usar a nossa aplicação. Para tomar parte neste projecto visite http://code.google.com/p/pam-face-authentication/. Esperamos vê-lo lá!
 
 
 Cumprimentos
@@ -208,6 +220,11 @@ Os desenvolvedores</translation>
             <translation>Alta segurança</translation>
         </message>
         <message>
+            <source>cor de fundo: rgb(0, 0, 0);</source>
+            <translation type="unfinished">
+            </translation>
+        </message>
+        <message>
             <source>Test Recognition</source>
             <translation>Teste de reconhecimento</translation>
         </message>
@@ -217,11 +234,11 @@ Os desenvolvedores</translation>
         </message>
         <message>
             <source>Test Recognition Result:</source>
-            <translation>Resultado do teste de reconhecimento:</translation>
+            <translation>Reconhecimento:</translation>
         </message>
         <message>
             <source>Save Config</source>
-            <translation>Guardar a Config</translation>
+            <translation>Guardar a Config.</translation>
         </message>
         <message>
             <source>Defaults</source>
@@ -229,7 +246,7 @@ Os desenvolvedores</translation>
         </message>
         <message>
             <source>Medium</source>
-            <translation>Meio</translation>
+            <translation>Média</translation>
         </message>
         <message>
             <source>Yes</source>
