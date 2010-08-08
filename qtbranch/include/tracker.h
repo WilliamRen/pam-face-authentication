@@ -42,11 +42,11 @@ class tracker
 
     /**
     * Calculate the Features
-    *@param input, input image for which the feature should be calculated
-    *@param flag, direction, X 0 or Y 1
-    *@param varint, feature type, Variance 0 or Integral 1
+    * @param input, input image for which the feature should be calculated
+    * @param flag, direction, X 0 or Y 1
+    * @param varint, feature type, Variance 0 or Integral 1
     */
-    double* calculateFeature(IplImage* input, int flag, int varint);
+    double* calculateFeature(IplImage* input, int flag, int varorintegral);
 
     /**
     * Model Image Variance in X and Y
@@ -113,6 +113,18 @@ class tracker
     */
     double difference(double* feature, double* featureModel, int size,
       double px, double py, int anchor);
+
+    /**
+    * Copy constructor
+    * @param tracker, original value to copy
+    */
+    tracker(tracker&);
+
+    /**
+    * Assignment operator
+    * @param tracker, original value to assign
+    */
+    tracker& operator =(const tracker&);
 
   public:
     /**
