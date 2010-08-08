@@ -19,7 +19,8 @@ SET( QT_FACETRAINER_SRCS
      ${CMAKE_SOURCE_DIR}/src/qtUtils.cpp
      ${CMAKE_SOURCE_DIR}/src/webcamImagePaint.cpp
    )
-SET( QT_FACETRAINER_TRANS ${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_pt_PT.ts )
+SET( QT_FACETRAINER_TRANS ${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_pt_PT.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_ru_RU.ts )
 
 SET( QT_FACETRAINER_MOC_HDRS
      ${CMAKE_SOURCE_DIR}/include/faceTrainer.h
@@ -71,7 +72,7 @@ SET(DATA_INSTALL_DIR
     CACHE PATH "The subdirectory relative to the install prefix where shared data will be installed (default is share)."
    )
 
-
+FIND_PACKAGE( Gettext REQUIRED )
 FIND_PACKAGE( X11 REQUIRED )
 FIND_PACKAGE( Qt4 REQUIRED )
 SET(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules/")
@@ -101,13 +102,13 @@ ADD_EXECUTABLE( qt-facetrainer ${QT_FACETRAINER_SRCS}
     ${QT_FACETRAINER_UI_HDRS} ${QM} )
 TARGET_LINK_LIBRARIES( pam_face_authentication  ${PAM_LIBRARIES} ${OPENCV_LIBRARIES})
 TARGET_LINK_LIBRARIES( qt-facetrainer ${QT_LIBRARIES} ${OPENCV_LIBRARIES})
-set(LANGUAGES pt_PT) 
+set(LANGUAGES pt_PT ru_RU)
 
 if( UNIX AND NOT APPLE )
     if( NOT DESKTOP_ENTRY )
       set( DESKTOP_ENTRY qt-facetrainer.desktop )
     endif( NOT DESKTOP_ENTRY )
-  
+
     add_custom_command( OUTPUT ${DESKTOP_ENTRY}
       COMMAND touch ${DESKTOP_ENTRY}
       COMMAND sh ${CMAKE_SOURCE_DIR}/qt-facetrainer-desktop.sh ${CMAKE_INSTALL_PREFIX} >${DESKTOP_ENTRY}
@@ -120,10 +121,10 @@ if( UNIX AND NOT APPLE )
     set( APP_ICON ${CMAKE_SOURCE_DIR}/data/ui/images/pfa-logo.png )
     set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${DESKTOP_ENTRY}" )
  foreach(LANG ${LANGUAGES})
-    add_custom_command( OUTPUT LANG/${LANG}/LC_MESSAGES/pam_face_authentication.mo 
-    COMMAND mkdir LANG
-    COMMAND mkdir LANG/${LANG}
-    COMMAND mkdir LANG/${LANG}/LC_MESSAGES/
+    add_custom_command( OUTPUT LANG/${LANG}/LC_MESSAGES/pam_face_authentication.mo
+    COMMAND mkdir -p LANG
+    COMMAND mkdir -p LANG/${LANG}
+    COMMAND mkdir -p LANG/${LANG}/LC_MESSAGES/
     COMMAND msgfmt -c -v -o LANG/${LANG}/LC_MESSAGES/pam_face_authentication.mo ${CMAKE_SOURCE_DIR}/trans/pam_face_authentication_${LANG}.po
     COMMENT "Generating translation files for pam_face_authentication")
    add_custom_target(LANG_${LANG} ALL DEPENDS

@@ -82,7 +82,7 @@ If you encounter any bugs , report at  </source>
         </message>
         <message>
             <source>color: rgb(126, 126, 126);</source>
-            <translation>color: rgb(139, 139, 139);</translation>
+            <translation>color: rgb(126, 126, 126);</translation>
         </message>
         <message>
             <source>To ensure high efficiency please keep proper distance between face and webcam</source>
@@ -145,10 +145,14 @@ If you encounter any bugs , report at  </source>
             <translation>Закончить</translation>
         </message>
         <message>
-            <source>Thank you for using our application, to be a part of this project , visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!
+              <source>Thank you for using our application, to be a part of this project , visit http://code.google.com/p/pam-face-authentication/ , we hope to see you there!
+
+
 regards
 Developers</source>
             <translation>Благодарим за использование нашей программы , чтобы принять участие в проекте посетите http://code.google.com/p/pam-face-authentication/ , надеемся увидеть вас там!
+
+
 благодарности
 Разработчики</translation>
         </message>
