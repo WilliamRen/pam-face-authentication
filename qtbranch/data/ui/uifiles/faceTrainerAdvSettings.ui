@@ -35,175 +35,86 @@
    <iconset resource="../../../graphics.qrc">
     <normaloff>:/data/ui/images/pfa-logo.png</normaloff>:/data/ui/images/pfa-logo.png</iconset>
   </property>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>6</x>
-     <y>284</y>
-     <width>94</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Low Security</string>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_4">
-   <property name="geometry">
-    <rect>
-     <x>309</x>
-     <y>283</y>
-     <width>93</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>High Security</string>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QGraphicsView" name="webcamPreview">
+  <widget class="QWidget" name="">
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>30</y>
-     <width>320</width>
-     <height>240</height>
+     <y>10</y>
+     <width>331</width>
+     <height>381</height>
     </rect>
    </property>
-   <property name="maximumSize">
-    <size>
-     <width>320</width>
-     <height>240</height>
-    </size>
-   </property>
-   <property name="styleSheet">
-    <string>background-color: rgb(0, 0, 0);</string>
-   </property>
-   <property name="frameShape">
-    <enum>QFrame::NoFrame</enum>
-   </property>
-   <property name="frameShadow">
-    <enum>QFrame::Plain</enum>
-   </property>
-   <property name="lineWidth">
-    <number>0</number>
-   </property>
-   <property name="sceneRect">
-    <rectf>
-     <x>0.000000000000000</x>
-     <y>0.000000000000000</y>
-     <width>320.000000000000000</width>
-     <height>240.000000000000000</height>
-    </rectf>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pb_tr">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>238</x>
-     <y>330</y>
-     <width>131</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Test Recognition</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="result">
-   <property name="geometry">
-    <rect>
-     <x>268</x>
-     <y>373</y>
-     <width>71</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>10</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
-   </property>
-   <property name="text">
-    <string>Yes/No</string>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="result_2">
-   <property name="geometry">
-    <rect>
-     <x>86</x>
-     <y>375</y>
-     <width>170</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Test Recognition Result:</string>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pb_save">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>116</x>
-     <y>330</y>
-     <width>120</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Save Config</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="pb_restore">
-   <property name="enabled">
-    <bool>true</bool>
-   </property>
-   <property name="geometry">
-    <rect>
-     <x>25</x>
-     <y>330</y>
-     <width>90</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Defaults</string>
-   </property>
-  </widget>
-  <widget class="QSlider" name="percentage">
-   <property name="geometry">
-    <rect>
-     <x>37</x>
-     <y>301</y>
-     <width>320</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="accessibleDescription">
-    <string notr="true"/>
-   </property>
-   <property name="styleSheet">
-    <string> QSlider::groove:horizontal {
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0" colspan="4">
+     <widget class="QGraphicsView" name="webcamPreview">
+      <property name="maximumSize">
+       <size>
+        <width>320</width>
+        <height>240</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string>background-color: rgb(0, 0, 0);</string>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <property name="sceneRect">
+       <rectf>
+        <x>0.000000000000000</x>
+        <y>0.000000000000000</y>
+        <width>320.000000000000000</width>
+        <height>240.000000000000000</height>
+       </rectf>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="label_2">
+      <property name="text">
+       <string>Low Security</string>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="1">
+     <widget class="QLabel" name="label_5">
+      <property name="text">
+       <string>Medium</string>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="1" column="3">
+     <widget class="QLabel" name="label_4">
+      <property name="text">
+       <string>High Security</string>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="0" colspan="4">
+     <widget class="QSlider" name="percentage">
+      <property name="accessibleDescription">
+       <string notr="true"/>
+      </property>
+      <property name="styleSheet">
+       <string> QSlider::groove:horizontal {
 	 
      border: 1px solid #999999;
      height: 12px; /* the groove expands to the size of the slider by default. by giving it a height, it has a fixed size */
@@ -220,50 +131,100 @@
  }
 
 </string>
-   </property>
-   <property name="minimum">
-    <number>1</number>
-   </property>
-   <property name="maximum">
-    <number>90</number>
-   </property>
-   <property name="value">
-    <number>76</number>
-   </property>
-   <property name="tracking">
-    <bool>true</bool>
-   </property>
-   <property name="orientation">
-    <enum>Qt::Horizontal</enum>
-   </property>
-   <property name="invertedAppearance">
-    <bool>false</bool>
-   </property>
-   <property name="invertedControls">
-    <bool>false</bool>
-   </property>
-   <property name="tickPosition">
-    <enum>QSlider::TicksAbove</enum>
-   </property>
-   <property name="tickInterval">
-    <number>10</number>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_5">
-   <property name="geometry">
-    <rect>
-     <x>163</x>
-     <y>284</y>
-     <width>71</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Medium</string>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="maximum">
+       <number>90</number>
+      </property>
+      <property name="value">
+       <number>76</number>
+      </property>
+      <property name="tracking">
+       <bool>true</bool>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+      <property name="invertedAppearance">
+       <bool>false</bool>
+      </property>
+      <property name="invertedControls">
+       <bool>false</bool>
+      </property>
+      <property name="tickPosition">
+       <enum>QSlider::TicksAbove</enum>
+      </property>
+      <property name="tickInterval">
+       <number>10</number>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QPushButton" name="pb_restore">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Defaults</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QPushButton" name="pb_save">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Save Config</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2" colspan="2">
+     <widget class="QPushButton" name="pb_tr">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="text">
+       <string>Test Recognition</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0" colspan="3">
+     <widget class="QLabel" name="result_2">
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
+      <property name="text">
+       <string>Test Recognition Result:</string>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3">
+     <widget class="QLabel" name="result">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Yes/No</string>
+      </property>
+      <property name="scaledContents">
+       <bool>true</bool>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources>
