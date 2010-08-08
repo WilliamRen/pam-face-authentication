@@ -28,6 +28,7 @@ ${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_it.ts
 ${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_nl.ts
 ${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_sv.ts
 ${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_tr.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_uk.ts
 
 
 )
@@ -112,7 +113,7 @@ ADD_EXECUTABLE( qt-facetrainer ${QT_FACETRAINER_SRCS}
     ${QT_FACETRAINER_UI_HDRS} ${QM} )
 TARGET_LINK_LIBRARIES( pam_face_authentication  ${PAM_LIBRARIES} ${OPENCV_LIBRARIES})
 TARGET_LINK_LIBRARIES( qt-facetrainer ${QT_LIBRARIES} ${OPENCV_LIBRARIES})
-set(LANGUAGES pt_PT ru_RU es fr it nl sv tr de)
+set(LANGUAGES pt_PT ru_RU es fr it nl sv tr de uk)
 
 if( UNIX AND NOT APPLE )
     if( NOT DESKTOP_ENTRY )
