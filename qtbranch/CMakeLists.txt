@@ -20,7 +20,17 @@ SET( QT_FACETRAINER_SRCS
      ${CMAKE_SOURCE_DIR}/src/webcamImagePaint.cpp
    )
 SET( QT_FACETRAINER_TRANS ${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_pt_PT.ts
-${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_ru_RU.ts )
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_ru_RU.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_de.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_es.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_fr.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_it.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_nl.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_sv.ts
+${CMAKE_SOURCE_DIR}/trans/qt_facetrainer_tr.ts
+
+
+)
 
 SET( QT_FACETRAINER_MOC_HDRS
      ${CMAKE_SOURCE_DIR}/include/faceTrainer.h
@@ -102,7 +112,7 @@ ADD_EXECUTABLE( qt-facetrainer ${QT_FACETRAINER_SRCS}
     ${QT_FACETRAINER_UI_HDRS} ${QM} )
 TARGET_LINK_LIBRARIES( pam_face_authentication  ${PAM_LIBRARIES} ${OPENCV_LIBRARIES})
 TARGET_LINK_LIBRARIES( qt-facetrainer ${QT_LIBRARIES} ${OPENCV_LIBRARIES})
-set(LANGUAGES pt_PT ru_RU)
+set(LANGUAGES pt_PT ru_RU es fr it nl sv tr de)
 
 if( UNIX AND NOT APPLE )
     if( NOT DESKTOP_ENTRY )

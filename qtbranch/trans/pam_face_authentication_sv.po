@@ -1,0 +1,54 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Patrik Karlsson <patrik@trixon.se>, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-02 22:53+0530\n"
+"PO-Revision-Date: 2010-07-08 19:58+0200\n"
+"Last-Translator: Patrik Karlsson <patrik@trixon.se>\n"
+"Language-Team: Swedish <pardus-translators@pardus.org.tr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/pam_face_authentication.cpp:525
+msgid "Align your face."
+msgstr "Rikta in ansiktet."
+
+#: src/pam_face_authentication.cpp:454
+msgid ""
+"Biometrics model has not been generated for the user. Use qt-facetrainer to "
+"create the model."
+msgstr ""
+"Biometrisk modell av användaren saknas. Använd qt-facetrainer för att skapa "
+"modell."
+
+#: src/pam_face_authentication.cpp:559
+msgid "Giving Up Face Authentication. Try Again."
+msgstr "Ger upp ansiktsautentisering. Försök igen."
+
+#: src/pam_face_authentication.cpp:538
+msgid "Keep proper distance with the camera."
+msgstr "Håll lämpligt avstånd till kameran."
+
+#: src/pam_face_authentication.cpp:552
+msgid "Unable query image from your webcam."
+msgstr "Kan inte läsa bild från din kamera."
+
+#: src/pam_face_authentication.cpp:434
+msgid "Unable to get hold of your webcam. Please check if it is plugged in."
+msgstr "Kan inte hitta din kamera. Vänligen kontrollera att det är ansluten."
+
+#: src/pam_face_authentication.cpp:497
+msgid "Verification Successful."
+msgstr "Verifieringen lyckades."
+
+#: src/pam_face_authentication.cpp:489
+msgid "Verifying Face ..."
+msgstr "Verifierar ansikte..."
+

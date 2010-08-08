@@ -1,0 +1,55 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Davide Siciliano <edivad95@gmail.com>, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-02 22:53+0530\n"
+"PO-Revision-Date: 2010-07-07 14:05+0200\n"
+"Last-Translator: Davide Siciliano <edivad95@gmail.com>\n"
+"Language-Team: Italian <pardus-translators@pardus.org.tr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/pam_face_authentication.cpp:525
+msgid "Align your face."
+msgstr "Allinea il tuo viso."
+
+#: src/pam_face_authentication.cpp:454
+msgid ""
+"Biometrics model has not been generated for the user. Use qt-facetrainer to "
+"create the model."
+msgstr ""
+"Il modello biometrico di quest'utente non è stato ancora generato. Usa qt-"
+"facetrainer per crearlo."
+
+#: src/pam_face_authentication.cpp:559
+msgid "Giving Up Face Authentication. Try Again."
+msgstr "Autenticazione Fallita. Prova di nuovo."
+
+#: src/pam_face_authentication.cpp:538
+msgid "Keep proper distance with the camera."
+msgstr "Mantieni la giusta distanza tra la camera e il viso."
+
+#: src/pam_face_authentication.cpp:552
+msgid "Unable query image from your webcam."
+msgstr "Impossibile prelevare l'immagine dalla wabcam."
+
+#: src/pam_face_authentication.cpp:434
+msgid "Unable to get hold of your webcam. Please check if it is plugged in."
+msgstr ""
+"Impossibile prendere il controllo della camera. Controlla se è collegata "
+"correttamente."
+
+#: src/pam_face_authentication.cpp:497
+msgid "Verification Successful."
+msgstr "Verifica eseguita con successo."
+
+#: src/pam_face_authentication.cpp:489
+msgid "Verifying Face ..."
+msgstr "Verifica in corso..."

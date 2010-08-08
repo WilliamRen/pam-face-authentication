@@ -1,0 +1,280 @@
+# Davide Siciliano <edivad95@gmail.com>, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-04 18:23+0530\n"
+"PO-Revision-Date: 2010-07-07 14:26+0200\n"
+"Last-Translator: Davide Siciliano <edivad95@gmail.com>\n"
+"Language-Team: Italian <pardus-translators@pardus.org.tr>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: aboutDialog#1
+msgid "About the Software \\m/"
+msgstr "Riguardo il programma \\m/"
+
+#: aboutDialog#2
+msgid "Pluggable Authentication Module for your favorite Linux Distro"
+msgstr ""
+
+#: aboutDialog#3
+msgid "About"
+msgstr "About"
+
+#: aboutDialog#4
+msgid ""
+"This program allows you to login by Face Authentication.\n"
+"Care has been taken to give you the best User Experience Possible.\n"
+"If you encounter any bugs , report at  "
+msgstr ""
+"Questo programma ti permette di effettuare il login con l'analisi biometrica "
+"del volto.\n"
+"Abbiamo fatto in modo di renderne l'utilizzo il più semplice ed efficace "
+"possibile.\n"
+"Se trovi dei bug, segnalali su  "
+
+#: aboutDialog#5
+msgid ""
+"This program was developed during the auspicious Google Summer of Code "
+"program in 2009 and 2008\n"
+msgstr ""
+"Questo programma è stato sviluppato durnate il fausto Google Summer of Code "
+"2009 e 2008.\n"
+
+#: aboutDialog#6
+msgid "Authors"
+msgstr "Autori"
+
+#: aboutDialog#7
+msgid "Thanks To"
+msgstr "Ringraziamenti"
+
+#: aboutDialog#8
+msgid "Translation"
+msgstr "Traduzione"
+
+#: aboutDialog#9
+msgid "Artwork"
+msgstr "Grafica"
+
+#: aboutDialog#10
+msgid "OK"
+msgstr "Ok"
+
+#: faceTrainer#1
+msgid "Face Trainer"
+msgstr ""
+
+#: faceTrainer#2
+msgid "Next"
+msgstr "Avanti"
+
+#: faceTrainer#3
+msgid "For Your Information"
+msgstr "Per tua informazione"
+
+#: faceTrainer#4
+msgid "1"
+msgstr "1"
+
+#: faceTrainer#5
+msgid "Exit"
+msgstr "Esci"
+
+#: faceTrainer#6
+msgid "color: rgb(139, 139, 139);"
+msgstr "color: rgb(139, 139, 139);"
+
+#: faceTrainer#7
+msgid "Read the instructions for High Efficiency"
+msgstr "Leggi le istruzioni per un'efficienza migliore"
+
+#: faceTrainer#8
+msgid "color: rgb(126, 126, 126);"
+msgstr "color: rgb(126, 126, 126);"
+
+#: faceTrainer#9
+msgid ""
+"To ensure high efficiency please keep proper distance between face and webcam"
+msgstr ""
+"Per ottentere una maggiore efficienza mantieni la giusta distanza tra il "
+"viso e la webcam."
+
+#: faceTrainer#10
+msgid "Try to sit where there is ample lighting"
+msgstr "Se possibile, siediti in un luogo luminoso."
+
+#: faceTrainer#11
+msgid "No glass or hat as it might affect the recognition rate"
+msgstr ""
+"Evita di usare occhiali o cappelli per rendere il riconoscimento più "
+"semplice."
+
+#: faceTrainer#12
+msgid "2"
+msgstr "2"
+
+#: faceTrainer#13
+msgid "Capture"
+msgstr "Cattura"
+
+#: faceTrainer#14
+msgid "Train Your Face"
+msgstr ""
+
+#: faceTrainer#15
+msgid "Back"
+msgstr "Indietro"
+
+#: faceTrainer#16
+msgctxt "faceTrainer#16"
+msgid "Advanced Settings"
+msgstr "Impostazioni avanzate"
+
+#: faceTrainer#17
+msgid "About this Software !"
+msgstr "Riguardo questo programma!"
+
+#: faceTrainer#18
+msgctxt "faceTrainer#18"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr "background-color: rgb(0, 0, 0);"
+
+#: faceTrainer#19
+msgid "Delete Selected Item"
+msgstr "Elimina oggetto selezionato"
+
+#: faceTrainer#20
+msgid "3"
+msgstr "3"
+
+#: faceTrainer#21
+msgid "Congratulations"
+msgstr "Congratulazioni"
+
+#: faceTrainer#22
+msgid "Get ready to be dazzled!"
+msgstr "Preparati ad essere abbagliato!"
+
+#: faceTrainer#23
+msgid "Finish"
+msgstr "Finito"
+
+#: faceTrainer#24
+msgid ""
+"Thank you for using our application, to be a part of this project , visit "
+"http://code.google.com/p/pam-face-authentication/ , we hope to see you "
+"there!\n"
+"\n"
+"\n"
+"regards\n"
+"Developers"
+msgstr ""
+"Grazie di usare questo programma, per collaborare visita http://code.google."
+"com/p/pam-face-authentication/, ci auguriamo di incontrarti!\n"
+"\n"
+"\n"
+"Ossequi,\n"
+"Gli Sviluppatori"
+
+#: faceTrainer#25
+msgid "Cancel"
+msgstr "Annulla"
+
+#: faceTrainer#26
+msgid "Please come closer to the camera."
+msgstr "Avvicinati alla camera."
+
+#: faceTrainer#27
+msgid "Please go little far from the camera."
+msgstr "Allontanati un po' dalla camera."
+
+#: faceTrainer#28
+msgid "Unable to Detect Your Face."
+msgstr "Impossibile individuare il viso."
+
+#: faceTrainer#29
+msgid "Tracker lost, trying to reinitialize."
+msgstr ""
+
+#: faceTrainer#30
+msgid "Tracking in progress."
+msgstr ""
+
+#: faceTrainer#31
+msgid "Captured %1 / %2 faces."
+msgstr "%1 / %2 immagini catturate."
+
+#: faceTrainer#32
+msgid "Capturing Image Finished."
+msgstr "Cattura delle immagini completata."
+
+#: faceTrainer#33
+msgid "Processing Faces, Please Wait ..."
+msgstr "Elaborazione volti, attendere..."
+
+#: faceTrainer#34
+msgid "Processing Completed."
+msgstr "Elaborazione completata."
+
+#: faceTrainer#35
+msgid "<strong>Error</strong>"
+msgstr "<strong>Errore</strong>"
+
+#: faceTrainer#36
+msgid "Camera Not Found. <br /> Plugin Your Camera and Try Again."
+msgstr "Camera non trovata. <br /> Collegala e prova di nuovo."
+
+#: faceTrainerAdvSettings#1
+msgctxt "faceTrainerAdvSettings#1"
+msgid "Advanced Settings"
+msgstr "Impostazioni avanzate"
+
+#: faceTrainerAdvSettings#2
+msgid "Low Security"
+msgstr "Bassa sicurezza"
+
+#: faceTrainerAdvSettings#3
+msgid "High Security"
+msgstr "Alta sicurezza"
+
+#: faceTrainerAdvSettings#4
+msgctxt "faceTrainerAdvSettings#4"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr "background-color: rgb(0, 0, 0);"
+
+#: faceTrainerAdvSettings#5
+msgid "Test Recognition"
+msgstr "Test di riconoscimento"
+
+#: faceTrainerAdvSettings#6
+msgid "Yes/No"
+msgstr "Si/No"
+
+#: faceTrainerAdvSettings#7
+msgid "Test Recognition Result:"
+msgstr "Risultato del test di riconoscimento:"
+
+#: faceTrainerAdvSettings#8
+msgid "Save Config"
+msgstr "Salva configurazione"
+
+#: faceTrainerAdvSettings#9
+msgid "Defaults"
+msgstr "Default"
+
+#: faceTrainerAdvSettings#10
+msgid "Medium"
+msgstr "Medio"
+
+#: faceTrainerAdvSettings#11
+msgid "Yes"
+msgstr "Si"
+
+#: faceTrainerAdvSettings#12
+msgid "No"
+msgstr "No"

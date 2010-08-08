@@ -1,0 +1,54 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# , 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-02 22:53+0530\n"
+"PO-Revision-Date: 2010-07-09 18:20-0400\n"
+"Last-Translator: \n"
+"Language-Team: Spanish <kde-i18n-doc@kde.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Lokalize 1.0\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: src/pam_face_authentication.cpp:525
+msgid "Align your face."
+msgstr "Alinée su rostro"
+
+#: src/pam_face_authentication.cpp:454
+msgid ""
+"Biometrics model has not been generated for the user. Use qt-facetrainer to "
+"create the model."
+msgstr ""
+"Modelo biométrico no existe para el usuario. Use qt-facetrainer para crear "
+"el modelo."
+
+#: src/pam_face_authentication.cpp:559
+msgid "Giving Up Face Authentication. Try Again."
+msgstr "Autenticación de rostro suspendido. Intente de nuevo."
+
+#: src/pam_face_authentication.cpp:538
+msgid "Keep proper distance with the camera."
+msgstr "Mantenga la distancia adecuada a la camara."
+
+#: src/pam_face_authentication.cpp:552
+msgid "Unable query image from your webcam."
+msgstr "No posible obtener imágen de la webcam."
+
+#: src/pam_face_authentication.cpp:434
+msgid "Unable to get hold of your webcam. Please check if it is plugged in."
+msgstr "Webcam no detectada. Por favor verifique si está conectada."
+
+#: src/pam_face_authentication.cpp:497
+msgid "Verification Successful."
+msgstr "Verificación exitosa."
+
+#: src/pam_face_authentication.cpp:489
+msgid "Verifying Face ..."
+msgstr "Verificando rostro ..."
+

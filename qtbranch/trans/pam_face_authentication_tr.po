@@ -1,0 +1,51 @@
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# H. İbrahim Güngör <ibrahim@pardus.org.tr>, 2010.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-06-02 22:53+0530\n"
+"PO-Revision-Date: 2010-07-06 13:58+0300\n"
+"Last-Translator: H. İbrahim Güngör <ibrahim@pardus.org.tr>\n"
+"Language-Team: Turkish <tr@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/pam_face_authentication.cpp:525
+msgid "Align your face."
+msgstr "Yüzünüzü ortalayın"
+
+#: src/pam_face_authentication.cpp:454
+msgid ""
+"Biometrics model has not been generated for the user. Use qt-facetrainer to "
+"create the model."
+msgstr ""
+"Bu kullanıcı için biyometrik model oluşturulmamış. Modeli oluşturmak için qt-"
+"facetrainer uygulamasını kullanın."
+
+#: src/pam_face_authentication.cpp:559
+msgid "Giving Up Face Authentication. Try Again."
+msgstr "Yüz Denetiminden Vazgeçiliyor. Tekrar Deneyin."
+
+#: src/pam_face_authentication.cpp:538
+msgid "Keep proper distance with the camera."
+msgstr "Kamera ile aranızda uygun bir mesafe ayarlayın."
+
+#: src/pam_face_authentication.cpp:552
+msgid "Unable query image from your webcam."
+msgstr "Ağ kameranızdan resim alınamıyor."
+
+#: src/pam_face_authentication.cpp:434
+msgid "Unable to get hold of your webcam. Please check if it is plugged in."
+msgstr "Ağ kameranız algılanamadı. Lütfen takılı olduğunu kontrol edin."
+
+#: src/pam_face_authentication.cpp:497
+msgid "Verification Successful."
+msgstr "Doğrulama Başarılı."
+
+#: src/pam_face_authentication.cpp:489
+msgid "Verifying Face ..."
+msgstr "Yüz Doğrulanıyor..."

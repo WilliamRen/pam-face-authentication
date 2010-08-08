@@ -1,0 +1,271 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-07-04 18:23+0530\n"
+"PO-Revision-Date: 2010-07-06 14:45+0300\n"
+"Last-Translator: H. İbrahim Güngör <ibrahim@pardus.org.tr>\n"
+"Language-Team: Turkish <tr@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Translate Toolkit 1.4.0\n"
+
+#: aboutDialog#1
+msgid "About the Software \\m/"
+msgstr "Uygulama Hakkında \\m/"
+
+#: aboutDialog#2
+msgid "Pluggable Authentication Module for your favorite Linux Distro"
+msgstr "Favori Linux Dağıtımınız için PAM Modülü"
+
+#: aboutDialog#3
+msgid "About"
+msgstr "Hakkında"
+
+#: aboutDialog#4
+msgid ""
+"This program allows you to login by Face Authentication.\n"
+"Care has been taken to give you the best User Experience Possible.\n"
+"If you encounter any bugs , report at  "
+msgstr "Bu program Yüz Denetimi ile oturum açmanızı sağlar.\n"
+"Bir hatayla karşılaşırsanız, lütfen şuraya raporlayın: "
+""
+
+#: aboutDialog#5
+msgid "This program was developed during the auspicious Google Summer of Code "
+"program in 2009 and 2008\n"
+msgstr "Bu program Google Summer of Code 2008 ve 2009 dönemlerinde geliştirilmiştir\n"
+
+#: aboutDialog#6
+msgid "Authors"
+msgstr "Yazarlar"
+
+#: aboutDialog#7
+msgid "Thanks To"
+msgstr "Teşekkürler"
+
+#: aboutDialog#8
+msgid "Translation"
+msgstr "Çeviri"
+
+#: aboutDialog#9
+msgid "Artwork"
+msgstr "Grafik"
+
+#: aboutDialog#10
+msgid "OK"
+msgstr "Tamam"
+
+#: faceTrainer#1
+msgid "Face Trainer"
+msgstr "Yüz Eğitici"
+
+#: faceTrainer#2
+msgid "Next"
+msgstr "İleri"
+
+#: faceTrainer#3
+msgid "For Your Information"
+msgstr "Bilginize"
+
+#: faceTrainer#4
+msgid "1"
+msgstr "1"
+
+#: faceTrainer#5
+msgid "Exit"
+msgstr "Çıkış"
+
+#: faceTrainer#6
+msgid "color: rgb(139, 139, 139);"
+msgstr "color: rgb(139, 139, 139);"
+
+#: faceTrainer#7
+msgid "Read the instructions for High Efficiency"
+msgstr "Yüksek verim için yönergeleri okuyun"
+
+#: faceTrainer#8
+msgid "color: rgb(126, 126, 126);"
+msgstr "color: rgb(126, 126, 126);"
+
+#: faceTrainer#9
+msgid ""
+"To ensure high efficiency please keep proper distance between face and "
+"webcam"
+msgstr ""
+"En verimli tanıma işlemi için kamera ve yüzünüz arasında uygun mesafe olmasına dikkat edin"
+
+#: faceTrainer#10
+msgid "Try to sit where there is ample lighting"
+msgstr "Aydınlık bir ortamda bulunmayı deneyin"
+
+#: faceTrainer#11
+msgid "No glass or hat as it might affect the recognition rate"
+msgstr "Tanıma oranını etkilememesi için gözlük veya şapka takmayın"
+
+#: faceTrainer#12
+msgid "2"
+msgstr "2"
+
+#: faceTrainer#13
+msgid "Capture"
+msgstr "Yakala"
+
+#: faceTrainer#14
+msgid "Train Your Face"
+msgstr "Yüz Eğitimi "
+
+#: faceTrainer#15
+msgid "Back"
+msgstr "Geri"
+
+#: faceTrainer#16
+msgctxt "faceTrainer#16"
+msgid "Advanced Settings"
+msgstr "Gelişmiş Ayarlar"
+
+#: faceTrainer#17
+msgid "About this Software !"
+msgstr "Uygulama Hakkında !"
+
+#: faceTrainer#18
+msgctxt "faceTrainer#18"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr "background-color: rgb(0, 0, 0);"
+
+#: faceTrainer#19
+msgid "Delete Selected Item"
+msgstr "Seçili Ögeyi Sil"
+
+#: faceTrainer#20
+msgid "3"
+msgstr "3"
+
+#: faceTrainer#21
+msgid "Congratulations"
+msgstr "Tebrikler"
+
+#: faceTrainer#22
+msgid "Get ready to be dazzled!"
+msgstr "Şaşırmaya hazır olun!"
+
+#: faceTrainer#23
+msgid "Finish"
+msgstr "Bitir"
+
+#: faceTrainer#24
+msgid ""
+"Thank you for using our application, to be a part of this project , visit "
+"http://code.google.com/p/pam-face-authentication/ , we hope to see you "
+"there!\n"
+"\n"
+"\n"
+"regards\n"
+"Developers"
+msgstr ""
+"Bu uygulamayı kullandığınız için teşekkürler. Projenin bir parçası olmak istiyorsanız, "
+"http://code.google.com/p/pam-face-authentication/ adresini ziyaret edin. Orada görüşmek "
+"üzere!\n"
+"\n"
+"\n"
+"saygılar\n"
+"Geliştiriciler"
+
+#: faceTrainer#25
+msgid "Cancel"
+msgstr "İptal"
+
+#: faceTrainer#26
+msgid "Please come closer to the camera."
+msgstr "Lütfen kameraya yaklaşın"
+
+#: faceTrainer#27
+msgid "Please go little far from the camera."
+msgstr "Lütfen kameradan biraz uzaklaşın"
+
+#: faceTrainer#28
+msgid "Unable to Detect Your Face."
+msgstr "Yüzünüz Tanımlanamadı."
+
+#: faceTrainer#29
+msgid "Tracker lost, trying to reinitialize."
+msgstr "İzleyici kayboldu, lütfen yeniden başlatın."
+
+#: faceTrainer#30
+msgid "Tracking in progress."
+msgstr "Tanımlama işlemi sürüyor."
+
+#: faceTrainer#31
+msgid "Captured %1 / %2 faces."
+msgstr "%1 / %2 yüz yakalandı."
+
+#: faceTrainer#32
+msgid "Capturing Image Finished."
+msgstr "Resim Yakalama İşlemi Bitti."
+
+#: faceTrainer#33
+msgid "Processing Faces, Please Wait ..."
+msgstr "Yüzler İşleniyor, Lütfen Bekleyin ..."
+
+#: faceTrainer#34
+msgid "Processing Completed."
+msgstr "İşlem Tamamlandı."
+
+#: faceTrainer#35
+msgid "<strong>Error</strong>"
+msgstr "<strong>Hata</strong>"
+
+#: faceTrainer#36
+msgid "Camera Not Found. <br /> Plugin Your Camera and Try Again."
+msgstr "Kamera Bulunamadı. <br />Kameranızı Takın ve Tekrar Deneyin."
+
+#: faceTrainerAdvSettings#1
+msgctxt "faceTrainerAdvSettings#1"
+msgid "Advanced Settings"
+msgstr "Gelişmiş Ayarlar"
+
+#: faceTrainerAdvSettings#2
+msgid "Low Security"
+msgstr "Düşük Güvenlik"
+
+#: faceTrainerAdvSettings#3
+msgid "High Security"
+msgstr "Yüksek Güvenlik"
+
+#: faceTrainerAdvSettings#4
+msgctxt "faceTrainerAdvSettings#4"
+msgid "background-color: rgb(0, 0, 0);"
+msgstr "background-color: rgb(0, 0, 0);"
+
+#: faceTrainerAdvSettings#5
+msgid "Test Recognition"
+msgstr "Tanımayı Test Et"
+
+#: faceTrainerAdvSettings#6
+msgid "Yes/No"
+msgstr "Evet/Hayır"
+
+#: faceTrainerAdvSettings#7
+msgid "Test Recognition Result:"
+msgstr "Tanıma Testi Sonucu:"
+
+#: faceTrainerAdvSettings#8
+msgid "Save Config"
+msgstr "Yapılandırmayı Kaydet"
+
+#: faceTrainerAdvSettings#9
+msgid "Defaults"
+msgstr "Öntanımlılar"
+
+#: faceTrainerAdvSettings#10
+msgid "Medium"
+msgstr "Orta"
+
+#: faceTrainerAdvSettings#11
+msgid "Yes"
+msgstr "Evet"
+
+#: faceTrainerAdvSettings#12
+msgid "No"
+msgstr "Hayır"
