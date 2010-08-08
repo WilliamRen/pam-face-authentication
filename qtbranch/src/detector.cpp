@@ -1,8 +1,7 @@
 /*
     Detector Class - Inherits FACE DETECTOR AND EYE DETECTOR CLASS
-    Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
-
-    http://code.google.com/p/pam-face-authentication/
+    Copyright (C) 2010 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
+    http://www.pam-face-authentication.org
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -40,7 +39,7 @@ detector::~detector()
 }
 
 //------------------------------------------------------------------------------
-IplImage * preprocess(IplImage* img, CvPoint plefteye, CvPoint prighteye)
+IplImage* preprocess(IplImage* img, CvPoint plefteye, CvPoint prighteye)
 {
   double xvalue = prighteye.x - plefteye.x;    
   double yvalue = prighteye.y - plefteye.y;
@@ -106,13 +105,9 @@ int detector::runDetector(IplImage* input)
   if(checkFaceDetected() == 1)
   {
     if(faceInformation.Width < 120 || faceInformation.Height < 120)
-    {
       messageIndex = 0;
-    }
     else if(faceInformation.Width > 200 || faceInformation.Height > 200)
-    {
       messageIndex = 1;
-    }
     else
     {
       IplImage* clipFaceImage = clipDetectedFace(input);
@@ -126,7 +121,7 @@ int detector::runDetector(IplImage* input)
           clipFaceImage->height / 2), 8, 1);
         cvSetImageROI(clipFaceImage, 
           cvRect(0, (clipFaceImage->height)/8, clipFaceImage->width,
-            (clipFaceImage->height)/2));
+            (clipFaceImage->height)/2) );
         cvCvtColor(clipFaceImage, gray, CV_BGR2GRAY);
         cvResetImageROI(clipFaceImage);
 
@@ -153,14 +148,14 @@ int detector::runDetector(IplImage* input)
         heightEyeWindow_ = gray->height;
 
         IplImage* grayIm1 = cvCreateImage(cvSize(gray->width/2, gray->height), 8, 1);
-        cvSetImageROI(gray, cvRect(0, 0, (gray->width)/2, gray->height));
+        cvSetImageROI(gray, cvRect(0, 0, (gray->width)/2, gray->height) );
         cvResize(gray, grayIm1, CV_INTER_LINEAR);
         cvResetImageROI(gray);
         leftEye_.setModel(grayIm1);
         leftEye_.anchorPoint = leftEyePointRelative_;
 
         IplImage* grayIm2 = cvCreateImage(cvSize(gray->width/2, gray->height), 8, 1);
-        cvSetImageROI(gray,cvRect(gray->width/2, 0, gray->width/2, gray->height));
+        cvSetImageROI(gray,cvRect(gray->width/2, 0, gray->width/2, gray->height) );
         cvResize(gray, grayIm2, CV_INTER_LINEAR);
         cvResetImageROI(gray);
         rightEye_.setModel(grayIm2);
@@ -178,7 +173,7 @@ int detector::runDetector(IplImage* input)
       cvReleaseImage(&clipFaceImage);
     }
  
- }
+  }
   else
   {
     if(flag != 1) messageIndex = 2;
@@ -203,7 +198,8 @@ int detector::runDetector(IplImage* input)
     centre.y = leftEyeP_.y;
     cv2DRotationMatrix(centre, currentAngle, 1.0, rotateMatrix);
         
-    IplImage* dstimg = cvCreateImage(cvSize(input->width, input->height), 8, input->nChannels);
+    IplImage* dstimg = cvCreateImage(cvSize(input->width, input->height), 
+      8, input->nChannels);
     cvWarpAffine(input, dstimg, rotateMatrix, CV_WARP_FILL_OUTLIERS, cvScalarAll(0));
     CvPoint rotatedRightP;
     rotatedRightP.x = floor( rightEyeP_.x * CV_MAT_ELEM(*rotateMatrix, float, 0, 0) 
@@ -215,7 +211,6 @@ int detector::runDetector(IplImage* input)
     rightEyeP_.x = rotatedRightP.x;
     rightEyeP_.y = rotatedRightP.y;
 
-        
     newWidthR = newWidth;
     newHeightR = newHeight;
     newWidthL = newWidth;
@@ -236,18 +231,11 @@ int detector::runDetector(IplImage* input)
        ly = 0;
     }
     
-    if( (lx + newWidth) > IMAGE_WIDTH)
-    {
-      newWidthL = IMAGE_WIDTH - lx;
-    }
+    if( (lx + newWidth) > IMAGE_WIDTH) newWidthL = IMAGE_WIDTH - lx;
+    if( (ly +newHeight) > IMAGE_HEIGHT) newHeightL = IMAGE_HEIGHT - ly;
 
-    if( (ly+newHeight) > IMAGE_HEIGHT)
-    {
-      newHeightL = IMAGE_HEIGHT - ly;
-    }
-
-    IplImage*grayIm1 = cvCreateImage(cvSize(newWidthL, newHeightL), 8, 1);
-    cvSetImageROI(dstimg, cvRect(lx, ly, newWidthL, newHeightL));
+    IplImage* grayIm1 = cvCreateImage(cvSize(newWidthL, newHeightL), 8, 1);
+    cvSetImageROI(dstimg, cvRect(lx, ly, newWidthL, newHeightL) );
     cvCvtColor(dstimg, grayIm1, CV_BGR2GRAY);
     cvResetImageROI(dstimg);
     
@@ -266,15 +254,8 @@ int detector::runDetector(IplImage* input)
       rx = 0;
     }
     
-    if( (rx+newWidth) > IMAGE_WIDTH)
-    {
-      newWidthR = IMAGE_WIDTH - rx;
-    }
-
-    if( (ry+newHeight) > IMAGE_HEIGHT)
-    {
-      newHeightR = IMAGE_HEIGHT - ry;
-    }
+    if( (rx+newWidth) > IMAGE_WIDTH) newWidthR = IMAGE_WIDTH - rx;
+    if( (ry+newHeight) > IMAGE_HEIGHT) newHeightR = IMAGE_HEIGHT - ry;
 
     IplImage *grayIm2 = cvCreateImage(cvSize(newWidthR, newHeightR), 8, 1);
     cvSetImageROI(dstimg,cvRect(rx, ry, newWidthR, newHeightR));
@@ -302,7 +283,7 @@ int detector::runDetector(IplImage* input)
     v2 = sqrt(pow(leftEyePTemp.y - leftEyeP_.y, 2) + pow(leftEyePTemp.x - leftEyeP_.x, 2));
     v3 = v1 + v2;
     lengthTemp = sqrt(pow(rightEyePTemp.y - leftEyePTemp.y, 2) 
-                  + pow(rightEyePTemp.x - leftEyePTemp.x, 2));
+                    + pow(rightEyePTemp.x - leftEyePTemp.x, 2));
 
     if(pow( (angle2 - angle), 2) < 300 && v1 < 140 && v2 < 144 && lengthTemp > 1)
     {
@@ -352,7 +333,8 @@ int detector::runDetector(IplImage* input)
       clippedFace[totalFaceClipNum_ - clipFaceCounter_] = clipFace(input);
       clipFaceCounter_--;
       messageIndex = 5;
-      // sprintf(messageCaptureMessage, "Captured %d/%d faces.", totalFaceClipNum - clipFaceCounter_+1, totalFaceClipNum);
+      /* sprintf(messageCaptureMessage, "Captured %d/%d faces.", 
+          totalFaceClipNum - clipFaceCounter_+1, totalFaceClipNum); */
       if(clipFaceCounter_ == 0)
       {
         messageIndex = 6;
@@ -408,7 +390,7 @@ void detector::stopClipFace()
   boolClipFace_ = 0;
   finishedClipFaceFlag_ = 0;
   
-  for(int i=0; i < totalFaceClipNum_; i++)
+  for(int i = 0; i < totalFaceClipNum_; i++)
   {
     if(clippedFace[i] != 0) cvReleaseImage(&clippedFace[i]);
   }

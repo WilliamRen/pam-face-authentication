@@ -1,41 +1,61 @@
-/** @file */
-
-#include "cv.h"
-#include "highgui.h"
 #ifndef _INCL_GUARD_WEBCAM
 #define _INCL_GUARD_WEBCAM
 
+#include "cv.h"
+#include "highgui.h"
+
 /**
-* OpenCV Webcam Class. This class wraps over the opencv Image Query Functions.
+* OpenCV Webcam class. This class provides the opencv image query functions.
 */
 class opencvWebcam
 {
-public:
+  private:
     /**
-    *The Constructor
-    *Currently does nothing
+    * Opencv capture structure
     */
-    opencvWebcam(void);
+    CvCapture* capture_;
+    
     /**
-    *Query Image From Webcam
-    *@result Image From the Webcam
+    * Copy constructor
+    * @param opencvWebcam, original value to copy
     */
-    IplImage *queryFrame();
+    opencvWebcam(opencvWebcam&);
+
     /**
-    *Initialize Webcam for Querying Image
-    *@result returns 1 for Sucess and 0 for Failure
+    * Assignment operator
+    * @param opencvWebcam, original value to assign
     */
-    int startCamera();
+    opencvWebcam& operator =(const opencvWebcam&);    
+
+  public:
     /**
-    *Deinitialize Webcam Structures
+    * The Constructor
+    * Currently does nothing
+    */
+    opencvWebcam();
+    
+    /**
+    * The destructor
+    */
+    virtual ~opencvWebcam();
+        
+    /**
+    * Query image from webcam
+    * @result Image from webcam
+    */
+    IplImage* queryFrame();
+    
+    /**
+    * Initialize webcam for querying an image
+    * @result returns true on success, false on failure
+    */
+    bool startCamera();
+    
+    /**
+    * Uninitialize webcam structures
     */
     void stopCamera();
-
-private:
-    /**
-    *Opencv Capture Structure
-    */
-    CvCapture* capture;
-
 };
-#endif
+
+#endif // _INCL_GUARD_WEBCAM
+
