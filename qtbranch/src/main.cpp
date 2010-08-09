@@ -1,6 +1,6 @@
 /** @file */
-    /* TRANSLATOR std::faceTrainer */
-        /* TRANSLATOR std::faceTrainerAdvSettings */
+/* TRANSLATOR std::faceTrainer */
+/* TRANSLATOR std::faceTrainerAdvSettings */
 
 /*
     QT Face Trainer MAIN
@@ -338,8 +338,10 @@ void faceTrainer::timerEvent( QTimerEvent * )
     //double t = (double)cvGetTickCount();
 
     static webcamImagePaint newWebcamImagePaint;
+
     newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
     newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+
     //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
 //newVerifier.verifyFace(newDetector.clipFace(queryImage));
     QImage * qm=QImageIplImageCvt(queryImage);
@@ -427,8 +429,9 @@ void faceTrainer::showTab3()
 
 int main(int argc, char *argv[])
 {
+
     QApplication app(argc, argv);
-  
+
     //tab1.setWindowTitle("Face Trainer");
     QTranslator qtTranslator;
     qtTranslator.load("qt_" + QLocale::system().name(),
@@ -438,7 +441,7 @@ int main(int argc, char *argv[])
     QTranslator myappTranslator;
     myappTranslator.load("qt_facetrainer_" + QLocale::system().name());
     app.installTranslator(&myappTranslator);
- faceTrainer tab1;
+    faceTrainer tab1;
     QRect r = tab1.geometry();
     r.moveCenter(QApplication::desktop()->availableGeometry().center());
     tab1.setGeometry(r);

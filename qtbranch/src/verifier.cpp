@@ -22,9 +22,9 @@ using std::list;
 //------------------------------------------------------------------------------
 verifier::verifier()
 {
-  uid_t userID = getuid();
-  userStruct = getpwuid(getuid());
-  char init[300];
+    uid_t userID = getuid();
+    userStruct = getpwuid(getuid());
+    char init[300];
     sprintf(init,"%s/.pam-face-authentication", userStruct->pw_dir);
 
     sprintf(facesDirectory,"%s/.pam-face-authentication/faces", userStruct->pw_dir);
@@ -262,221 +262,221 @@ void verifier::createBiometricModels(char* setName=NULL)
 //------------------------------------------------------------------------------
 char* verifier::createSetDir()
 {
-  time_t ltime = time(NULL);
-  char setDir[256];  
-  char* uniqueName = new char[256];
-  struct tm *Tm;
-  struct timeval detail_time;
+    time_t ltime = time(NULL);
+    char setDir[256];
+    char* uniqueName = new char[256];
+    struct tm *Tm;
+    struct timeval detail_time;
 
-  Tm = localtime(&ltime);
-  gettimeofday(&detail_time, NULL);
-  sprintf(uniqueName, "%d%d%d%d%d%d%ld%ld%d", Tm->tm_year, Tm->tm_mon, 
-    Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec,
-    (detail_time.tv_usec/1000), detail_time.tv_usec, Tm->tm_wday);
-  sprintf(setDir, "%s/.pam-face-authentication/faces/%s", 
-    userStruct->pw_dir,uniqueName);
-  mkdir(setDir, S_IRWXU );
-  
-  return uniqueName;
+    Tm = localtime(&ltime);
+    gettimeofday(&detail_time, NULL);
+    sprintf(uniqueName, "%d%d%d%d%d%d%ld%ld%d", Tm->tm_year, Tm->tm_mon,
+            Tm->tm_mday, Tm->tm_hour, Tm->tm_min, Tm->tm_sec,
+            (detail_time.tv_usec/1000), detail_time.tv_usec, Tm->tm_wday);
+    sprintf(setDir, "%s/.pam-face-authentication/faces/%s",
+            userStruct->pw_dir,uniqueName);
+    mkdir(setDir, S_IRWXU );
+
+    return uniqueName;
 }
 
 //------------------------------------------------------------------------------
 void verifier::addFaceSet(IplImage** set, int size)
 {
-  char* dirNameUnique = createSetDir();
-  char dirName[300], filename[300];
+    char* dirNameUnique = createSetDir();
+    char dirName[300], filename[300];
 
-  sprintf(dirName, "%s/.pam-face-authentication/faces/%s", 
-    userStruct->pw_dir, dirNameUnique);
+    sprintf(dirName, "%s/.pam-face-authentication/faces/%s",
+            userStruct->pw_dir, dirNameUnique);
 
-  for(int i = 0; i < size; i++)
-  {
-    sprintf(filename, "%s/%d.jpg", dirName, i);
-    cvSaveImage(filename, set[i]);
-    cvReleaseImage(&set[i]);
-  }
+    for (int i = 0; i < size; i++)
+    {
+        sprintf(filename, "%s/%d.jpg", dirName, i);
+        cvSaveImage(filename, set[i]);
+        cvReleaseImage(&set[i]);
+    }
 
-  createBiometricModels(dirNameUnique);
-  delete[] set;
+    createBiometricModels(dirNameUnique);
+    delete[] set;
 }
 
 //------------------------------------------------------------------------------
 void verifier::removeFaceSet(char* setName)
 {
-  char dirname[300], filename[300], maceFilters[300];
-  struct dirent* de = NULL;
-  sprintf(dirname, "%s/%s", facesDirectory, setName);
+    char dirname[300], filename[300], maceFilters[300];
+    struct dirent* de = NULL;
+    sprintf(dirname, "%s/%s", facesDirectory, setName);
 
-  DIR* d=opendir(dirname);
-  while(de = readdir(d))
-  {
-    if(strcmp(de->d_name + strlen(de->d_name)-3, "jpg") == 0)
+    DIR* d=opendir(dirname);
+    while (de = readdir(d))
     {
-      sprintf(filename, "%s/%s", dirname, de->d_name);
-      // printf("%s\n", filename);
-      remove(filename);
+        if (strcmp(de->d_name + strlen(de->d_name)-3, "jpg") == 0)
+        {
+            sprintf(filename, "%s/%s", dirname, de->d_name);
+            // printf("%s\n", filename);
+            remove(filename);
+        }
     }
-  }
-  
-  sprintf(maceFilters,"%s/%s_face_lbp.xml",modelDirectory,setName);
-  remove(maceFilters);
-  sprintf(maceFilters,"%s/%s_face_mace.xml",modelDirectory,setName);
-  remove(maceFilters);
-  sprintf(maceFilters,"%s/%s_eye_mace.xml",modelDirectory,setName);
-  remove(maceFilters);
-  sprintf(maceFilters,"%s/%s_inside_face_mace.xml",modelDirectory,setName);
-  remove(maceFilters);
-  remove(dirname);
-  
-  // createBiometricModels();
-  // sprintf(dirname, "%s/%s_mace.xml", modelDirectory, setName);
-  // remove(dirname);
+
+    sprintf(maceFilters,"%s/%s_face_lbp.xml",modelDirectory,setName);
+    remove(maceFilters);
+    sprintf(maceFilters,"%s/%s_face_mace.xml",modelDirectory,setName);
+    remove(maceFilters);
+    sprintf(maceFilters,"%s/%s_eye_mace.xml",modelDirectory,setName);
+    remove(maceFilters);
+    sprintf(maceFilters,"%s/%s_inside_face_mace.xml",modelDirectory,setName);
+    remove(maceFilters);
+    remove(dirname);
+
+    // createBiometricModels();
+    // sprintf(dirname, "%s/%s_mace.xml", modelDirectory, setName);
+    // remove(dirname);
 }
 
 //------------------------------------------------------------------------------
 int verifier::verifyFace(IplImage* faceMain)
 {
-  struct dirent *de = NULL;
-  DIR* d = NULL;
-  int count = 0, k = 0;
+    struct dirent *de = NULL;
+    DIR* d = NULL;
+    int count = 0, k = 0;
 
-  if(faceMain == 0) return 0;
-  
-  list<string>* faceSetName = new list<string>;
-  list<string>::iterator it;
+    if (faceMain == 0) return 0;
 
-  CvFileStorage* fileStorage;
-  CvMat* maceFilterUser;
-  CvMat* lbpModel;
+    list<string>* faceSetName = new list<string>;
+    list<string>::iterator it;
 
-  IplImage* face = cvCreateImage(cvSize(140, 150), 8, faceMain->nChannels);
-  IplImage* faceGray = cvCreateImage(cvSize(140, 150), 8, 1);
+    CvFileStorage* fileStorage;
+    CvMat* maceFilterUser;
+    CvMat* lbpModel;
 
-  CvMat* featureLBPHistMatrix = cvCreateMat(7*6*59, 1, CV_64FC1);
+    IplImage* face = cvCreateImage(cvSize(140, 150), 8, faceMain->nChannels);
+    IplImage* faceGray = cvCreateImage(cvSize(140, 150), 8, 1);
 
-  cvResize(faceMain, face, CV_INTER_LINEAR);
-  cvCvtColor(face, faceGray, CV_BGR2GRAY);
-  featureLBPHist(faceGray, featureLBPHistMatrix);
+    CvMat* featureLBPHistMatrix = cvCreateMat(7*6*59, 1, CV_64FC1);
 
-  IplImage* eye = cvCreateImage(cvSize(140, 60), 8, face->nChannels);
-  cvSetImageROI(face, cvRect(0, 0, 140, 60));
-  cvResize(face, eye, CV_INTER_LINEAR );
-  cvResetImageROI(face);
+    cvResize(faceMain, face, CV_INTER_LINEAR);
+    cvCvtColor(face, faceGray, CV_BGR2GRAY);
+    featureLBPHist(faceGray, featureLBPHistMatrix);
 
-  IplImage* insideFace = cvCreateImage(cvSize(80, 105), 8, face->nChannels);
-  cvSetImageROI(face, cvRect(30, 45, 80, 105));
-  cvResize(face, insideFace, CV_INTER_LINEAR);
-  cvResetImageROI(face);
-    
-  config* newConfig = getConfig(configDirectory);
-    
-  d = opendir(facesDirectory);
-  if(!d) return 2;
-  
-  while(de = readdir(d))
-  {
-    if(!((strcmp(de->d_name, ".") == 0) || (strcmp(de->d_name, "..") == 0)))
+    IplImage* eye = cvCreateImage(cvSize(140, 60), 8, face->nChannels);
+    cvSetImageROI(face, cvRect(0, 0, 140, 60));
+    cvResize(face, eye, CV_INTER_LINEAR );
+    cvResetImageROI(face);
+
+    IplImage* insideFace = cvCreateImage(cvSize(80, 105), 8, face->nChannels);
+    cvSetImageROI(face, cvRect(30, 45, 80, 105));
+    cvResize(face, insideFace, CV_INTER_LINEAR);
+    cvResetImageROI(face);
+
+    config* newConfig = getConfig(configDirectory);
+
+    d = opendir(facesDirectory);
+    if (!d) return 2;
+
+    while (de = readdir(d))
     {
-      k++;
-      char facePath[300];
-      char eyePath[300];
-      char insideFacePath[300];
-      char lbp[300];
-      
-      sprintf(lbp, "%s/%s_face_lbp.xml", modelDirectory, de->d_name);
-      fileStorage = cvOpenFileStorage(lbp, 0, CV_STORAGE_READ );
-      if(fileStorage == 0) continue;
-      
-      lbpModel = (CvMat *)cvReadByName(fileStorage, 0, "lbp", 0);
-      double lbpThresh = cvReadRealByName(fileStorage, 0, "thresholdLbp",8000);
-      double val = LBPdiff(lbpModel, featureLBPHistMatrix);
-      cvReleaseMat(&lbpModel);
-      double step = lbpThresh / 8;
-
-      // double thresholdLBP = MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
-      double thresholdLBP = lbpThresh-((.80-newConfig->percentage)*1000);
-
-      // printf("%e %e %e\n", val, (thresholdLBP+step), step);
-
-      if(val < (thresholdLBP+step))
-      {
-        //printf("\ntrue\n");
-        sprintf(facePath, "%s/%s_face_mace.xml", modelDirectory, de->d_name);
-        sprintf(eyePath, "%s/%s_eye_mace.xml", modelDirectory, de->d_name);
-        sprintf(insideFacePath, "%s/%s_inside_face_mace.xml", modelDirectory,
-          de->d_name);
-        
-        fileStorage = cvOpenFileStorage(facePath, 0, CV_STORAGE_READ);
-        if(fileStorage == 0) continue;
-        maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-        int PSLR = cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
-        int value = peakToSideLobeRatio(maceFilterUser, face, FACE_MACE_SIZE);
-        
-        cvReleaseFileStorage(&fileStorage);
-        cvReleaseMat(&maceFilterUser);
-
-        fileStorage = cvOpenFileStorage(eyePath, 0, CV_STORAGE_READ );
-        if(fileStorage == 0) continue;
-
-        maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-        PSLR += cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
-        value += peakToSideLobeRatio(maceFilterUser, eye, EYE_MACE_SIZE);
-        
-        cvReleaseFileStorage(&fileStorage);
-        cvReleaseMat(&maceFilterUser);
-
-        fileStorage = cvOpenFileStorage(insideFacePath, 0, CV_STORAGE_READ);
-        if(fileStorage == 0) continue;
-
-        maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
-        PSLR += cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
-        value += peakToSideLobeRatio(maceFilterUser, insideFace, INSIDE_FACE_MACE_SIZE);
-                
-        int threshold = int(PSLR*newConfig->percentage);
-        int pcent = int(((double)value / (double)PSLR)*100);
-        int lowerPcent = int(newConfig->percentage*100.0);
-        int upperPcent = int((newConfig->percentage+((1-newConfig->percentage)/4))*100.0);
-        // printf("Current Percent %d Lower %d Upper %d\n", pcent, lowerPcent,upperPcent);
-
-        if(pcent >= upperPcent)
+        if (!((strcmp(de->d_name, ".") == 0) || (strcmp(de->d_name, "..") == 0)))
         {
-          count = 1;
-          break;
-        }
-        else if(pcent < lowerPcent)
-        {
-        }
-        else
-        {
-          double newThres = thresholdLBP + (double(double(pcent-lowerPcent) / 
-          double(upperPcent-lowerPcent))*double(step));
-          // printf("New Thres %e\n", newThres);
+            k++;
+            char facePath[300];
+            char eyePath[300];
+            char insideFacePath[300];
+            char lbp[300];
 
-          if(val < newThres)
-          {
-            count = 1;
-            break;
-          }
-        }
+            sprintf(lbp, "%s/%s_face_lbp.xml", modelDirectory, de->d_name);
+            fileStorage = cvOpenFileStorage(lbp, 0, CV_STORAGE_READ );
+            if (fileStorage == 0) continue;
 
-        // int percentage = int( (double(value)/double(PSLR))*100.0);
-        // printf("%d \n",percentage);
-        cvReleaseFileStorage(&fileStorage);
-        cvReleaseMat(&maceFilterUser);
-      }
+            lbpModel = (CvMat *)cvReadByName(fileStorage, 0, "lbp", 0);
+            double lbpThresh = cvReadRealByName(fileStorage, 0, "thresholdLbp",8000);
+            double val = LBPdiff(lbpModel, featureLBPHistMatrix);
+            cvReleaseMat(&lbpModel);
+            double step = lbpThresh / 8;
+
+            // double thresholdLBP = MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
+            double thresholdLBP = lbpThresh-((.80-newConfig->percentage)*1000);
+
+            // printf("%e %e %e\n", val, (thresholdLBP+step), step);
+
+            if (val < (thresholdLBP+step))
+            {
+                //printf("\ntrue\n");
+                sprintf(facePath, "%s/%s_face_mace.xml", modelDirectory, de->d_name);
+                sprintf(eyePath, "%s/%s_eye_mace.xml", modelDirectory, de->d_name);
+                sprintf(insideFacePath, "%s/%s_inside_face_mace.xml", modelDirectory,
+                        de->d_name);
+
+                fileStorage = cvOpenFileStorage(facePath, 0, CV_STORAGE_READ);
+                if (fileStorage == 0) continue;
+                maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+                int PSLR = cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
+                int value = peakToSideLobeRatio(maceFilterUser, face, FACE_MACE_SIZE);
+
+                cvReleaseFileStorage(&fileStorage);
+                cvReleaseMat(&maceFilterUser);
+
+                fileStorage = cvOpenFileStorage(eyePath, 0, CV_STORAGE_READ );
+                if (fileStorage == 0) continue;
+
+                maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+                PSLR += cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
+                value += peakToSideLobeRatio(maceFilterUser, eye, EYE_MACE_SIZE);
+
+                cvReleaseFileStorage(&fileStorage);
+                cvReleaseMat(&maceFilterUser);
+
+                fileStorage = cvOpenFileStorage(insideFacePath, 0, CV_STORAGE_READ);
+                if (fileStorage == 0) continue;
+
+                maceFilterUser = (CvMat *)cvReadByName(fileStorage, 0, "maceFilter", 0);
+                PSLR += cvReadIntByName(fileStorage, 0, "thresholdPSLR", 100);
+                value += peakToSideLobeRatio(maceFilterUser, insideFace, INSIDE_FACE_MACE_SIZE);
+
+                int threshold = int(PSLR*newConfig->percentage);
+                int pcent = int(((double)value / (double)PSLR)*100);
+                int lowerPcent = int(newConfig->percentage*100.0);
+                int upperPcent = int((newConfig->percentage+((1-newConfig->percentage)/4))*100.0);
+                // printf("Current Percent %d Lower %d Upper %d\n", pcent, lowerPcent,upperPcent);
+
+                if (pcent >= upperPcent)
+                {
+                    count = 1;
+                    break;
+                }
+                else if (pcent < lowerPcent)
+                {
+                }
+                else
+                {
+                    double newThres = thresholdLBP + (double(double(pcent-lowerPcent) /
+                                                      double(upperPcent-lowerPcent))*double(step));
+                    // printf("New Thres %e\n", newThres);
+
+                    if (val < newThres)
+                    {
+                        count = 1;
+                        break;
+                    }
+                }
+
+                // int percentage = int( (double(value)/double(PSLR))*100.0);
+                // printf("%d \n",percentage);
+                cvReleaseFileStorage(&fileStorage);
+                cvReleaseMat(&maceFilterUser);
+            }
+        }
     }
-  }
 
-  if(k == 0) return 2;
-  if(count == 1)
-  {
-    // printf("\n YES \n");
-    return 1;
-  }
-  else
-  {
-    return 0;
-  }
+    if (k == 0) return 2;
+    if (count == 1)
+    {
+        // printf("\n YES \n");
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -539,87 +539,89 @@ allFaces* verifier::getFaceImagesFromAllSet()
 //------------------------------------------------------------------------------
 setFace* verifier::getFaceSet()
 {
-  struct dirent* de = NULL;
-  DIR* d = NULL;
-  int count = 0;
-  
-  list<string>* mylist = new list<string>;
-  list<string>::iterator it;
-  
-  d = opendir(facesDirectory);
-
-  while(de = readdir(d))
-  {
-    if(!((strcmp(de->d_name, ".") == 0) || (strcmp(de->d_name, "..") == 0)))
-    {
-      mylist->push_back(de->d_name);
-      count++;
-    }
-  }
-
-  mylist->sort();
-
-  setFace* setFaceStruct = new setFace;
-  setFaceStruct->setName = new char* [(int) mylist->size()];
-  setFaceStruct->setFilePathThumbnails = new char* [(int) mylist->size()];
-  setFaceStruct->faceImages = new structFaceImages[(int) mylist->size()];
-  setFaceStruct->count = count;
-
-  ///./setFaceStruct->faceImages.count=imageK;
-
-  int k=0;
-  for(it = mylist->begin(); it != mylist->end(); ++it)
-  {
-    string l = *it;
-    char* p;
-    char setName[300], fileThumb[300], imagesDir[300];
-    int imageK = 0, imageIndex=0;
     struct dirent* de = NULL;
     DIR* d = NULL;
-    
-    p = &l[0];
-    sprintf(setName, "%s", p);
-    setFaceStruct->setName[k] = setName;
-    
-    sprintf(fileThumb, "%s/%s/1.jpg", facesDirectory, p);
-    setFaceStruct->setFilePathThumbnails[k] = fileThumb;
-        
-    sprintf(imagesDir,"%s/%s",facesDirectory,p);
-    
-    list<string>* mylistImages = new list<string>;
-    list<string>::iterator itImages;
-    d = opendir(imagesDir);
+    int count = 0;
 
-    while(de = readdir(d))
+    list<string>* mylist = new list<string>;
+    list<string>::iterator it;
+
+    d = opendir(facesDirectory);
+
+    while (de = readdir(d))
     {
-      if(!((strcmp(de->d_name, ".") == 0) || (strcmp(de->d_name, "..") == 0)))
-      {
-        imageK++;
-        char fullPath[300];
-        sprintf(fullPath, "%s/%s", imagesDir, de->d_name);
-        mylistImages->push_back(fullPath);
-      }
+        if (!((strcmp(de->d_name, ".") == 0) || (strcmp(de->d_name, "..") == 0)))
+        {
+            mylist->push_back(de->d_name);
+            count++;
+        }
     }
 
-    mylistImages->sort();
-    setFaceStruct->faceImages[k].faces = new IplImage* [imageK];
-    setFaceStruct->faceImages[k].count = imageK;
-    
-    for(itImages=mylistImages->begin(); itImages!=mylistImages->end(); ++itImages)
+    mylist->sort();
+
+    setFace* setFaceStruct = new setFace;
+    setFaceStruct->setName = new char* [(int) mylist->size()];
+    setFaceStruct->setFilePathThumbnails = new char* [(int) mylist->size()];
+    setFaceStruct->faceImages = new structFaceImages[(int) mylist->size()];
+    setFaceStruct->count = count;
+
+    ///./setFaceStruct->faceImages.count=imageK;
+
+    int k=0;
+    for (it = mylist->begin(); it != mylist->end(); ++it)
     {
-      string l = *itImages;
-      char* p;
-      char fileName[300];
-      
-      p=&l[0];
-      sprintf(fileName, "%s", p);
-      setFaceStruct->faceImages[k].faces[imageIndex] = cvLoadImage(fileName, 1);
-      imageIndex++;
+        string l = *it;
+        char* p;
+        char* setName = new char[300];
+        char* fileThumb = new char[300];
+        char * imagesDir = new char[300];
+        int imageK = 0, imageIndex=0;
+        struct dirent* de = NULL;
+        DIR* d = NULL;
+
+        p = &l[0];
+        sprintf(setName, "%s", p);
+        setFaceStruct->setName[k] = setName;
+
+        sprintf(fileThumb, "%s/%s/1.jpg", facesDirectory, p);
+        setFaceStruct->setFilePathThumbnails[k] = fileThumb;
+
+        sprintf(imagesDir,"%s/%s",facesDirectory,p);
+
+        list<string>* mylistImages = new list<string>;
+        list<string>::iterator itImages;
+        d = opendir(imagesDir);
+
+        while (de = readdir(d))
+        {
+            if (!((strcmp(de->d_name, ".") == 0) || (strcmp(de->d_name, "..") == 0)))
+            {
+                imageK++;
+                char fullPath[300];
+                sprintf(fullPath, "%s/%s", imagesDir, de->d_name);
+                mylistImages->push_back(fullPath);
+            }
+        }
+
+        mylistImages->sort();
+        setFaceStruct->faceImages[k].faces = new IplImage* [imageK];
+        setFaceStruct->faceImages[k].count = imageK;
+
+        for (itImages=mylistImages->begin(); itImages!=mylistImages->end(); ++itImages)
+        {
+            string l = *itImages;
+            char* p;
+            char fileName[300];
+
+            p=&l[0];
+            sprintf(fileName, "%s", p);
+            setFaceStruct->faceImages[k].faces[imageIndex] = cvLoadImage(fileName, 1);
+            imageIndex++;
+        }
+
+        k++;
     }
 
-    k++;
-  }
-
-  return setFaceStruct;
+    return setFaceStruct;
 }
 
