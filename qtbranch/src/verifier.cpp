@@ -394,9 +394,9 @@ int verifier::verifyFace(IplImage* faceMain)
             double step = lbpThresh / 8;
 
             // double thresholdLBP = MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
-            double thresholdLBP = lbpThresh-((.80-newConfig->percentage)*1000);
+            double thresholdLBP = lbpThresh + ((.80-newConfig->percentage)*1000);
 
-            // printf("%e %e %e\n", val, (thresholdLBP+step), step);
+           // printf("%e %e %e\n", val, (thresholdLBP+step), step);
 
             if (val < (thresholdLBP+step))
             {
@@ -436,7 +436,7 @@ int verifier::verifyFace(IplImage* faceMain)
                 int pcent = int(((double)value / (double)PSLR)*100);
                 int lowerPcent = int(newConfig->percentage*100.0);
                 int upperPcent = int((newConfig->percentage+((1-newConfig->percentage)/4))*100.0);
-                // printf("Current Percent %d Lower %d Upper %d\n", pcent, lowerPcent,upperPcent);
+              // printf("Current Percent %d Lower %d Upper %d\n", pcent, lowerPcent,upperPcent);
 
                 if (pcent >= upperPcent)
                 {
