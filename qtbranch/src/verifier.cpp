@@ -177,11 +177,128 @@ void verifier::createBiometricModels(char* setName=NULL)
         //  printf("%d %d A \n",Nx,Ny);
         CvMat * featureLBPHistMatrix = cvCreateMat(Nx*Ny*59,1, CV_64FC1 );
         featureLBPHist(averageImage,featureLBPHistMatrix);
+        IplImage *weights =cvCreateImage( cvSize(5*4,temp->faceImages[i].count), IPL_DEPTH_64F, 1);
+
+        for (int index=0;index<temp->faceImages[i].count;index++)
+        {
+            IplImage *averageImageFace =cvCreateImage( cvSize(temp->faceImages[i].faces[index]->width,temp->faceImages[i].faces[index]->height), IPL_DEPTH_64F, 1);
+            IplImage *averageImageFace64=cvCreateImage( cvSize(temp->faceImages[i].faces[index]->width,temp->faceImages[i].faces[index]->height), 8, 1 );
+            cvCvtColor( temp->faceImages[i].faces[index], averageImageFace64, CV_BGR2GRAY );
+            cvScale(averageImageFace64, averageImageFace, 1.0, 0.0);
+            CvMat * featureLBPHistMatrixFace = cvCreateMat(Nx*Ny*59,1, CV_64FC1 );
+            featureLBPHist(averageImageFace,featureLBPHistMatrixFace);
+            int i,j,k;
+            for (i=0;i<5;i++)
+            {
+                for (j=0;j<4;j++)
+                {
+                    double chiSquare=0;
+
+                    for (k=0;k<59;k++)
+                    {
+                        CvScalar s1,s2;
+                        s1=cvGet2D(featureLBPHistMatrixFace,i*4*59 + j*59 +k,0);
+                        s2=cvGet2D(featureLBPHistMatrix,i*4*59 + j*59 +k,0);
+                        double hist1=0,hist2=0;
+                        hist1=s1.val[0];
+                        hist2=s2.val[0];
+                        if ((hist1+hist2)!=0)
+                            chiSquare+=((pow(hist1-hist2,2)/(hist1+hist2)));
+
+                        //   printf("%e \n",weights[i][j]);
+                    }
+                    CvScalar s1;
+                    s1.val[0]=chiSquare;
+                    cvSet2D(weights,index,j*5 + i,s1);
+
+                }
+
+            }
+
+        }
+
+        IplImage *variance =cvCreateImage( cvSize(5*4,1), IPL_DEPTH_64F, 1);
+        IplImage *sum =cvCreateImage( cvSize(5*4,1), IPL_DEPTH_64F, 1);
+        IplImage *sumSq =cvCreateImage( cvSize(5*4,1), IPL_DEPTH_64F, 1);
+
+        IplImage *meanSq =cvCreateImage( cvSize(5*4,1), IPL_DEPTH_64F, 1);
+
+        cvZero(sum);
+        cvZero(sumSq);
+        cvZero(variance);
+        for (int index=0;index<temp->faceImages[i].count;index++)
+        {
+            int i,j,k;
+            for (i=0;i<5;i++)
+            {
+                for (j=0;j<4;j++)
+                {
+                    CvScalar s1,s2,s3,s4;
+
+                    s1= cvGet2D(weights,index,j*5 + i);
+
+                    s2= cvGet2D(sum,0,j*5 + i);
+                    s4= cvGet2D(sumSq,0,j*5 + i);
+
+                    s3.val[0]=s1.val[0]+s2.val[0];
+                    cvSet2D(sum,0,j*5 + i,s3);
+                    s1.val[0]*=s1.val[0];
+                    s1.val[0]+=s4.val[0];
+                    cvSet2D(sumSq,0,j*5 + i,s1);
+
+                }
+            }
+
+
+        }
+
+        cvConvertScale(sum,sum,1/(double)temp->faceImages[i].count);
+        cvConvertScale(sumSq,sumSq,1/(double)temp->faceImages[i].count);
+
+        cvMul(sum,sum,meanSq);
+        cvSub(sumSq,meanSq,variance);
+        for (int j=0;j<4;j++)
+        {
+            for (int i=0;i<5;i++)
+            {
+
+                CvScalar s1;
+                s1= cvGet2D(variance,0,j*5 + i);
+                //     printf("%e\t",s1.val[0]);
+            }
+            //   printf("\n");
+        }
+//        printf("\n");
+//        printf("\n");
+
+        cvDiv(NULL,variance,variance);
+        CvScalar totalVariance;
+        totalVariance=cvSum(variance);
+        CvMat * finalWeights = cvCreateMat(4,5, CV_64FC1 );
+        for (int j=0;j<4;j++)
+        {
+            for (int i=0;i<5;i++)
+            {
+
+                CvScalar s1;
+                s1= cvGet2D(variance,0,j*5 + i);
+                s1.val[0]= (s1.val[0]*20) / totalVariance.val[0];
+                cvSet2D(finalWeights,j,i,s1);
+
+            }
+            //  printf("\n");
+        }
+
+        //    printf("\n");
+//printf("\n");
+///
         char lbpFacePath[300];
         sprintf(lbpFacePath,"%s/%s_face_lbp.xml",modelDirectory,temp->setName[i]);
         CvFileStorage *fs;
         fs = cvOpenFileStorage( lbpFacePath, 0, CV_STORAGE_WRITE );
         cvWrite( fs, "lbp",featureLBPHistMatrix, cvAttrList(0,0) );
+        cvWrite( fs, "weights",finalWeights, cvAttrList(0,0) );
+
 
         for (int index=0;index<temp->faceImages[i].count;index++)
         {
@@ -189,7 +306,7 @@ void verifier::createBiometricModels(char* setName=NULL)
             IplImage *imageFace =cvCreateImage( cvSize(temp->faceImages[i].faces[index]->width,temp->faceImages[i].faces[index]->height), 8, 1);
             cvCvtColor( temp->faceImages[i].faces[index], imageFace, CV_BGR2GRAY );
             featureLBPHist(imageFace,featureLBPHistMatrixTest);
-            lbpAv->push_back (LBPdiff(featureLBPHistMatrixTest,featureLBPHistMatrix));
+            lbpAv->push_back (LBPCustomDiff(featureLBPHistMatrixTest,featureLBPHistMatrix,finalWeights));
             cvReleaseMat(&featureLBPHistMatrixTest);
             cvReleaseImage(&imageFace);
 
@@ -348,11 +465,14 @@ int verifier::verifyFace(IplImage* faceMain)
     CvFileStorage* fileStorage;
     CvMat* maceFilterUser;
     CvMat* lbpModel;
+    CvMat* weights;
 
     IplImage* face = cvCreateImage(cvSize(140, 150), 8, faceMain->nChannels);
     IplImage* faceGray = cvCreateImage(cvSize(140, 150), 8, 1);
+    int Nx = floor((faceGray->width )/35);
+    int Ny= floor((faceGray->height)/30);
 
-    CvMat* featureLBPHistMatrix = cvCreateMat(7*6*59, 1, CV_64FC1);
+    CvMat* featureLBPHistMatrix = cvCreateMat(Nx*Ny*59, 1, CV_64FC1);
 
     cvResize(faceMain, face, CV_INTER_LINEAR);
     cvCvtColor(face, faceGray, CV_BGR2GRAY);
@@ -377,6 +497,7 @@ int verifier::verifyFace(IplImage* faceMain)
     {
         if (!((strcmp(de->d_name, ".") == 0) || (strcmp(de->d_name, "..") == 0)))
         {
+            //  printf("%s -- \n",de->d_name);
             k++;
             char facePath[300];
             char eyePath[300];
@@ -388,15 +509,24 @@ int verifier::verifyFace(IplImage* faceMain)
             if (fileStorage == 0) continue;
 
             lbpModel = (CvMat *)cvReadByName(fileStorage, 0, "lbp", 0);
+            weights = (CvMat *)cvReadByName(fileStorage, 0, "weights", 0);
+
             double lbpThresh = cvReadRealByName(fileStorage, 0, "thresholdLbp",8000);
-            double val = LBPdiff(lbpModel, featureLBPHistMatrix);
+            double val = LBPCustomDiff(lbpModel, featureLBPHistMatrix,weights);
             cvReleaseMat(&lbpModel);
-            double step = lbpThresh / 8;
+            double step =lbpThresh/8;
 
             // double thresholdLBP = MAX_THRESHOLD_LBP-(newConfig->percentage*10000);
-            double thresholdLBP = lbpThresh + ((.80-newConfig->percentage)*1000);
-
-           // printf("%e %e %e\n", val, (thresholdLBP+step), step);
+            double thresholdLBP = lbpThresh;
+            double percentageModifier =((.80-newConfig->percentage)*100);
+            int baseIncrease =floor(log10(lbpThresh)) - 2;
+            while (baseIncrease>0)
+            {
+                percentageModifier*=10;
+                baseIncrease--;
+            }
+            thresholdLBP+=percentageModifier*1.2;
+            //printf("%e %e %e\n", val, (thresholdLBP+step), step);
 
             if (val < (thresholdLBP+step))
             {
@@ -436,7 +566,7 @@ int verifier::verifyFace(IplImage* faceMain)
                 int pcent = int(((double)value / (double)PSLR)*100);
                 int lowerPcent = int(newConfig->percentage*100.0);
                 int upperPcent = int((newConfig->percentage+((1-newConfig->percentage)/4))*100.0);
-              // printf("Current Percent %d Lower %d Upper %d\n", pcent, lowerPcent,upperPcent);
+                //  printf("Current Percent %d Lower %d Upper %d\n", pcent, lowerPcent,upperPcent);
 
                 if (pcent >= upperPcent)
                 {
@@ -572,9 +702,9 @@ setFace* verifier::getFaceSet()
     {
         string l = *it;
         char* p;
-        char* setName = new char[300];
-        char* fileThumb = new char[300];
-        char * imagesDir = new char[300];
+        char* setName=new char[300];
+        char * fileThumb=new char[300];
+        char*  imagesDir=new char[300];
         int imageK = 0, imageIndex=0;
         struct dirent* de = NULL;
         DIR* d = NULL;

@@ -205,7 +205,7 @@ faceTrainer::faceTrainer(QWidget *parent)
 }
 void faceTrainer::about()
 {
-//verify();
+
 
     aboutBox newAboutBox;
     newAboutBox.exec();
@@ -223,18 +223,17 @@ void faceTrainer::showAdvDialog()
 
 void faceTrainer::verify()
 {
-
     struct dirent *de=NULL;
     DIR *d=NULL;
-    d=opendir("/home/rohananil/train/");
+    d=opendir("/home/notroot/train/");
     while (de = readdir(d))
     {
         if (!((strcmp(de->d_name, ".")==0) || (strcmp(de->d_name, "..")==0)))
         {
             char fullPath[300];
-            sprintf(fullPath,"%s/%s","/home/rohananil/train",de->d_name);
+            sprintf(fullPath,"%s/%s","/home/notroot/train",de->d_name);
             IplImage *temp=cvLoadImage(fullPath,1);
-            // printf("%s \n",fullPath);
+            printf("%s \n",fullPath);
             if (newVerifier.verifyFace(temp)==1)
             {
 
@@ -258,6 +257,7 @@ void faceTrainer::butClick()protected
 void faceTrainer::removeSelected()
 {
 
+
     QList<QListWidgetItem *>  list=ui.lv_thumbnails->selectedItems();
     QList<QListWidgetItem *>::iterator i;
 
@@ -274,10 +274,12 @@ void faceTrainer::removeSelected()
     ui.lv_thumbnails->clear();
 
     populateQList();
-//verify();
 
 
 }
+
+
+
 void faceTrainer::captureClick()
 {
 

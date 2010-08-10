@@ -75,6 +75,7 @@ double getBIT(IplImage* img,double px,double py,double threshold)
 
 void  featureLBPHist(IplImage * img,CvMat *features_final)
 {
+    cvZero(features_final);
     int lbpArry[256];
 
     IplImage* imgLBP=cvCreateImage( cvSize(img->width,img->height), 8,1 );
@@ -225,9 +226,58 @@ double LBPdiff(    CvMat* model,    CvMat* test)
                 hist1=s1.val[0];
                 hist2=s2.val[0];
                 if ((hist1+hist2)!=0)
-                chiSquare+=(weights[j][i]*(pow(hist1-hist2,2)/(hist1+hist2)));
+                    chiSquare+=(weights[j][i]*(pow(hist1-hist2,2)/(hist1+hist2)));
 
-         //   printf("%e \n",weights[i][j]);
+                //   printf("%e \n",weights[i][j]);
+            }
+
+        }
+
+    }
+    return chiSquare;
+}
+
+double LBPCustomDiff(    CvMat* model,    CvMat* test, CvMat * weight)
+{
+    double weights[4][5]  =
+    {
+        { 1, 1,  3, 1,  1},
+        { 1, 2,  3,2,  1},
+        { 1, 2,  2, 2,  1},
+        { .3, 1,  1, 1,  .3},
+
+    };
+    int i,j,k;
+    for (i=0;i<5;i++)
+    {
+        for (j=0;j<4;j++)
+        {
+
+            CvScalar s1;
+            s1 =cvGet2D(weight,j,i);
+            weights[j][i]=s1.val[0];
+
+        }
+    }
+
+    double chiSquare=0;
+    for (i=0;i<5;i++)
+    {
+        for (j=0;j<4;j++)
+        {
+
+            for (k=0;k<59;k++)
+            {
+                CvScalar s1,s2;
+                s1=cvGet2D(model,i*4*59 + j*59 +k,0);
+                s2=cvGet2D(test,i*4*59 + j*59 +k,0);
+                double hist1=0,hist2=0;
+                hist1=s1.val[0];
+                hist2=s2.val[0];
+                if ((hist1+hist2)!=0)
+                    chiSquare+=(weights[j][i]*(pow(hist1-hist2,2)/(hist1+hist2)));
+
+                //   printf("%e \n",weights[i][j]);
             }
 
         }
@@ -241,7 +291,7 @@ void saveMace(mace * maceFilter,char *path)
 {
     char fullpath[300];
     sprintf(fullpath,"%s/%s", path,maceFilter->maceFilterName);
-   // printf("%s \n",fullpath);
+    // printf("%s \n",fullpath);
     CvFileStorage *fs;
     fs = cvOpenFileStorage( fullpath, 0, CV_STORAGE_WRITE );
     cvWrite( fs, "maceFilter", maceFilter->filter, cvAttrList(0,0) );
@@ -503,7 +553,7 @@ void setConfig(config *configuration,char * configDirectory)
     sprintf(maceConfig,"%s/mace.xml", configDirectory);
     CvFileStorage* fs ;
     fs = cvOpenFileStorage( maceConfig, 0, CV_STORAGE_WRITE );
-   // printf("%e \n",configuration->percentage);
+    // printf("%e \n",configuration->percentage);
     cvWriteReal( fs, "percentage", configuration->percentage );
     cvReleaseFileStorage( &fs );
 }
@@ -1773,8 +1823,8 @@ double CenterofMass(IplImage* src,int flagXY)
 
             Intensity = ptr_src[0];
 
-            if(Intensity<140 || Intensity>200)
-            sumPixels[x]+=255-Intensity;
+            if (Intensity<140 || Intensity>200)
+                sumPixels[x]+=255-Intensity;
 
         }
 
