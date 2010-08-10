@@ -525,6 +525,8 @@ int verifier::verifyFace(IplImage* faceMain)
 
             lbpModel = (CvMat *)cvReadByName(fileStorage, 0, "lbp", 0);
             weights = (CvMat *)cvReadByName(fileStorage, 0, "weights", 0);
+            if (lbpModel == 0) continue;
+            if (weights == 0) continue;
 
             double lbpThresh = cvReadRealByName(fileStorage, 0, "thresholdLbp",8000);
             double val = LBPCustomDiff(lbpModel, featureLBPHistMatrix,weights);
