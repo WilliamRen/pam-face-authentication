@@ -214,7 +214,10 @@ void verifier::createBiometricModels(char* setName=NULL)
                 }
 
             }
+            cvReleaseMat(&featureLBPHistMatrixFace);
 
+            cvReleaseImage(&averageImageFace);
+            cvReleaseImage(&averageImageFace64);
         }
 
         IplImage *variance =cvCreateImage( cvSize(5*4,1), IPL_DEPTH_64F, 1);
@@ -292,6 +295,15 @@ void verifier::createBiometricModels(char* setName=NULL)
         //    printf("\n");
 //printf("\n");
 ///
+
+
+        cvReleaseImage(&variance);
+        cvReleaseImage(&sumSq);
+
+        cvReleaseImage(&meanSq);
+        cvReleaseImage(&sum);
+
+
         char lbpFacePath[300];
         sprintf(lbpFacePath,"%s/%s_face_lbp.xml",modelDirectory,temp->setName[i]);
         CvFileStorage *fs;
@@ -312,6 +324,9 @@ void verifier::createBiometricModels(char* setName=NULL)
 
 
         }
+
+        cvReleaseMat(&finalWeights);
+
         cvReleaseMat(&featureLBPHistMatrix);
         lbpAv->sort();
 
