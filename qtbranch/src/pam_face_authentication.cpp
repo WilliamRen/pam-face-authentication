@@ -260,7 +260,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
 
     // The following lines make sure that the program quits if it's called remotely
     retval = pam_get_item(pamh, PAM_RHOST, (const void**)&host);
-    if(host != NULL) return retval;
+    if(host != NULL && host != "localhost") return retval;
 
     retval = pam_get_user(pamh, &user, NULL);
     if(retval != PAM_SUCCESS)
