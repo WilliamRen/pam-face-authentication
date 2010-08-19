@@ -114,25 +114,20 @@ static int send_info_msg(pam_handle_t *pamh, char *msg)
 
 static int send_err_msg(pam_handle_t *pamh, char *msg)
 {
-    if (boolMessages==0)
-        return 0;
-    if (msgPipeLiner(msg)==0)
-        return 0;
     struct pam_message mymsg;
+    struct pam_response* resp;
+    const struct pam_message* msgp = &mymsg;
+    const struct pam_conv* pc;
+
+    if(boolMessages == false) return 0;
+    if(msgPipeLiner(msg) == 0) return 0;
     mymsg.msg_style = PAM_ERROR_MSG;
     mymsg.msg = msg;
 
-    const struct pam_message *msgp = &mymsg;
-    const struct pam_conv *pc;
-    struct pam_response *resp;
-    int r;
+    int r = pam_get_item(pamh, PAM_CONV, (const void **)&pc);
+    if(r != PAM_SUCCESS) return -1;
 
-    r = pam_get_item(pamh, PAM_CONV, (const void **) &pc);
-    if (r != PAM_SUCCESS)
-        return -1;
-
-    if (!pc || !pc->conv)
-        return -1;
+    if(!pc || !pc->conv) return -1;
 
     return pc->conv(1, &msgp, &resp, pc->appdata_ptr);
 }
@@ -237,186 +232,146 @@ void processEvent(Display *display, Window window, int width, int height,IplImag
 
 
 PAM_EXTERN
-int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
-                        ,const char **argv)
+int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
+    setlocale(LC_ALL, "");
+    bindtextdomain("pam_face_authentication", PKGDATADIR "/locale");
+    textdomain("pam_face_authentication");
 
-     setlocale( LC_ALL, "" );
-     bindtextdomain( "pam_face_authentication", PKGDATADIR "/locale" );
-     textdomain( "pam_face_authentication" );
+    Display* displayScreen;
+    FILE* xlock = NULL;
+    Window window;
+    struct passwd *userStruct;
 
-    int retval;
-    const char *user=NULL;
-    const char *user_request=NULL;
+    int k = 0, s, retval, retValMsg, procnumber = 0, length = 0, enableX = 0;
+    int width = IMAGE_WIDTH, height = IMAGE_HEIGHT;
+    const char* host = NULL;
+    const char* pamtty = NULL;
+    const char* user = NULL;
+    const char* user_request = NULL;
+    const char* error = NULL;
+    char* username = NULL;
 
-    const char *error;
+    const char* display = getenv("DISPLAY");
+    const char* displayOrig = getenv("DISPLAY");
+    char* xauthpath = getenv("XAUTHORITY");
+    char* xauthpathOrig = getenv("XAUTHORITY");
+    char X_lock[300], cmdline[300];
 
-    // From fingerprint GUI project
-    // We need the Xauth to fork the GUI
-    int j;
-    const char *pamtty=NULL;
-    char X_lock[300];
-    char cmdline[300];
-    FILE *xlock;
-    int length;
-    int procnumber=0;
-    const char* displayOrig=getenv("DISPLAY");
-    char* xauthpathOrig=getenv("XAUTHORITY");
-
-    const char* display=getenv("DISPLAY");
-    char* xauthpath=getenv("XAUTHORITY");
-    // printf("%s \n",xauthpath);
-
+    // The following lines make sure that the program quits if it's called remotely
+    retval = pam_get_item(pamh, PAM_RHOST, (const void**)&host);
+    if(host != NULL) return retval;
 
     retval = pam_get_user(pamh, &user, NULL);
-    if (retval != PAM_SUCCESS)
+    if(retval != PAM_SUCCESS)
     {
-        D(("get user returned error: %s", pam_strerror(pamh,retval)));
+        D(("pam_get_user returned error: %s", pam_strerror(pamh,retval)));
         return retval;
     }
     if (user == NULL || *user == '\0')
     {
         D(("username not known"));
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
-        send_err_msg(pamh, "Username Not Set.");
+        send_err_msg(pamh, (char*)"Username not set.");
         return PAM_AUTHINFO_UNAVAIL;
     }
-    int retValMsg;
-    /*\m/ \m/  \m/ \m/  \m/ \m/  yay ! removed Xauth stuff Not Needed for KDM or GDM  ! yay \m/ \m/  \m/ \m/  \m/ \m/  */
+    
+    /* removed Xauth stuff Not Needed for KDM or GDM  ! yay \m/ \m/  \m/ \m/  \m/ \m/  */
     ipcStart();
     resetFlags();
 
-    char *username=(char *)calloc(strlen(user)+1,sizeof(char));
+    username = (char *)calloc(strlen(user)+1, sizeof(char));
     strcpy(username,user);
 
-
-    struct passwd *userStruct;
     userStruct = getpwnam(username);
-    uid_t userID=userStruct->pw_uid;
-    verifier* newVerifier=new verifier(userID);
+    uid_t userID = userStruct->pw_uid;
+    verifier* newVerifier = new verifier(userID);
 
-
-    //cvNamedWindow("src",0);
-    //cvShowImage("src",
-    pam_get_item(pamh,PAM_TTY,(const void **)(const void*)&pamtty);
-    if (pamtty!=NULL&&strlen(pamtty)>0)
+    pam_get_item(pamh, PAM_TTY, (const void **)(const void*)&pamtty);
+    if(pamtty != NULL && strlen(pamtty) > 0 && pamtty[0] == ':' && display == NULL)
     {
-        if (pamtty[0]==':')
-        {
-            if (display==NULL)
-            {
-                display=pamtty;
-                if (displayOrig==NULL)
-                {
-                    setenv("DISPLAY",display,-1);
-                }
-            }
-        }
+        display = pamtty;
+        if(displayOrig == NULL) setenv("DISPLAY", display, -1);
     }
 
-    int width=IMAGE_WIDTH, height=IMAGE_HEIGHT;
-    int s;
-    int enableX=0;
-    Display *displayScreen;
-    Window window;
-    int k=0;
-    while (k<argc)
+    while(k < argc)
     {
-        if (strcmp(argv[k],"gdmlegacy")==0)
+        if(strcmp(argv[k],"gdmlegacy") == 0)
         {
-            sprintf(X_lock,"/tmp/.X%s-lock",strtok((char*)&display[1],"."));
             char str[50];
-            xlock=fopen(X_lock,"r");
-            fgets(cmdline, 300,xlock);
+            char* word = NULL;
+            char* word1 = NULL;
+            
+            sprintf(X_lock, "/tmp/.X%s-lock", strtok((char*)&display[1], "."));
+            
+            xlock = fopen(X_lock, "r");
+            fgets(cmdline, 300, xlock);
             fclose(xlock);
-            char *word1;
-            word1=strtok(cmdline,"  \n");
-            sprintf(X_lock,"/proc/%s/cmdline",word1);
-            xlock=fopen(X_lock,"r");
-            fgets (X_lock , 300 , xlock);
+            
+            word1 = strtok(cmdline,"  \n");
+            sprintf(X_lock, "/proc/%s/cmdline", word1);
+            xlock = fopen(X_lock, "r");
+            fgets(X_lock , 300, xlock);
             fclose(xlock);
-            for (j=0;j<300;j++)
+            
+            for(int j = 0; j < 300; j++)
             {
-                if (X_lock[j]=='\0')
-                    X_lock[j]=' ';
-
+                if (X_lock[j]=='\0') X_lock[j]=' ';
             }
-            char *word;
-            for (word=strtok(X_lock," ");word!=NULL;word=strtok(NULL," "))
+            
+            for(word = strtok(X_lock, " "); word != NULL; word = strtok(NULL," "))
             {
-                if (strcmp(word,"-auth")==0)
+                if(strcmp(word,"-auth") == 0)
                 {
-                    xauthpath=strtok(NULL," ");
+                    xauthpath = strtok(NULL, " ");
                     break;
                 }
             }
-            if (file_exists(xauthpath)==1)
-            {
-                setenv("XAUTHORITY",xauthpath,-1);
-            }
+            if(file_exists(xauthpath) == 1) setenv("XAUTHORITY", xauthpath, -1);
         }
 
-
-        if ((strcmp(argv[k],"enableX")==0) || (strcmp(argv[k],"enablex")==0))
+        if((strcmp(argv[k], "enableX") == 0) || (strcmp(argv[k], "enablex") == 0))
         {
-            pam_get_item(pamh,PAM_RUSER,(const void **)(const void*)&user_request);
+            pam_get_item(pamh, PAM_RUSER, (const void **)(const void*)&user_request);
 
-
-            if (user_request!=NULL)
+            if(user_request != NULL)
             {
-
                 struct passwd *pw;
                 pw = getpwnam(user_request);
-                if (pw!=NULL)
-                {
-
-                    char xauthPathString[300];
-                    if (xauthpathOrig==NULL)
+                if(pw != NULL)
+                {  
+                    if(xauthpathOrig == NULL)
                     {
-
+                        char xauthPathString[300];
                         sprintf(xauthPathString,"%s/.Xauthority",pw->pw_dir);
                         setenv("XAUTHORITY",xauthPathString,-1);
                     }
-
                 }
-
             }
-            displayScreen=XOpenDisplay(NULL);
-            if (displayScreen!=NULL)
-            {
 
+            displayScreen = XOpenDisplay(NULL);
+            if(displayScreen != NULL)
+            {
                 s = DefaultScreen(displayScreen);
-                int xoffset=(DisplayWidth(displayScreen,s) - IMAGE_WIDTH)/2;
-                int yoffset=(DisplayHeight(displayScreen,s) - IMAGE_HEIGHT)/2;
+                int xoffset = (DisplayWidth(displayScreen,s) - IMAGE_WIDTH)/2;
+                int yoffset = (DisplayHeight(displayScreen,s) - IMAGE_HEIGHT)/2;
 
                 //       printf("%d  %d\n",xoffset ,yoffset);
 
-                window=XCreateSimpleWindow(displayScreen, RootWindow(displayScreen, s), xoffset,xoffset, width, height, 1, 0, 0);
+                window = XCreateSimpleWindow(displayScreen, 
+                    RootWindow(displayScreen, s), xoffset, xoffset, width, height, 1, 0, 0);
                 //XSelectInput(displayScreen, window, ButtonPressMask|ExposureMask);
                 XMapWindow(displayScreen, window);
                 XMoveWindow(displayScreen, window, xoffset, yoffset);
 
                 enableX=1;
-
-
             }
-
         }
 
-        if (strcmp(argv[k],"disable-messages")==0)
-        {
-            boolMessages=0;
-        }
+        if(strcmp(argv[k], "disable-messages") == 0) boolMessages = false;
 
-        k++;
+    k++;
     }
-
-
-
-
-
-
-
 
     opencvWebcam webcam;
     detector newDetector;
@@ -424,11 +379,11 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
     /* Clear Shared Memory */
 
-    IplImage *zeroFrame=cvCreateImage( cvSize(IMAGE_WIDTH,IMAGE_HEIGHT),IPL_DEPTH_8U,3);
+    IplImage *zeroFrame = cvCreateImage(cvSize(IMAGE_WIDTH, IMAGE_HEIGHT), IPL_DEPTH_8U, 3);
     cvZero(zeroFrame);
     writeImageToMemory(zeroFrame,shared);
 
-    if (webcam.startCamera()==0)
+    if(webcam.startCamera() == 0)
     {
         //Awesome Graphic Could be put to shared memory over here [TODO]
         send_err_msg(pamh, gettext("Unable to get hold of your webcam. Please check if it is plugged in."));
@@ -445,10 +400,10 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
     int loop=1;
     int ind=0;
     char tempM[300];
-    *commAuth=STARTED;
+    *commAuth = STARTED;
     // Donot Gettext this because kgreet_plugin relies on this :)
-    send_info_msg(pamh,"Face Verification Pluggable Authentication Module Started");
-    int val=newVerifier->verifyFace(zeroFrame);
+    send_info_msg(pamh, (char*)"Face Verification Pluggable Authentication Module Started");
+    int val = newVerifier->verifyFace(zeroFrame);
     if (val==2)
     {
         send_info_msg(pamh, gettext("Biometrics model has not been generated for the user. Use qt-facetrainer to create the model."));
@@ -469,13 +424,16 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
         t2=t2/((double)cvGetTickFrequency()*1000.0);
 
         IplImage * queryImage = webcam.queryFrame();
-        if (queryImage!=0)
-        {
 
+        if(queryImage!=0)
+        {
             newDetector.runDetector(queryImage);
 
 
-            if (sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))>28  && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x,2) + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y,2)))<120)
+            if(sqrt(pow(newDetector.eyesInformation.LE.x - newDetector.eyesInformation.RE.x, 2) 
+              + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y, 2))) > 28  
+            && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x, 2) 
+              + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y, 2))) < 120)
             {
 
                 double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
@@ -508,62 +466,48 @@ int pam_sm_authenticate(pam_handle_t *pamh,int flags,int argc
 
                             t2=(double)cvGetTickCount();
 
-                            while ( t3<1300)
-                            {
-                                t3 = (double)cvGetTickCount() - t2;
-                            }
+                            while(t3<1300) t3 = (double)cvGetTickCount() - t2;
                             return PAM_SUCCESS;
                         }
                     }
-
-
                     cvReleaseImage(&im);
-
                 }
-                else
-                {
-                    send_info_msg(pamh, gettext("Align your face."));
+                else send_info_msg(pamh, gettext("Align your face."));
 
-                }
+                newWebcamImagePaint.paintCyclops(queryImage, 
+                  newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
+                newWebcamImagePaint.paintEllipse(queryImage, 
+                  newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
 
-
-
-                newWebcamImagePaint.paintCyclops(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-                newWebcamImagePaint.paintEllipse(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
-
-                //  cvLine(queryImage, newDetector.eyesInformation.LE, newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
+                //  cvLine(queryImage, newDetector.eyesInformation.LE, 
+                //    newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
             }
             else
             {
                 send_info_msg(pamh,gettext("Keep proper distance with the camera."));
             }
 
+            if(enableX == 1) processEvent(displayScreen, window, width, height,queryImage,s);
 
-            if (enableX==1)
-                processEvent(displayScreen, window, width, height,queryImage,s);
-
-
-
-            writeImageToMemory(queryImage,shared);
+            writeImageToMemory(queryImage, shared);
             cvReleaseImage(&queryImage);
         }
-        else
-        {
-            send_info_msg(pamh, gettext("Unable query image from your webcam."));
-
-        }
-
+        else send_info_msg(pamh, gettext("Unable query image from your webcam."));
     }
-    writeImageToMemory(zeroFrame,shared);
+    
+    writeImageToMemory(zeroFrame, shared);
 
     send_err_msg(pamh, gettext("Giving Up Face Authentication. Try Again."));
-    if (enableX==1)
+    
+    if (enableX == 1)
     {
         XDestroyWindow(displayScreen,window);
         XCloseDisplay(displayScreen);
     }
+    
     *commAuth=STOPPED;
     webcam.stopCamera();
+    
     return PAM_AUTHINFO_UNAVAIL;
 }
 
