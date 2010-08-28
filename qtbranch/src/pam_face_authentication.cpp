@@ -1,5 +1,3 @@
-/** @file */
-
 /*
     Copyright (C) 2008-2009
      Rohan Anil (rohan.anil@gmail.com)
@@ -30,19 +28,27 @@
 #define PAM_SM_ACCOUNT
 #define PAM_SM_SESSION
 #define PAM_SM_PASSWORD
+
+// PAM and system headers
 #include <security/pam_modules.h>
 #include <security/_pam_macros.h>
 #include <security/_pam_types.h>
 #include <pwd.h> /* getpwdid */
-#include "cv.h"
-#include "highgui.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <unistd.h>
+
+// OpenCV headers
+#include "cv.h"
+#include "highgui.h"
+
+// App related headers
 #include <stdio.h>
-#include <stdlib.h>
+#include <libintl.h> // gettext()
+#include <X11/Xutil.h> // XDestroyImage()
+/*#include <stdlib.h>
 #include <string.h>
 #include <assert.h>
 #include <math.h>
@@ -50,79 +56,41 @@
 #include <limits.h>
 #include <time.h>
 #include <ctype.h>
+#include <locale.h>
+#include <X11/Xlib.h>*/
 #include "pam_face_authentication.h"
 #include "pam_face_defines.h"
 #include "webcamImagePaint.h"
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
-#include <libintl.h>
-#include <locale.h>
 
-#include     <stdio.h>
-#include     <stdlib.h>
-#include     <string.h>
-#include     <X11/Xlib.h>
-#include     <X11/Xutil.h>
-
-
-int file_exists(const char* filename);
-char * prevmsg=0;
-int boolMessages=1;
-int msgPipeLiner(char *msg)
+//------------------------------------------------------------------------------
+bool msgPipeLiner(char *msg)
 {
-
-    if (prevmsg!=0)
-    {
-        if (strcmp(prevmsg,msg)==0)
-            return 0;
-    }
-
-    if (prevmsg!=0)
-        free(prevmsg);
-    prevmsg=(char *)calloc(strlen(msg)+1,sizeof(char));
-    strcpy(prevmsg,msg);
+    if(prevmsg != 0 && strcmp(prevmsg, msg) == 0) return 0;
+    if(prevmsg != 0) free(prevmsg);
+    
+    prevmsg = (char *)calloc(strlen(msg)+1, sizeof(char));
+    strcpy(prevmsg, msg);
+    
     return 1;
 }
 
-static int send_info_msg(pam_handle_t *pamh, char *msg)
+//------------------------------------------------------------------------------
+static int send_msg(pam_handle_t* pamh, char* msg, int type)
 {
-    if (boolMessages==0)
-        return 0;
-
-    if (msgPipeLiner(msg)==0)
-        return 0;
-    struct pam_message mymsg;
-    mymsg.msg_style = PAM_TEXT_INFO;
-    mymsg.msg = msg;
-    const struct pam_message *msgp = &mymsg;
-    const struct pam_conv *pc;
-    struct pam_response *resp;
-    int r;
-
-    r = pam_get_item(pamh, PAM_CONV, (const void **) &pc);
-    if (r != PAM_SUCCESS)
-        return -1;
-
-    if (!pc || !pc->conv)
-        return -1;
-
-    return pc->conv(1, &msgp, &resp, pc->appdata_ptr);
-}
-
-
-
-static int send_err_msg(pam_handle_t *pamh, char *msg)
-{
+    const struct pam_conv* pc;
     struct pam_message mymsg;
     struct pam_response* resp;
-    const struct pam_message* msgp = &mymsg;
-    const struct pam_conv* pc;
-
+    
     if(boolMessages == false) return 0;
-    if(msgPipeLiner(msg) == 0) return 0;
-    mymsg.msg_style = PAM_ERROR_MSG;
+    if(msgPipeLiner(msg) == false) return 0;
+
+    if(type == 1) mymsg.msg_style = PAM_ERROR_MSG;  // print error msg
+    else mymsg.msg_style = PAM_TEXT_INFO;  // normal output
     mymsg.msg = msg;
+    const struct pam_message* msgp = &mymsg;
 
     int r = pam_get_item(pamh, PAM_CONV, (const void **)&pc);
     if(r != PAM_SUCCESS) return -1;
@@ -132,17 +100,17 @@ static int send_err_msg(pam_handle_t *pamh, char *msg)
     return pc->conv(1, &msgp, &resp, pc->appdata_ptr);
 }
 
-
+//------------------------------------------------------------------------------
 void resetFlags()
 {
-    *commAuth=0;
+    *commAuth = 0;
 }
 
-
+//------------------------------------------------------------------------------
 void ipcStart()
 {
     /*   IPC   */
-    ipckey =  IPC_KEY_IMAGE;
+    ipckey = IPC_KEY_IMAGE;
     shmid = shmget(ipckey, IMAGE_SIZE, IPC_CREAT | 0666);
     shared = (char *)shmat(shmid, NULL, 0);
 
@@ -150,87 +118,83 @@ void ipcStart()
     shmidCommAuth = shmget(ipckeyCommAuth, sizeof(int), IPC_CREAT | 0666);
     commAuth = (int *)shmat(shmidCommAuth, NULL, 0);
 
-    *commAuth=0;
+    *commAuth = 0;
     /*   IPC END  */
 }
 
-void writeImageToMemory(IplImage* img,char *shared)
+//------------------------------------------------------------------------------
+void writeImageToMemory(IplImage* img, char* shared)
 {
-    int m,n;
-    for (n=0;n<IMAGE_HEIGHT;n++)
+    for(int n = 0; n < IMAGE_HEIGHT; n++)
     {
-        for (m= 0;m<IMAGE_WIDTH;m++)
+        for(int m = 0; m < IMAGE_WIDTH; m++)
         {
-            CvScalar s;
-            s=cvGet2D(img,n,m);
-            int val3=(uchar)s.val[2];
-            int val2=(uchar)s.val[1];
-            int val1=(uchar)s.val[0];
+            CvScalar s = cvGet2D(img, n, m);
+            int val3 = (uchar)s.val[2];
+            int val2 = (uchar)s.val[1];
+            int val1 = (uchar)s.val[0];
 
-            *(shared + m*3 + 2+ n*IMAGE_WIDTH*3)=val3;
-            *(shared + m*3 + 1+ n*IMAGE_WIDTH*3)=val2;
-            *(shared + m*3 + 0+ n*IMAGE_WIDTH*3)=val1;
-
+            *(shared + m*3 + 2+ n*IMAGE_WIDTH*3) = val3;
+            *(shared + m*3 + 1+ n*IMAGE_WIDTH*3) = val2;
+            *(shared + m*3 + 0+ n*IMAGE_WIDTH*3) = val1;
         }
     }
 }
 
-XImage *CreateTrueColorImage(Display *display, Visual *visual,  char *image, int width, int height,IplImage* img)
+//------------------------------------------------------------------------------
+XImage* CreateTrueColorImage(Display* display, Visual* visual, 
+  char* image, int width, int height, IplImage* img)
 {
-    int max=IMAGE_WIDTH >IMAGE_HEIGHT?IMAGE_WIDTH:IMAGE_HEIGHT;
-    int wh=IMAGE_WIDTH >IMAGE_HEIGHT? 1 : 0;
+    int max = (IMAGE_WIDTH > IMAGE_HEIGHT) ? IMAGE_WIDTH:IMAGE_HEIGHT;
+    int wh = (IMAGE_WIDTH > IMAGE_HEIGHT) ? 1 : 0;
 
-    int i, j;
-    char *image32=( char *)malloc(width*height*4);
-    char *p=image32;
+    char* image32=(char *)malloc(width*height*4);
+    char* p = image32;
 
-    for (j=0; j<height; j++)
+    for(int j = 0; j < height; j++)
     {
-        for (i=0; i<width; i++)
+        for(int i = 0; i < width; i++)
         {
-            if ((j<IMAGE_HEIGHT) && (i<IMAGE_WIDTH))
+            if((j < IMAGE_HEIGHT) && (i < IMAGE_WIDTH))
             {
-                CvScalar s;
-                s=cvGet2D(img,j,i);
-                int val3=(uchar)s.val[2];
-                int val2=(uchar)s.val[1];
-                int val1=(uchar)s.val[0];
+                CvScalar s = cvGet2D(img, j, i);
+                int val3 = (uchar)s.val[2];
+                int val2 = (uchar)s.val[1];
+                int val1 = (uchar)s.val[0];
 
-
-                *p++=val1; // blue
-                *p++=val2; // green
-                *p++=val3; // red
+                *p++ = val1; // blue
+                *p++ = val2; // green
+                *p++ = val3; // red
             }
             else
             {
-
-                *p++=0; // blue
-                *p++=0; // green
-                *p++=0; // red
-
+                *p++ = 0; // blue
+                *p++ = 0; // green
+                *p++ = 0; // red
             }
-
-
-            p++;
-
+        p++;
         }
     }
-    return XCreateImage(display, visual, 24, ZPixmap, 0,( char *) image32, width, height, 32, 0);
+    
+    return XCreateImage(display, visual, 24, ZPixmap, 0, 
+      (char *)image32, width, height, 32, 0);
 }
 
-void processEvent(Display *display, Window window, int width, int height,IplImage* img,int s )
+//------------------------------------------------------------------------------
+void processEvent(Display* display, Window window, 
+  int width, int height, IplImage* img, int s)
 {
-    int xoffset=(DisplayWidth(display,s) - IMAGE_WIDTH)/2;
-    int yoffset=(DisplayHeight(display,s) - IMAGE_HEIGHT)/2;
-    // XMoveWindow( display, window, xoffset, yoffset);
-    XImage *ximage;
-    Visual *visual=DefaultVisual(display, 0);
-    ximage=CreateTrueColorImage(display, visual, 0, width, height,img);
+    int xoffset = (DisplayWidth(display, s) - IMAGE_WIDTH)/2;
+    int yoffset = (DisplayHeight(display, s) - IMAGE_HEIGHT)/2;
+    // XMoveWindow(display, window, xoffset, yoffset);
+    
+    Visual* visual = DefaultVisual(display, 0);
+    XImage* ximage = CreateTrueColorImage(display, visual, 0, width, height, img);
     XPutImage(display, window, DefaultGC(display, 0), ximage, 0, 0, 0, 0, width, height);
     XDestroyImage(ximage);
 }
 
-
+//------------------------------------------------------------------------------
 PAM_EXTERN
 int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
@@ -241,7 +205,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
     Display* displayScreen;
     FILE* xlock = NULL;
     Window window;
-    struct passwd *userStruct;
+    struct passwd* userStruct;
 
     int k = 0, s, retval, retValMsg, procnumber = 0, length = 0, enableX = 0;
     int width = IMAGE_WIDTH, height = IMAGE_HEIGHT;
@@ -262,6 +226,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
     retval = pam_get_item(pamh, PAM_RHOST, (const void**)&host);
     if(host != NULL && host != "localhost") return retval;
 
+    // Fetch the current user name
     retval = pam_get_user(pamh, &user, NULL);
     if(retval != PAM_SUCCESS)
     {
@@ -272,7 +237,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
     {
         D(("username not known"));
         pam_set_item(pamh, PAM_USER, (const void *) DEFAULT_USER);
-        send_err_msg(pamh, (char*)"Username not set.");
+        send_msg(pamh, (char*)"Username not set.", 1);
         return PAM_AUTHINFO_UNAVAIL;
     }
     
@@ -296,7 +261,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
 
     while(k < argc)
     {
-        if(strcmp(argv[k],"gdmlegacy") == 0)
+        if(strcmp(argv[k], "gdmlegacy") == 0)
         {
             char str[50];
             char* word = NULL;
@@ -321,7 +286,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
             
             for(word = strtok(X_lock, " "); word != NULL; word = strtok(NULL," "))
             {
-                if(strcmp(word,"-auth") == 0)
+                if(strcmp(word, "-auth") == 0)
                 {
                     xauthpath = strtok(NULL, " ");
                     break;
@@ -336,16 +301,12 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
 
             if(user_request != NULL)
             {
-                struct passwd *pw;
-                pw = getpwnam(user_request);
-                if(pw != NULL)
+                struct passwd* pw = getpwnam(user_request);
+                if(pw != NULL && xauthpathOrig == NULL)
                 {  
-                    if(xauthpathOrig == NULL)
-                    {
-                        char xauthPathString[300];
-                        sprintf(xauthPathString,"%s/.Xauthority",pw->pw_dir);
-                        setenv("XAUTHORITY",xauthPathString,-1);
-                    }
+                    char xauthPathString[300];
+                    sprintf(xauthPathString, "%s/.Xauthority", pw->pw_dir);
+                    setenv("XAUTHORITY",xauthPathString,-1);
                 }
             }
 
@@ -356,7 +317,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
                 int xoffset = (DisplayWidth(displayScreen,s) - IMAGE_WIDTH)/2;
                 int yoffset = (DisplayHeight(displayScreen,s) - IMAGE_HEIGHT)/2;
 
-                //       printf("%d  %d\n",xoffset ,yoffset);
+                // printf("%d  %d\n",xoffset ,yoffset);
 
                 window = XCreateSimpleWindow(displayScreen, 
                     RootWindow(displayScreen, s), xoffset, xoffset, width, height, 1, 0, 0);
@@ -364,7 +325,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
                 XMapWindow(displayScreen, window);
                 XMoveWindow(displayScreen, window, xoffset, yoffset);
 
-                enableX=1;
+                enableX = 1;
             }
         }
 
@@ -378,101 +339,100 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
     static webcamImagePaint newWebcamImagePaint;
 
     /* Clear Shared Memory */
-
-    IplImage *zeroFrame = cvCreateImage(cvSize(IMAGE_WIDTH, IMAGE_HEIGHT), IPL_DEPTH_8U, 3);
+    IplImage* zeroFrame = cvCreateImage(cvSize(IMAGE_WIDTH, IMAGE_HEIGHT), IPL_DEPTH_8U, 3);
     cvZero(zeroFrame);
-    writeImageToMemory(zeroFrame,shared);
+    writeImageToMemory(zeroFrame, shared);
 
     if(webcam.startCamera() == 0)
     {
         //Awesome Graphic Could be put to shared memory over here [TODO]
-        send_err_msg(pamh, gettext("Unable to get hold of your webcam. Please check if it is plugged in."));
+        send_msg(pamh, gettext("Unable to get hold of your webcam. Please check if it is plugged in."), 1);
         return PAM_AUTHINFO_UNAVAIL;
     }
 
     /* New Logic, run it for some X amount of Seconds and Reply Not Allowed */
 
-// This line might be necessary for GDM , will fix later, right now KDM
-// system(QT_FACE_AUTH);
+    // This line might be necessary for GDM , will fix later, right now KDM
+    // system(QT_FACE_AUTH);
     double t1 = (double)cvGetTickCount();
-    double t2=0;
-    double t3=0;
-    int loop=1;
-    int ind=0;
-    char tempM[300];
+    double t2 = 0;
+    double t3 = 0;
+    bool run_loop = true;
+    int timeout = 25000; // Login timeout value
+    
     *commAuth = STARTED;
-    // Donot Gettext this because kgreet_plugin relies on this :)
-    send_info_msg(pamh, (char*)"Face Verification Pluggable Authentication Module Started");
+    
+    // Don't Gettext this because kgreet_plugin relies on this :)
+    send_msg(pamh, (char*)"Face Verification Pluggable Authentication Module Started");
     int val = newVerifier->verifyFace(zeroFrame);
-    if (val==2)
+    if(val == 2)
     {
-        send_info_msg(pamh, gettext("Biometrics model has not been generated for the user. Use qt-facetrainer to create the model."));
-        loop=0;
+        send_msg(pamh, gettext("Biometrics model has not been generated for the user. \
+          Use qt-facetrainer to create the model."));
+        run_loop = false;
     }
-//send_info_msg(pamh, "Commencing Face Verification.");
-    CvFileStorage * fileStorage;
-    int totalTime=25000;
-    fileStorage = cvOpenFileStorage( PKGDATADIR "/config.xml", 0, CV_STORAGE_READ );
-    if ( fileStorage )
+    
+    //send_msg(pamh, "Commencing Face Verification.");
+    
+    CvFileStorage* fileStorage = cvOpenFileStorage(PKGDATADIR "/config.xml", 0, CV_STORAGE_READ);
+    if(fileStorage)
     {
-        totalTime = cvReadIntByName(fileStorage, 0, "TIME_OUT", 25000);
-        cvReleaseFileStorage( &fileStorage );
+        timeout = cvReadIntByName(fileStorage, 0, "TIME_OUT", timeout);
+        cvReleaseFileStorage(&fileStorage);
     }
-    while (loop==1 && t2<25000)
+    
+    while(run_loop == true && t2 < timeout)
     {
         t2 = (double)cvGetTickCount() - t1;
-        t2=t2/((double)cvGetTickFrequency()*1000.0);
+        t2 = t2 / ((double)cvGetTickFrequency()*1000.0);
 
-        IplImage * queryImage = webcam.queryFrame();
+        IplImage* queryImage = webcam.queryFrame();
 
-        if(queryImage!=0)
+        if(queryImage != 0)
         {
             newDetector.runDetector(queryImage);
-
 
             if(sqrt(pow(newDetector.eyesInformation.LE.x - newDetector.eyesInformation.RE.x, 2) 
               + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y, 2))) > 28  
             && sqrt(pow(newDetector.eyesInformation.LE.x-newDetector.eyesInformation.RE.x, 2) 
               + (pow(newDetector.eyesInformation.LE.y-newDetector.eyesInformation.RE.y, 2))) < 120)
             {
+                double yvalue = newDetector.eyesInformation.RE.y - newDetector.eyesInformation.LE.y;
+                double xvalue = newDetector.eyesInformation.RE.x - newDetector.eyesInformation.LE.x;
+                double ang = atan(yvalue / xvalue) * (180 / CV_PI);
 
-                double yvalue=newDetector.eyesInformation.RE.y-newDetector.eyesInformation.LE.y;
-                double xvalue=newDetector.eyesInformation.RE.x-newDetector.eyesInformation.LE.x;
-                double ang= atan(yvalue/xvalue)*(180/CV_PI);
-
-                if (pow(ang,2)<200)
+                if(pow(ang, 2) < 200)
                 {
-
-                    IplImage * im = newDetector.clipFace(queryImage);
-                    send_info_msg(pamh, gettext("Verifying Face ..."));
-                    if (im!=0)
+                    IplImage* im = newDetector.clipFace(queryImage);
+                    send_msg(pamh, gettext("Verifying Face ..."));
+                    if(im != 0)
                     {
-                        int val=newVerifier->verifyFace(im);
-                        if (val==1)
+                        int val = newVerifier->verifyFace(im);
+                        if(val == 1)
                         {
-                            *commAuth=STOPPED;
+                            *commAuth = STOPPED;
                             // cvSaveImage("/home/rohan/new1.jpg",newDetector.clipFace(queryImage));
-                            send_info_msg(pamh, gettext("Verification Successful."));
+                            send_msg(pamh, gettext("Verification successful."));
 
-
-                            if (enableX==1)
+                            if(enableX == 1)
                             {
-                                XDestroyWindow(displayScreen,window);
+                                XDestroyWindow(displayScreen, window);
                                 XCloseDisplay(displayScreen);
                             }
 
-                            writeImageToMemory(zeroFrame,shared);
+                            writeImageToMemory(zeroFrame, shared);
                             webcam.stopCamera();
 
-                            t2=(double)cvGetTickCount();
+                            t2 = (double)cvGetTickCount();
 
-                            while(t3<1300) t3 = (double)cvGetTickCount() - t2;
+                            while(t3 < 1300) t3 = (double)cvGetTickCount() - t2;
+                           
                             return PAM_SUCCESS;
                         }
                     }
                     cvReleaseImage(&im);
                 }
-                else send_info_msg(pamh, gettext("Align your face."));
+                else send_msg(pamh, gettext("Align your face."));
 
                 newWebcamImagePaint.paintCyclops(queryImage, 
                   newDetector.eyesInformation.LE, newDetector.eyesInformation.RE);
@@ -482,72 +442,64 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
                 //  cvLine(queryImage, newDetector.eyesInformation.LE, 
                 //    newDetector.eyesInformation.RE, cvScalar(0,255,0), 4);
             }
-            else
-            {
-                send_info_msg(pamh,gettext("Keep proper distance with the camera."));
-            }
+            else send_msg(pamh,gettext("Keep proper distance with the camera."));
+            
 
-            if(enableX == 1) processEvent(displayScreen, window, width, height,queryImage,s);
+            if(enableX == 1) processEvent(displayScreen, window, width, height, queryImage, s);
 
             writeImageToMemory(queryImage, shared);
             cvReleaseImage(&queryImage);
         }
-        else send_info_msg(pamh, gettext("Unable query image from your webcam."));
+        else send_msg(pamh, gettext("Unable query image from your webcam."));
     }
     
     writeImageToMemory(zeroFrame, shared);
 
-    send_err_msg(pamh, gettext("Giving Up Face Authentication. Try Again."));
+    send_msg(pamh, gettext("Giving Up Face Authentication. Try Again."), 1);
     
-    if (enableX == 1)
+    if(enableX == 1)
     {
         XDestroyWindow(displayScreen,window);
         XCloseDisplay(displayScreen);
     }
     
-    *commAuth=STOPPED;
+    *commAuth = STOPPED;
     webcam.stopCamera();
     
     return PAM_AUTHINFO_UNAVAIL;
 }
 
+//------------------------------------------------------------------------------
 PAM_EXTERN
-int pam_sm_setcred(pam_handle_t *pamh,int flags,int argc
-                   ,const char **argv)
+int pam_sm_setcred(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
     return PAM_SUCCESS;
 }
 
 /* --- account management functions --- */
-
 PAM_EXTERN
-int pam_sm_acct_mgmt(pam_handle_t *pamh,int flags,int argc
-                     ,const char **argv)
+int pam_sm_acct_mgmt(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
     return PAM_SUCCESS;
 }
 
 /* --- password management --- */
-
 PAM_EXTERN
-int pam_sm_chauthtok(pam_handle_t *pamh,int flags,int argc
-                     ,const char **argv)
+int pam_sm_chauthtok(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
     return PAM_SUCCESS;
 }
 
 /* --- session management --- */
-
 PAM_EXTERN
-int pam_sm_open_session(pam_handle_t *pamh,int flags,int argc
-                        ,const char **argv)
+int pam_sm_open_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
     return PAM_SUCCESS;
 }
 
+//------------------------------------------------------------------------------
 PAM_EXTERN
-int pam_sm_close_session(pam_handle_t *pamh,int flags,int argc
-                         ,const char **argv)
+int pam_sm_close_session(pam_handle_t* pamh, int flags, int argc, const char** argv)
 {
     return PAM_SUCCESS;
 }
