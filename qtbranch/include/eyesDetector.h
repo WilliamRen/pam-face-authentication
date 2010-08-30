@@ -2,41 +2,37 @@
 #define _INCL_EYES_DETECTOR
 
 /**
-* Eye Structure, Information that can describe the detected Eye on the Face Image
+* Eye structure. Information that describe the detected eyes on the face image
 */
 struct eyes
 {
-    CvPoint LE; /**< Co-ordinates of the Left Eye */
-    CvPoint RE; /**< Co-ordinates of the Right Eye */
-    int Length; /**< Length Eye */
+    CvPoint LE; /** Coordinates of the Left Eye */
+    CvPoint RE; /** Coordinates of the Right Eye */
+    int Length; /** Length Eye */
 };
 
 /**
-* Eye Detector Class. This Class Runs the OpenCV Haar Detect Functions for finding Eyes.
+* Eye detector class. This class runs the OpenCV Haar detection functions for finding eyes.
 */
 class eyesDetector
 {
   private:
       /**
-      *Eye Cascade Structure 1
+      *Eye Cascade Structures
       */
-      CvHaarClassifierCascade* nested_cascade;
-      
-      /**
-      *Eye Cascade Structure 2
-      */
-      CvHaarClassifierCascade* nested_cascade_2;
+      CvHaarClassifierCascade* nested_cascade_;
+      CvHaarClassifierCascade* nested_cascade_2_;
       
       /**
       * Work area for Haar detection
       */
-      CvMemStorage* storage;
+      CvMemStorage* storage_;
 
       /**
       * Internal Variable to track if both eyes were detected
       * @see checkEyeDetected
       */
-      bool bothEyesDetected;
+      bool bothEyesDetected_;
       
       /**
       * Copy constructor

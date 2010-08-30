@@ -1,7 +1,7 @@
 /*
-    EYE DETECTOR CLASS
-    Copyright (C) 2009 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
-    http://code.google.com/p/pam-face-authentication/
+    Eye detector class
+    Copyright (C) 2010 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
+    http://www.pam-face-authentication.org/
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,24 +16,31 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <stdio.h>
-#include <highgui.h>
+//#include <cstdio>
+#include <string>
 #include <cv.h>
 #include "eyesDetector.h"
 #include "pam_face_defines.h"
 
+using std::string;
+
 double CenterofMass(IplImage* src, int flagXY);
-const char* HAAR_CASCADE_EYE = PKGDATADIR "/haarcascade_eye_tree_eyeglasses.xml";
-const char* HAAR_CASCADE_EYE_2 = PKGDATADIR "/haarcascade_eye.xml";
+
+const string HAAR_CASCADE_EYE = PKGDATADIR "/haarcascade_eye_tree_eyeglasses.xml";
+const string HAAR_CASCADE_EYE_2 = PKGDATADIR "/haarcascade_eye.xml";
 
 //------------------------------------------------------------------------------
-eyesDetector::eyesDetector() : bothEyesDetected(false)
+eyesDetector::eyesDetector() : bothEyesDetected_(false)
 {
-    nested_cascade = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE, 0, 0, 0);
-    nested_cascade_2 = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE_2, 0, 0, 0);
-    storage = cvCreateMemStorage(0);
-    cvClearMemStorage(storage);
+    // Load two cascade files
+    nested_cascade_ = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE.c_str(), 0, 0, 0);
+    nested_cascade_2_ = (CvHaarClassifierCascade*)cvLoad(HAAR_CASCADE_EYE_2.c_str(), 0, 0, 0);
     
+    // Setup the storage and clear it
+    storage_ = cvCreateMemStorage(0);
+    cvClearMemStorage(storage_);
+    
+    // Initialize eyesInformation Params
     eyesInformation.LE = cvPoint(0, 0);
     eyesInformation.RE = cvPoint(0, 0);
     eyesInformation.Length = 0;
@@ -42,58 +49,62 @@ eyesDetector::eyesDetector() : bothEyesDetected(false)
 //------------------------------------------------------------------------------
 eyesDetector::~eyesDetector()
 {
-}
-
-//------------------------------------------------------------------------------
-bool eyesDetector::checkEyeDetected()
-{
-    if(bothEyesDetected == true) return true;
-    else return false;
+    if(nested_cascade_) cvReleaseHaarClassifierCascade(&nested_cascade_);
+    if(nested_cascade_2_) cvReleaseHaarClassifierCascade(&nested_cascade_2_);
+    if(storage_) cvReleaseMemStorage(&storage_);
 }
 
 //------------------------------------------------------------------------------
 void eyesDetector::runEyesDetector(IplImage* input, IplImage* fullImage, CvPoint LT)
 {
-    bothEyesDetected = false;
-    double scale = 1;
+    bothEyesDetected_ = false;
+    
+    int scale = 1;
     int leftT = 0, rightT = 0, Flag = 0;
     //static int countR;
-    //static CvPoint leftEyeP,rightEyeP;
+    //static CvPoint leftEyeP, rightEyeP;
+
+    // (Re-)initialize eyesInformation params
     eyesInformation.LE = cvPoint(0, 0);
     eyesInformation.RE = cvPoint(0, 0);
     eyesInformation.Length = 0;
+
+    cvClearMemStorage(storage_);
     
+    // If no image is given, return
     if(input == 0) return;
+    
+    IplImage* gray = cvCreateImage(cvSize(input->width, input->height/2), 8, 1);
+    IplImage* gray_fullimage = cvCreateImage(cvGetSize(fullImage), 8, 1);
+    IplImage* gray_scale = cvCreateImage(cvSize(input->width / scale,
+                                      input->height / (2*scale)), 8, 1);
 
-    // printf("%e SCALE \n\n",scale);
-
-    IplImage* gray = cvCreateImage(cvSize(input->width, input->height/(2)), 8, 1);
-    IplImage* gray_fullimage = cvCreateImage(cvSize(fullImage->width,
-      fullImage->height), 8, 1);
-    IplImage* gray_scale = cvCreateImage(cvSize(input->width/scale,
-      input->height / (2*scale)), 8, 1);
-
-    cvSetImageROI(input,cvRect(0, (input->height) / 8, input->width,
+    cvSetImageROI(input, cvRect(0, (input->height) / 8, input->width,
       (input->height) / 2));
     cvCvtColor(input, gray, CV_BGR2GRAY);
     cvResetImageROI(input);
 
     cvCvtColor(fullImage, gray_fullimage, CV_BGR2GRAY);
     cvResize(gray, gray_scale, CV_INTER_LINEAR);
-    cvClearMemStorage(storage);
-
+    
+    // Perform histogram equalization (increases contrast and dynamic range)
+    cvEqualizeHist(gray_scale, gray_scale);    
+    
+    // First round of Haar detection using nested_cascade_
     CvSeq* nested_objects = cvHaarDetectObjects(gray_scale, 
-      nested_cascade, storage, 1.4, 2, 0, cvSize(0, 0));
+      nested_cascade_, storage_, 1.4, 2, 0, cvSize(0, 0));
     
     int count = nested_objects ? nested_objects->total : 0;
     if(count == 0)
     {
-        nested_objects = cvHaarDetectObjects(gray_scale, nested_cascade_2, 
-          storage, 1.4, 2, 0, cvSize(0, 0));
+        // Second round of detection using nested_cascade_2_
+        nested_objects = cvHaarDetectObjects(gray_scale, nested_cascade_2_, 
+          storage_, 1.4, 2, 0, cvSize(0, 0));
+          
+        count = nested_objects ? nested_objects->total : 0;
     }
 
-    count = nested_objects ? nested_objects->total : 0;
-    if(count > 1)
+    if(count > 0)
     {
         for(int j = 0; j < (nested_objects ? nested_objects->total : 0); j++)
         {
@@ -106,6 +117,7 @@ void eyesDetector::runEyesDetector(IplImage* input, IplImage* fullImage, CvPoint
                (center.y - 4) > 0 && ((center.y - 4) < (IMAGE_HEIGHT-8)))
             {
                 cvSetImageROI(gray_fullimage, cvRect(center.x - 4, center.y - 4, 8, 8));
+                
                 IplImage* eyeDetect = cvCreateImage(cvSize(8, 8), 8, 1);
                 cvResize(gray_fullimage, eyeDetect, CV_INTER_LINEAR);
                 cvResetImageROI(gray_fullimage);
@@ -139,12 +151,21 @@ void eyesDetector::runEyesDetector(IplImage* input, IplImage* fullImage, CvPoint
         {
             eyesInformation.Length = sqrt(pow(eyesInformation.RE.y - eyesInformation.LE.y, 2)
               + pow(eyesInformation.RE.x - eyesInformation.LE.x, 2));
-            bothEyesDetected = true;
+            bothEyesDetected_ = true;
         }
     }
 
     cvReleaseImage(&gray_fullimage);
     cvReleaseImage(&gray);
     cvReleaseImage(&gray_scale);
+}
+
+//------------------------------------------------------------------------------
+bool eyesDetector::checkEyeDetected()
+{
+    if(bothEyesDetected_ == true) 
+        return true;
+    else 
+        return false;
 }
 

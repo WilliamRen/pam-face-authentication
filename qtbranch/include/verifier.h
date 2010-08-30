@@ -1,16 +1,8 @@
 #ifndef _INCL_GUARD_VER
 #define _INCL_GUARD_VER
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <pwd.h> /* getpwdid */
-#include <ctime>
 #include "cv.h"
 #include "highgui.h"
-
-#define FACE_MACE_SIZE 64
-#define EYE_MACE_SIZE 64
-#define INSIDE_FACE_MACE_SIZE 64
 
 /**
 * Structure of Face Images.

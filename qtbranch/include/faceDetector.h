@@ -2,17 +2,16 @@
 #define _INCL_FACE_DETECTOR
 
 #include "cv.h"
-#include "highgui.h"
 
 /**
 * Face structure, information that can describe the detected face on the image
 */
 struct face
 {
-  CvPoint LT;  /**< Co-ordinates of Left Top of the Face */
-  CvPoint RB;  /**< Co-ordinates of Right Top of the Face */
-  int Width;   /**< Width of the Face */
-  int Height;  /**< Height of the Face */
+  CvPoint LT;  /** Co-ordinates of Left Top of the Face */
+  CvPoint RB;  /** Co-ordinates of Right Top of the Face */
+  int Width;   /** Width of the Face */
+  int Height;  /** Height of the Face */
 };
 
 /**
@@ -23,15 +22,15 @@ class faceDetector
 {
   private:
     /**
-    *OpenCV cascade structure
+    * OpenCV cascade structure
     */
-    CvHaarClassifierCascade* cascade;
+    CvHaarClassifierCascade* cascade_;
     
     /**
     * Storage - Work area for the OpenCV detection algorithm
     */
-    CvMemStorage* storage;
-
+    CvMemStorage* storage_;
+    
     /**
     * Copy constructor
     * @param faceDetector, original value to copy

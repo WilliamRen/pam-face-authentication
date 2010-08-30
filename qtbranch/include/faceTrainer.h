@@ -1,4 +1,5 @@
-/** @file */
+#ifndef _INCL_FACE_TRAINER
+#define _INCL_FACE_TRAINER
 
 #include "ui_faceTrainer.h"
 #include "faceTrainerAdvSettings.h"
@@ -6,6 +7,7 @@
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
+
 /**
 * Face Trainer Class. The Main window used to train the Face.
 */
@@ -110,3 +112,5 @@ public slots:
     void setIbarText(QString message);
 
 };
+
+#endif // _INCL_FACE_TRAINER

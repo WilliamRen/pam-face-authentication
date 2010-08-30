@@ -26,6 +26,8 @@
 #define eyeTopPad 30
 #define eyeBottomPad 120
 
+using std::bad_alloc;
+
 //------------------------------------------------------------------------------
 detector::detector() : messageIndex(-1), clippedFace(0), boolClipFace_(0), 
   totalFaceClipNum_(0), clipFaceCounter_(0), prevlengthEye_(0), inAngle_(0),
@@ -36,6 +38,7 @@ detector::detector() : messageIndex(-1), clippedFace(0), boolClipFace_(0),
 //------------------------------------------------------------------------------
 detector::~detector()
 {
+  if(clippedFace != 0) delete[] clippedFace;
 }
 
 //------------------------------------------------------------------------------
@@ -90,30 +93,33 @@ int detector::runDetector(IplImage* input)
 {
   static int flag;
   double xvalue, yvalue, currentAngle;
+  double angle, angle2, v1, v2, v3, lengthTemp;
   int newWidth,newHeight;
   int lxdiff = 0, rxdiff = 0, lydiff = 0, rydiff = 0;
   int newWidthR,newHeightR,newWidthL,newHeightL;
   CvPoint temp, leftEyePTemp, leftEyePointRelativeTemp;
   CvPoint rightEyePTemp, rightEyePointRelativeTemp;
-  double angle, angle2, v1, v2, v3, lengthTemp;
 
   messageIndex = -1;
   if(input == 0) return -1;
 
+  // Runs the face detector onto the input image
   runFaceDetector(input);
 
-  if(checkFaceDetected() == 1)
+  if(checkFaceDetected() == true)
   {
     if(faceInformation.Width < 120 || faceInformation.Height < 120)
-      messageIndex = 0;
+      messageIndex = 0; // Come closer to the camera
     else if(faceInformation.Width > 200 || faceInformation.Height > 200)
-      messageIndex = 1;
+      messageIndex = 1; // Go farer away from the camera
     else
     {
       IplImage* clipFaceImage = clipDetectedFace(input);
+      
+      // With the clipped face, run the eye detector
       runEyesDetector(clipFaceImage, input, faceInformation.LT);
       
-      if(checkEyeDetected() == 1)
+      if(checkEyeDetected() == true)
       {
         flag = 1;
         
@@ -167,7 +173,7 @@ int detector::runDetector(IplImage* input)
       }
       else
       {
-        messageIndex = 2;
+        messageIndex = 2; // Unable to detect your face
       }
       
       cvReleaseImage(&clipFaceImage);
@@ -176,7 +182,7 @@ int detector::runDetector(IplImage* input)
   }
   else
   {
-    if(flag != 1) messageIndex = 2;
+    if(flag != 1) messageIndex = 2; // Detected the face, but not the eyes
   }
 
   if(flag == 1)
@@ -326,7 +332,7 @@ int detector::runDetector(IplImage* input)
     cvReleaseMat(&rotateMatrix);
   }
 
-  if(checkEyeDetected() == 1 && checkFaceDetected() == 1 && boolClipFace_ == 1)
+  if(checkEyeDetected() == true && checkFaceDetected() == true && boolClipFace_ == true)
   {
     if(clipFaceCounter_ > 0)
     {
@@ -337,7 +343,7 @@ int detector::runDetector(IplImage* input)
           totalFaceClipNum - clipFaceCounter_+1, totalFaceClipNum); */
       if(clipFaceCounter_ == 0)
       {
-        messageIndex = 6;
+        messageIndex = 6; // Image capturing finished
         finishedClipFaceFlag_ = 1;
       }
     }
@@ -375,11 +381,18 @@ IplImage** detector::returnClipedFace()
 //------------------------------------------------------------------------------
 void detector::startClipFace(int num)
 {
-  // TODO: Try-catch exception if no space for IplImage* can be allocated
-  clippedFace = new IplImage* [num];
+  try
+  {
+    clippedFace = new IplImage* [num];
+  }
+  catch(bad_alloc&)
+  {
+    boolClipFace_ = false;
+  }
+  
   totalFaceClipNum_ = num;
   clipFaceCounter_ = num;
-  boolClipFace_ = 1;
+  boolClipFace_ = true;
 }
 
 //------------------------------------------------------------------------------
@@ -395,7 +408,7 @@ void detector::stopClipFace()
     if(clippedFace[i] != 0) cvReleaseImage(&clippedFace[i]);
   }
   
-  if (clippedFace != 0) delete[] clippedFace;
+  if(clippedFace != 0) delete[] clippedFace;
 }
 
 //------------------------------------------------------------------------------

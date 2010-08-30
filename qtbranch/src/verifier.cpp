@@ -1,20 +1,41 @@
-#include <verifier.h>
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <stdio.h>
-#include <pwd.h> /* getpwdid */
-#include <sys/time.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include "pam_face_defines.h"
-#include "utils.h"
+/*
+    Verifier class
+    Copyright (C) 2010 Rohan Anil (rohan.anil@gmail.com) -BITS Pilani Goa Campus
+    http://www.pam-face-authentication.org
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, version 3 of the License.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include <iostream>
 #include <list>
 #include <string>
 #include <cctype>
+#include <cstdio>
+
+#include <dirent.h>
+#include <pwd.h> /* getpwdid */
+#include <sys/stat.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include "cv.h"
+#include "pam_face_defines.h"
+#include "utils.h"
+#include "verifier.h"
+
+#define FACE_MACE_SIZE 64
+#define EYE_MACE_SIZE 64
+#define INSIDE_FACE_MACE_SIZE 64
 
 using std::string;
 using std::list;
@@ -52,14 +73,10 @@ verifier::verifier()
 
 }
 
-verifier::~verifier()
-{
-}
-
 //------------------------------------------------------------------------------
-verifier::verifier(uid_t   userID)
+verifier::verifier(uid_t userID)
 {
-    userStruct=getpwuid(userID);
+    userStruct = getpwuid(userID);
     sprintf(facesDirectory,"%s/.pam-face-authentication/faces", userStruct->pw_dir);
     sprintf(modelDirectory,"%s/.pam-face-authentication/model", userStruct->pw_dir);
     sprintf(configDirectory,"%s/.pam-face-authentication/config", userStruct->pw_dir);
@@ -69,9 +86,15 @@ verifier::verifier(uid_t   userID)
 
     //  mkdir(facesDirectory, S_IRWXU );
     //  mkdir(modelDirectory, S_IRWXU );
-//   mkdir(configDirectory, S_IRWXU );
+    //  mkdir(configDirectory, S_IRWXU );
 }
 
+//------------------------------------------------------------------------------
+verifier::~verifier()
+{
+}
+
+//------------------------------------------------------------------------------
 void verifier::createBiometricModels(char* setName=NULL)
 {
     //cvNamedWindow("eyeRight",1);
@@ -380,13 +403,13 @@ void verifier::createBiometricModels(char* setName=NULL)
         {
             cvReleaseImage(&eye[index]);
             cvReleaseImage(&insideFace[index]);
-
-
         }
+
         delete [] eye;
         delete [] insideFace;
 
     }
+    
     delete temp;
 
 }

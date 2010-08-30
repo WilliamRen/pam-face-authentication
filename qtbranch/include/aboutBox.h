@@ -1,22 +1,27 @@
-/** @file */
+#ifndef _INCL_FACE_TRAINER_ABOUT
+#define _INCL_FACE_TRAINER_ABOUT
 
 #include "ui_aboutDialog.h"
+
 /**
 * About Dialog Class. The aboutBox QDialog
 */
 class aboutBox: public QDialog
 {
     Q_OBJECT
-private:
-    /**
-    *UI Object of the Face Trainer Main Window
-    */
-    Ui::aboutDialog ui;
 
-public:
-    /**
-    *The Constructor
-    *Sets up the UI for the Main Window and connect Signals to Slots
-    */
-    aboutBox(QWidget *parent = 0);
+    private:
+        /**
+        * UI object of the face trainer main window
+        */
+        Ui::aboutDialog ui;
+
+    public:
+        /**
+        * The constructor
+        * Sets up the UI for the Main window and connect signals to slots
+        */
+        aboutBox(QWidget *parent = 0);
 };
+
+#endif // _INCL_FACE_TRAINER_ABOUT
