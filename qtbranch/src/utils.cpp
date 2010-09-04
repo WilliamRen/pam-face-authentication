@@ -287,7 +287,7 @@ double LBPCustomDiff(    CvMat* model,    CvMat* test, CvMat * weight)
 }
 
 
-void saveMace(mace * maceFilter,char *path)
+void saveMace(mace* maceFilter, const char* path)
 {
     char fullpath[300];
     sprintf(fullpath,"%s/%s", path,maceFilter->maceFilterName);

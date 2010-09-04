@@ -1,6 +1,7 @@
 #ifndef _INCL_GUARD_VER
 #define _INCL_GUARD_VER
 
+#include <string>
 #include "cv.h"
 #include "highgui.h"
 
@@ -37,7 +38,7 @@ class verifier
     * @result returns a unique string, uses date+time
     * @see addFaceSet
     */
-    char* createSetDir();
+    std::string createSetDir() const;
 
     /**
     * Linux user struct
@@ -48,17 +49,17 @@ class verifier
     /**
     * Contains the path $HOME/.pam-face-authentication/faces
     */
-    char facesDirectory[200];
+    std::string facesDirectory;
     
     /**
     * Contains the Path $HOME/.pam-face-authentication/model
     */
-    char modelDirectory[200];
+    std::string modelDirectory;
     
     /**
     * Contains the Path $HOME/.pam-face-authentication/config
     */
-    char configDirectory[200];
+    std::string configDirectory;
 
     /**
     * The Constructor

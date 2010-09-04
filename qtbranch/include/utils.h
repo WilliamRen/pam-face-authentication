@@ -23,7 +23,7 @@ typedef struct
 *@param maceFilter filter struct
 *@param path Path String to Save
 */
-void saveMace(mace * maceFilter,char *path);
+void saveMace(mace * maceFilter,const char *path);
 
 
 /**

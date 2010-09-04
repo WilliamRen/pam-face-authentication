@@ -203,21 +203,23 @@ faceTrainer::faceTrainer(QWidget *parent)
 
 
 }
+
+//------------------------------------------------------------------------------
 void faceTrainer::about()
 {
-
-
     aboutBox newAboutBox;
     newAboutBox.exec();
 }
+
+//------------------------------------------------------------------------------
 void faceTrainer::showAdvDialog()
 {
-    faceTrainerAdvSettings*    newDialog= new faceTrainerAdvSettings(this,newVerifier.configDirectory);
+    faceTrainerAdvSettings* newDialog = new faceTrainerAdvSettings(
+        this, (char*)newVerifier.configDirectory.c_str());
     newDialog->initConfig();
-    newDialog->sT(&webcam,&newDetector,&newVerifier);
+    newDialog->sT(&webcam, &newDetector, &newVerifier);
     newDialog->exec();
     delete newDialog;
-
 }
 
 

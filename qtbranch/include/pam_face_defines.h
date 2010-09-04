@@ -79,5 +79,5 @@ Rewritten
 #define DISPLAY_ERROR 1
 #define EXIT_GUI 2
 
-
+#define PFA_PATH "/.pam-face-authentication"
 
