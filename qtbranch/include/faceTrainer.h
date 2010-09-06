@@ -21,8 +21,6 @@ class faceTrainer: public QMainWindow
       */
       Ui::faceTrainer ui;
       
-      // opencvWebcamThread* thread;
-      
     private slots:
       /**
       * Slot - Shows the first tab (Instructions tab)

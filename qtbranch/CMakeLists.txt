@@ -9,6 +9,7 @@ endif(EXISTS /lib64/security/)
 PROJECT( PAM_FACE_AUTHENTICATION )
 SET( QT_FACETRAINER_SRCS
      ${CMAKE_SOURCE_DIR}/src/main.cpp
+     ${CMAKE_SOURCE_DIR}/src/faceTrainer.cpp
      ${CMAKE_SOURCE_DIR}/src/faceTrainerAdvSettings.cpp
      ${CMAKE_SOURCE_DIR}/src/opencvWebcam.cpp
      ${CMAKE_SOURCE_DIR}/src/detector.cpp
