@@ -2,114 +2,127 @@
 #define _INCL_FACE_TRAINER
 
 #include "ui_faceTrainer.h"
-#include "faceTrainerAdvSettings.h"
-//#include "opencvWebcamThread.h"
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
 
 /**
-* Face Trainer Class. The Main window used to train the Face.
+* Face Trainer class. The main window used to train the face.
 */
 class faceTrainer: public QMainWindow
 {
     Q_OBJECT
+    
+    private:
+      int timerId;
+        
+      /**
+      * UI object of the face trainer main window
+      */
+      Ui::faceTrainer ui;
+      
+      // opencvWebcamThread* thread;
+      
+    private slots:
+      /**
+      * Slot - Shows the first tab (Instructions tab)
+      */
+      void showTab1();
+      
+      /**
+      * Slot - Shows the second tab (Training tab)
+      */
+      void showTab2();
+      
+      /**
+      * Slot - Shows the last tab (Thank you tab)
+      */
+      void showTab3();
+   
+      /**
+      * Slot - Capture button click
+      */
+      void captureClick();
 
-public:
-    /**
-    *The Constructor
-    *Sets up the UI for the Main Window and connect Signals to Slots
-    */
-    faceTrainer(QWidget *parent = 0);
+      /**
+      * Slot - Shows the about dialog
+      */
+      void about();
+      
+      /**
+      * Slot - Removes the selected set from QList, 
+      * and removes the files on disk as well
+      */
+      void removeSelected();
+      
+      /**
+      * Slot - Shows the advanced settings dialog
+      */
+      void showAdvDialog();
+        
+      // void butClick();
+      
+    protected:
+      /**
+      * timerEvent of MainWindow overload
+      */
+      void timerEvent(QTimerEvent*);      
 
-    /**
-    *OpenCV Webcam Object
-    */
-    opencvWebcam webcam;
-    /**
-    *Detector Object
-    */
-    detector newDetector;
-    /**
-    *Verifier Object
-    */
-    verifier newVerifier;
-    /**
-    *Populates the QList with Face Image Sets in the $HOME/.pam-face-authentication/faces/
-    */
-    void populateQList();
-    /**
-    *Crappy Function i use to test against a set of Images, Ignore it
-    */
-    void verify();
-     /**
-    * Translating messages from detector class
-    *@param int for Message Index
-    */
-    QString getQString(int );
+    public:
+      /**
+      * The constructor
+      * Sets up the UI for the main window and connect signals to slots
+      */
+      faceTrainer(QWidget* parent = 0);
+      
+      /**
+      * The destructor
+      */
+      virtual ~faceTrainer();
 
-private:
+      /**
+      * OpenCV webcam object
+      */
+      opencvWebcam webcam;
+      
+      /**
+      * Detector object
+      */
+      detector newDetector;
+      
+      /**
+      * Verifier object
+      */
+      verifier newVerifier;
+      
+      /**
+      * Populates the QList with Face Image Sets in $HOME/.pam-face-authentication/faces/
+      */
+      void populateQList();
+      
+      /**
+      * Crappy function i use to test against a set of Images, ignore it
+      */
+      void verify();
+      
+      /**
+      * Translating messages from detector class
+      * @param int for Message index
+      */
+      QString getQString(int messageIndex);
 
-    int timerId;
-    /**
-    *UI Object of the Face Trainer Main Window
-    */
-    Ui::faceTrainer ui;
-    //  	opencvWebcamThread * thread;
-protected:
-    /**
-    *timerEvent of MainWindow Overload
-    */
-    void timerEvent( QTimerEvent* );
-
-private slots:
-    /**
-    *Slot - Capture Button Click
-    */
-    void captureClick();
-    /**
-    *Slot - Shows the Last Tab (Thank You Tab)
-    */
-    void showTab3();
-    /**
-    *Slot - Shows the Second Tab (Training Tab)
-    */
-    void showTab2();
-
-    /**
-    *Slot - Shows the First Tab (Instructions Tab)
-    */
-    void showTab1();
-
-    /**
-    *Slot - Shows the About Dialog
-    */
-    void about();
-    /**
-    *Slot - Removes the Selected Set from QList , removes the files on disk as well
-    */
-    void removeSelected();
-    //   void verify();
-
-    /**
-    *Slot - Shows the Advanced Settings Dialog
-    */
-    void showAdvDialog();
-//        void butClick();
-
-
-public slots:
-    /**
-    *Sets the image of QGraphicsView which Displays the Webcam
-    *@param input that needs to be set.
-    */
-
-    void setQImageWebcam(QImage *);
-    /**
-    *Sets the information bar with Message of the current state
-    *@param message The Message that needs to be Set.
-    */
-    void setIbarText(QString message);
+    public slots:
+      /**
+      * Sets the image of QGraphicsView which displays the Webcam
+      * @param input that needs to be set.
+      */
+      void setQImageWebcam(QImage*);
+    
+      /**
+      * Sets the information bar with message of the current state
+      * @param message The Message that needs to be set.
+      */
+      void setIbarText(QString message);
 
 };
 

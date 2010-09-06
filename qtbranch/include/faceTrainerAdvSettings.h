@@ -1,13 +1,14 @@
 #ifndef _INCL_FACE_TRAINER_ADV
 #define _INCL_FACE_TRAINER_ADV
 
+#include <string>
 #include "ui_faceTrainerAdvSettings.h"
 #include "opencvWebcam.h"
 #include "detector.h"
 #include "verifier.h"
 
 /**
-* Face Advanced Settings Class. The QDialog used to Configure Advanced Settings.
+* Face advanced settings class. The QDialog used to configure advanced settings.
 */
 class faceTrainerAdvSettings: public QDialog
 {
@@ -21,9 +22,14 @@ class faceTrainerAdvSettings: public QDialog
 
     private slots:
         /**
-        * SLOT -Saves the Config Values
+        * SLOT - Saves the config values
         */
         void saveClicked();
+        
+        /**
+        * SLOT - Make sure the config is saved upon window closure
+        */
+        void closeEvent(QCloseEvent* event);
         
         /**
         * SLOT - Restore Defaults to the Config Values
@@ -58,12 +64,17 @@ class faceTrainerAdvSettings: public QDialog
         * @param nd Detector Pointer
         * @param nv Verifier Pointer
         */
-        faceTrainerAdvSettings(QWidget* parent = 0, char* config = 0);
+        faceTrainerAdvSettings(QWidget* parent = 0, const std::string config = "");
+        
+        /**
+        * The destructor
+        */
+        virtual ~faceTrainerAdvSettings();
         
         /**
         * Config Directory Path
         */
-        char* configDirectory;
+        std::string configDirectory;
         
         /**
         * Initializes the Ui with Config Data
