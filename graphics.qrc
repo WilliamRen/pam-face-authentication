@@ -1,0 +1,12 @@
+<RCC>
+  <qresource>
+    <file>data/ui/images/webcam.png</file>
+    <file>data/ui/images/bkg.png</file>
+    <file>data/ui/images/intro.png</file>
+    <file>data/ui/images/record.png</file>
+    <file>data/ui/images/about.png</file>
+    <file>data/ui/images/cnc.png</file>
+    <file>data/ui/images/message1.png</file>
+    <file>data/ui/images/pfa-logo.png</file>
+</qresource>
+</RCC>
