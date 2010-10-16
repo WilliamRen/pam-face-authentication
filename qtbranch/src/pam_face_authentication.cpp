@@ -205,6 +205,7 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
     Display* displayScreen;
     FILE* xlock = NULL;
     Window window;
+    Atom wmDeleteMessage;
     struct passwd* userStruct;
 
     int k = 0, s, retval, retValMsg, procnumber = 0, length = 0, enableX = 0;
@@ -322,6 +323,8 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
                 window = XCreateSimpleWindow(displayScreen, 
                     RootWindow(displayScreen, s), xoffset, xoffset, width, height, 1, 0, 0);
                 //XSelectInput(displayScreen, window, ButtonPressMask|ExposureMask);
+                wmDeleteMessage = XInternAtom(displayScreen, "WM_DELETE_WINDOW", false);
+                XSetWMProtocols(displayScreen, window, &wmDeleteMessage, 1);
                 XMapWindow(displayScreen, window);
                 XMoveWindow(displayScreen, window, xoffset, yoffset);
 
@@ -445,7 +448,22 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
             else send_msg(pamh,gettext("Keep proper distance with the camera."));
             
 
-            if(enableX == 1) processEvent(displayScreen, window, width, height, queryImage, s);
+            if(enableX == 1) 
+            {
+                processEvent(displayScreen, window, width, height, queryImage, s);
+                while(XPending(displayScreen))
+                {
+                        XEvent event;
+                        XNextEvent(displayScreen, &event);
+                        if(event.type == ClientMessage && event.xclient.data.l[0] == wmDeleteMessage)
+                        {
+                                send_msg(pamh, (char*)"Shutting down now!");
+                                XDestroyWindow(displayScreen, window);
+                                XCloseDisplay(displayScreen);
+                                return PAM_AUTHINFO_UNAVAIL;
+                        }
+                }
+            }
 
             writeImageToMemory(queryImage, shared);
             cvReleaseImage(&queryImage);
