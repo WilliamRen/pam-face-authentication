@@ -222,10 +222,13 @@ int pam_sm_authenticate(pam_handle_t* pamh, int flags, int argc, const char** ar
     char* xauthpath = getenv("XAUTHORITY");
     char* xauthpathOrig = getenv("XAUTHORITY");
     char X_lock[300], cmdline[300];
+    char local_hostname[50];
 
     // The following lines make sure that the program quits if it's called remotely
+    gethostname(local_hostname, 49);
     retval = pam_get_item(pamh, PAM_RHOST, (const void**)&host);
-    if(host != NULL && host != "localhost") return retval;
+    if(host != NULL && host != "localhost" && strcmp(local_hostname, host)) 
+      return retval;
 
     // Fetch the current user name
     retval = pam_get_user(pamh, &user, NULL);
